@@ -2,6 +2,8 @@
 
 A tool to benchmark Time-series on different databases
 
+Requires .NET 6.x cross-platform framework.
+
 ## How to run
 
 1. Create your workload as `App.config` (case-sensitive) in `BenchmarkTool`.
