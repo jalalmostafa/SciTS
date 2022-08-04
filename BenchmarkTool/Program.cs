@@ -25,7 +25,7 @@ namespace BenchmarkTool
                 Console.WriteLine("Starting...");
                 Log.Information("Application started");
 
-                var action = args != null && args.Length > 0 ? args[0] : "write-batching";
+                var action = args != null && args.Length > 0 ? args[0] : "write";
                 switch (action)
                 {
                     case "populate":
