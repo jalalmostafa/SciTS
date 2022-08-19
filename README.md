@@ -1,4 +1,4 @@
-# ts-bench
+# SciTS
 
 A tool to benchmark Time-series on different databases
 
