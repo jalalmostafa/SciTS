@@ -10,8 +10,6 @@ Please cite our work:
 
 > Mostafa et al. 2022. SciTS: A Benchmark for Time-Series Databases in Scientific Experiments and Industrial Internet of Things. In Proceedings of the 34th International Conference on Scientific and Statistical Database Management (SSDBM 2022).  Association for Computing Machinery, New York, NY, USA. https://doi.org/10.1145/3538712.3538723
 
-The paper is also available on arxiv: https://arxiv.org/abs/2204.09795
-
 ## How to run
 
 1. Create your workload as `App.config` (case-sensitive) in `BenchmarkTool`.
