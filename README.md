@@ -1,5 +1,7 @@
 # SciTS
 
+[![DOI](https://zenodo.org/badge/429005385.svg)](https://zenodo.org/badge/latestdoi/429005385)
+
 A tool to benchmark Time-series on different databases
 
 Requires .NET 6.x cross-platform framework.
