@@ -14,7 +14,7 @@ using BenchmarkTool;
 
 namespace BenchmarkTool.Database
 {
-    public class InfluxDB : IDatabase
+    public class VictoriametricsDB : IDatabase
     {
         private static readonly DateTime EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private InfluxDBClientOptions _options;
@@ -42,7 +42,7 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to close InfluxDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to close VictoriametricsDB. Exception: {0}", ex.ToString()));
             }
         }
 
@@ -52,13 +52,13 @@ namespace BenchmarkTool.Database
             {
                 var t = new TimeSpan(0, 0, 10, 0);
                 _options = new InfluxDBClientOptions.Builder()
-                    .Url(Config.GetInfluxHost())
-                    .AuthenticateToken(Config.GetInfluxToken().ToCharArray())
-                    .Org(Config.GetInfluxOrganization())
-                    .Bucket(Config.GetInfluxBucket())
+                    .Url(Config.GetVictoriametricsHost())
+                    .AuthenticateToken(Config.GetVictoriametricsToken().ToCharArray())
+                    .Org(Config.GetVictoriametricsOrganization())
+                    .Bucket(Config.GetVictoriametricsBucket())
                     .TimeOut(t)
                     .Build();
-                _client = InfluxDBClientFactory.Create(_options);
+                _client = new InfluxDBClient(_options);
 
                 _writeApi = _client.GetWriteApiAsync();
 
@@ -67,7 +67,7 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to initialize InfluxDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to initialize VictoriametricsDB. Exception: {0}", ex.ToString()));
             }
         }
 
@@ -93,7 +93,7 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to execute Out of Range Query on InfluxDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to execute Out of Range Query on VictoriametricsDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 1, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery), ex, ex.ToString());
             }
         }
@@ -120,7 +120,7 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to execute Range Query Aggregated Data on InfluxDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to execute Range Query Aggregated Data on VictoriametricsDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData), ex, ex.ToString());
             }
         }
@@ -146,7 +146,7 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to execute Range Query Raw Data on InfluxDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to execute Range Query Raw Data on VictoriametricsDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0,
                                            query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawData), ex, ex.ToString());
             }
@@ -196,7 +196,7 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to insert batch into InfluxDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to insert batch into VictoriametricsDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString());
             }
         }
@@ -217,7 +217,7 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to insert batch into InfluxDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to insert batch into VictoriametricsDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, 1, Operation.StreamIngestion), ex, ex.ToString());
             }
         }
@@ -242,7 +242,7 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to execute STD Dev query on Influxdb. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to execute STD Dev query on VictoriametricsDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.STDDevQuery), ex, ex.ToString());
             }
         }

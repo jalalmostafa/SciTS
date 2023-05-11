@@ -16,6 +16,8 @@ namespace BenchmarkTool.Database
         {
             switch (_database)
             {
+                case Constants.DatalayertsDBClass:
+                    return new DatalayertsDB();
                 case Constants.TimescaleDBClass:
                     return new TimescaleDB();
                 case Constants.InfluxDBClass:
@@ -26,6 +28,8 @@ namespace BenchmarkTool.Database
                     return new PostgresDB();
                 case Constants.MySQLClass:
                     return new MySQLDB();
+                    case Constants.VictoriametricsDBClass:
+                    return new VictoriametricsDB();
                 default:
                     throw new NotImplementedException();
             }

@@ -45,27 +45,27 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead OutOfRangeQuery(OORangeQuery query)
+        public async Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
         {
             throw new NotImplementedException();
         }
 
-        public QueryStatusRead RangeQueryAgg(RangeQuery rangeQuery)
+        public async Task<QueryStatusRead> RangeQueryAgg(RangeQuery rangeQuery)
         {
             throw new NotImplementedException();
         }
 
-        public QueryStatusRead RangeQueryRaw(RangeQuery rangeQuery)
+        public async Task<QueryStatusRead> RangeQueryRaw(RangeQuery rangeQuery)
         {
             throw new NotImplementedException();
         }
 
-        public QueryStatusRead StandardDevQuery(SpecificQuery query)
+        public async Task<QueryStatusRead> StandardDevQuery(SpecificQuery query)
         {
             throw new NotImplementedException();
         }
 
-        public QueryStatusRead AggregatedDifferenceQuery(ComparisonQuery query)
+        public async Task<QueryStatusRead> AggregatedDifferenceQuery(ComparisonQuery query)
         {
             throw new NotImplementedException();
         }
@@ -74,6 +74,7 @@ namespace BenchmarkTool.Database
         {
             throw new NotImplementedException();
         }
+
 
         public Task<QueryStatusWrite> WriteBatch(Batch batch)
         {
@@ -86,7 +87,7 @@ namespace BenchmarkTool.Database
 
                 foreach (var record in batch.Records)
                 {
-                    Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, record.Value));
+                    Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, record.ValuesArray));
                 }
 
 
@@ -109,5 +110,6 @@ namespace BenchmarkTool.Database
                 return Task.FromResult(new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString()));
             }
         }
+
     }
 }

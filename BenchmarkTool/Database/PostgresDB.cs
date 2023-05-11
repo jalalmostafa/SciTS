@@ -14,11 +14,11 @@ namespace BenchmarkTool.Database
     {
         private NpgsqlConnection _connection;
         private PostgreSQLCopyHelper<IRecord> _copyHelper;
-        private IQuery _query;
+        private IQuery<String> _query;
         private string _connectionConfig;
         private int _aggInterval;
 
-        protected PostgresDB(IQuery query, string connectionConfig)
+        protected PostgresDB(IQuery<String> query, string connectionConfig)
         {
             _query = query;
             _connectionConfig = connectionConfig;
@@ -57,7 +57,7 @@ namespace BenchmarkTool.Database
                 _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
                        .MapTimeStamp(Constants.Time, x => x.Time)
                        .MapInteger(Constants.SensorID, x => x.SensorID)
-                       .MapDouble(Constants.Value, x => x.Value);
+                        .MapArray(Constants.Value, x => x.ValuesArray);
                 _connection.Open();
             }
             catch (Exception ex)
@@ -66,7 +66,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead OutOfRangeQuery(OORangeQuery query)
+        public async Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
         {
             try
             {
@@ -79,13 +79,13 @@ namespace BenchmarkTool.Database
 
                 var points = 0;
                 Stopwatch sw = Stopwatch.StartNew();
-                using NpgsqlDataReader reader = cmd.ExecuteReader();
+                using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
                 while (reader.Read())
                 {
                     points++;
                 }
                 sw.Stop();
-
+await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
             }
             catch (Exception ex)
@@ -96,7 +96,7 @@ namespace BenchmarkTool.Database
         }
 
 
-        public QueryStatusRead AggregatedDifferenceQuery(ComparisonQuery query)
+        public async Task<QueryStatusRead> AggregatedDifferenceQuery(ComparisonQuery query)
         {
             try
             {
@@ -107,14 +107,14 @@ namespace BenchmarkTool.Database
                 cmd.Parameters.AddWithValue(QueryParams.SecondSensorID, NpgsqlTypes.NpgsqlDbType.Integer, query.SecondSensorID);
 
                 Stopwatch sw = Stopwatch.StartNew();
-                using NpgsqlDataReader reader = cmd.ExecuteReader();
+                using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
                 var points = 0;
                 while (reader.Read())
                 {
                     points++;
                 }
                 sw.Stop();
-
+await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.DifferenceAggQuery));
             }
             catch (Exception ex)
@@ -125,7 +125,7 @@ namespace BenchmarkTool.Database
         }
 
 
-        public QueryStatusRead RangeQueryAgg(RangeQuery query)
+        public async Task<QueryStatusRead> RangeQueryAgg(RangeQuery query)
         {
             try
             {
@@ -137,13 +137,13 @@ namespace BenchmarkTool.Database
 
                 var points = 0;
                 Stopwatch sw = Stopwatch.StartNew();
-                using NpgsqlDataReader reader = cmd.ExecuteReader();
+                using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
                 while (reader.Read())
                 {
                     points++;
                 }
                 sw.Stop();
-
+await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
             }
             catch (Exception ex)
@@ -153,7 +153,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead RangeQueryRaw(RangeQuery query)
+        public async Task<QueryStatusRead> RangeQueryRaw(RangeQuery query)
         {
             try
             {
@@ -167,13 +167,13 @@ namespace BenchmarkTool.Database
                 var points = 0;
                 cmd.Prepare();
                 Stopwatch sw = Stopwatch.StartNew();
-                using NpgsqlDataReader reader = cmd.ExecuteReader();
+                using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
                 while (reader.Read())
                 {
                     points++;
                 }
                 sw.Stop();
-
+await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
             catch (Exception ex)
@@ -183,7 +183,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead StandardDevQuery(SpecificQuery query)
+        public async Task<QueryStatusRead> StandardDevQuery(SpecificQuery query)
         {
             try
             {
@@ -193,14 +193,14 @@ namespace BenchmarkTool.Database
                 cmd.Parameters.AddWithValue(QueryParams.SensorID, NpgsqlTypes.NpgsqlDbType.Integer, query.SensorID);
 
                 Stopwatch sw = Stopwatch.StartNew();
-                using NpgsqlDataReader reader = cmd.ExecuteReader();
+                using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
                 var points = 0;
                 while (reader.Read())
                 {
                     points++;
                 }
                 sw.Stop();
-
+await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
             }
             catch (Exception ex)
@@ -214,12 +214,13 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                var stmt = $"INSERT INTO {Constants.TableName} ({Constants.SensorID}, {Constants.Value}, {Constants.Time}) VALUES ({record.SensorID}, {record.Value}, {record.Time})";
+                var stmt = $"INSERT INTO {Constants.TableName} ({Constants.SensorID}, {Constants.Value}, {Constants.Time}) VALUES ({record.SensorID}, {record.ValuesArray}, {record.Time})";
                 await using (var cmd = new NpgsqlCommand(stmt, _connection))
                 {
                     Stopwatch sw = Stopwatch.StartNew();
                     await cmd.ExecuteNonQueryAsync();
                     sw.Stop();
+
                     return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, 1, 0, Operation.StreamIngestion));
                 }
             }
@@ -235,7 +236,7 @@ namespace BenchmarkTool.Database
             try
             {
                 Stopwatch sw = Stopwatch.StartNew();
-                await _copyHelper.SaveAllAsync(_connection, batch.Records);
+                await _copyHelper.SaveAllAsync(_connection, batch.Records); // TODO hier schickt er noch den PolyDIM value mit
                 sw.Stop();
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
             }
@@ -244,6 +245,15 @@ namespace BenchmarkTool.Database
                 Log.Error(String.Format("Failed to insert batch. Exception: {0}", ex.ToString()));
                 return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString());
             }
+        }
+
+        public async Task Print(object result, string query, bool enabled)
+        {
+            if(enabled == true)
+            while (((NpgsqlDataReader) result).Read())
+                {
+                   await Console.Out.WriteLineAsync(" read | " + result.ToString() + " at " + result.ToString() + "in: " + result.ToString() + "from Query:| " + query); 
+                }
         }
     }
 }

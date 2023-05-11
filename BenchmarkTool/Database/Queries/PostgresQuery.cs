@@ -2,7 +2,7 @@ using System;
 
 namespace BenchmarkTool.Database.Queries
 {
-    public class PostgresQuery : IQuery
+    public class PostgresQuery : IQuery<String>
     {
         private static string _rangeAgg = @"SELECT date_trunc('hour', {1}) AS time_agg, sensor_id, avg({2}) FROM {3}
                                             where {1} >= {4} and {1} <= {5} and {6} = ANY({7}) group by time_agg, sensor_id";
@@ -22,15 +22,15 @@ namespace BenchmarkTool.Database.Queries
                                                     (SELECT date_trunc('hour', {1}) AS time_agg , avg({2}) as val FROM {3}
                                                         where {1} >= {4} and {1} <= {5} and {6} = {8} group by time_agg)A2
                                                 On A1.time_agg = A2.time_agg";
-        public string RangeAgg => String.Format(_rangeAgg, Config.GetAggregationInterval(), Constants.Time, Constants.Value, Constants.TableName, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
+        public String RangeAgg => String.Format(_rangeAgg, Config.GetAggregationInterval(), Constants.Time, Constants.Value, Constants.TableName, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
 
-        public string RangeRaw => String.Format(_rangeRaw, Constants.TableName, Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
+        public String RangeRaw => String.Format(_rangeRaw, Constants.TableName, Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
 
-        public string OutOfRange => String.Format(_outOfRange, Config.GetAggregationInterval(), Constants.Time, Constants.Value, Constants.TableName, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDParam, QueryParams.MinValParam, QueryParams.MaxValParam);
+        public String OutOfRange => String.Format(_outOfRange, Config.GetAggregationInterval(), Constants.Time, Constants.Value, Constants.TableName, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDParam, QueryParams.MinValParam, QueryParams.MaxValParam);
 
-        public string StdDev => String.Format(_stdDev, Constants.Value, Constants.TableName, Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDParam);
+        public String StdDev => String.Format(_stdDev, Constants.Value, Constants.TableName, Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDParam);
 
-        public string AggDifference => String.Format(_aggDifference, Config.GetAggregationInterval(), Constants.Time, Constants.Value, Constants.TableName, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.FirstSensorIDParam, QueryParams.SecondSensorIDParam);
+        public String AggDifference => String.Format(_aggDifference, Config.GetAggregationInterval(), Constants.Time, Constants.Value, Constants.TableName, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.FirstSensorIDParam, QueryParams.SecondSensorIDParam);
 
     }
 }

@@ -1,16 +1,18 @@
+using BenchmarkTool.Queries;
+
 namespace BenchmarkTool.Database.Queries
 {
-    public interface IQuery
+    public interface IQuery<T> 
     {
-        string RangeAgg { get; }
+        T RangeAgg { get; }
+  
+        T RangeRaw  { get; }//(RangeQuery query)
 
-        string RangeRaw { get; }
+        T OutOfRange { get; }
 
-        string OutOfRange { get; }
+        T StdDev { get; }
 
-        string StdDev { get; }
-
-        string AggDifference { get; }
+        T AggDifference { get; }
 
     }
 }

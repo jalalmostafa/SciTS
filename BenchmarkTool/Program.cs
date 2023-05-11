@@ -25,7 +25,7 @@ namespace BenchmarkTool
                 Console.WriteLine("Starting...");
                 Log.Information("Application started");
 
-                var action = args != null && args.Length > 0 ? args[0] : "write";
+                var action = args != null && args.Length > 0 ? args[0] : "read";
                 switch (action)
                 {
                     case "populate":
@@ -38,6 +38,13 @@ namespace BenchmarkTool
 
                     case "write":
                         await Batching(true);
+                        break;
+                    case "consecutive": // TODO 
+                        await Batching(true);
+                        await BenchmarkReadData(); 
+                        break;
+                    case "concurrent":
+                        await Task.WhenAll( new Task[]{Batching(true),BenchmarkReadData()} );
                         break;
 
                     default:
@@ -53,13 +60,16 @@ namespace BenchmarkTool
             }
         }
 
-        private static Task<List<QueryStatusWrite>> RunQueryTask(ClientWrite client)
+        private async static Task<List<QueryStatusWrite>> RunIngestionTask(ClientWrite client)
         {
-            return client.RunQuery();
+            return await client.RunIngestion();
         }
+
+        
 
         private async static Task Batching(bool log)
         {
+
 
             var resultsLogger = new CsvLogger<LogRecordWrite>();
 
@@ -69,26 +79,26 @@ namespace BenchmarkTool
             var daySpan = Config.GetDaySpan();
             int loop = 0;
 
-            foreach (var clientsNb in clientNumberArray)
+            foreach (var totalClientsNb in clientNumberArray)
             {
                 foreach (var batchSize in batchSizeArray)
                 {
                     var date = Config.GetStartTime().AddDays(loop * daySpan);
                     var clients = new List<ClientWrite>();
-                    for (var i = 0; i < clientsNb; i++)
+                    for (var chosenClientIndex = 1; chosenClientIndex <= totalClientsNb; chosenClientIndex++)
                     {
-                        clients.Add(new ClientWrite(i, clientsNb, sensorsNb, batchSize, date));
+                        clients.Add(new ClientWrite(chosenClientIndex, totalClientsNb, sensorsNb, batchSize, date));
                     }
-                    var glances = new GlancesStarter(Operation.BatchIngestion, clientsNb, batchSize, sensorsNb);
+                    var glances = new GlancesStarter(Operation.BatchIngestion, totalClientsNb, batchSize, sensorsNb);
                     glances.BeginMonitor();
-                    var results = await clients.ParallelForEachAsync(RunQueryTask, clientsNb);
+                    var results = await clients.ParallelForEachAsync(RunIngestionTask, totalClientsNb);
                     if (log)
                     {
                         glances.Commit();
                         foreach (var result in results)
                         {
                             var record = result.PerformanceMetric.ToLogRecord(
-                                result.Timestamp, batchSize, clientsNb, sensorsNb,
+                                result.Timestamp, batchSize, totalClientsNb, sensorsNb,
                                 result.Client, result.Iteration);
                             resultsLogger.WriteRecord(record);
                         }

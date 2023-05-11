@@ -5,6 +5,14 @@ namespace BenchmarkTool
 {
     public class Config
     {
+        public static bool GetPrintModeEnabled()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.PrintModeEnabled];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.PrintModeEnabled));
+            bool.TryParse(val, out bool print);
+            return print;
+        }
         public static DateTime GetStartTime()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.StartTime];
@@ -22,7 +30,14 @@ namespace BenchmarkTool
             int.TryParse(val, out int sensors);
             return sensors;
         }
-
+        public static int GetDataDimensionsNr()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DataDimensionsNr];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DataDimensionsNr));
+            int.TryParse(val, out int sensors);
+            return sensors;
+        }
         public static int GetTestRetries()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.TestRetries];
@@ -48,6 +63,35 @@ namespace BenchmarkTool
             return val;
         }
 
+        public static string GetDatalayertsConnection()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DatalayertsConnection];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DatalayertsConnection));
+            return val;
+        }
+        public static string GetDatalayertsUser()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DatalayertsUser];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DatalayertsUser));
+            return val;
+        }
+        public static string GetDatalayertsPassword()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DatalayertsPassword];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DatalayertsPassword));
+            return val;
+        }
+        public static int GetDatalayertsScaleMilliseconds()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DatalayertsScaleMilliseconds];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DatalayertsPassword));
+            int.TryParse(val, out int intVal);
+            return intVal;
+        }
         public static string GetTimescaleConnection()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.TimescaleConnection];
@@ -103,6 +147,37 @@ namespace BenchmarkTool
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.InfluxDBOrganization));
             return val;
         }
+        public static string GetVictoriametricsHost()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.VictoriametricsDBHost];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.VictoriametricsDBHost));
+            return val;
+        }
+
+        public static string GetVictoriametricsToken()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.VictoriametricsDBToken];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.VictoriametricsDBToken));
+            return val;
+        }
+
+        public static string GetVictoriametricsBucket()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.VictoriametricsDBBucket];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.VictoriametricsDBBucket));
+            return val;
+        }
+
+        public static string GetVictoriametricsOrganization()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.VictoriametricsDBOrganization];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.VictoriametricsDBOrganization));
+            return val;
+        }
 
         public static string GetClickhouseHost()
         {
@@ -142,6 +217,13 @@ namespace BenchmarkTool
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.QueryType];
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.QueryType));
+            return val;
+        }
+        public static string GetIngestionType()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.IngestionType];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.IngestionType));
             return val;
         }
 

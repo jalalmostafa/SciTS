@@ -3,7 +3,7 @@ using System;
 
 namespace BenchmarkTool.Generators
 {
-    public class RecordInflux : IRecord
+    public class RecordVictoriametrics : IRecord
     {
         public int SensorID { get; set; }
         public bool polyDim { get; }
@@ -15,13 +15,13 @@ namespace BenchmarkTool.Generators
         {
             return ValuesArray[1];
         }
-        public RecordInflux(int sensorId, DateTime timestamp, float value)
+        public RecordVictoriametrics(int sensorId, DateTime timestamp, float value)
         {
             SensorID = sensorId;
             Time = TimeZoneInfo.ConvertTimeToUtc(timestamp);
             Value = value;
         }
-        public RecordInflux(int sensorId, DateTime timestamp, float[] values)
+        public RecordVictoriametrics(int sensorId, DateTime timestamp, float[] values)
         {
             SensorID = sensorId;
             Time = TimeZoneInfo.ConvertTimeToUtc(timestamp);

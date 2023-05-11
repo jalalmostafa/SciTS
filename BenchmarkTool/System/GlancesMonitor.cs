@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using BenchmarkTool.System.Metrics;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
+using Newtonsoft.Json;
 
 namespace BenchmarkTool.System
 {
@@ -17,43 +18,44 @@ namespace BenchmarkTool.System
 
         public GlancesMonitor(string baseUrl)
         {
-            _client = new RestClient(baseUrl)
-                        .UseNewtonsoftJson();
+            _client = new RestClient( new RestClientOptions( baseUrl) )     ; // nwetonsoftJson? TODO
+                     
+
         }
 
         public Task<Cpu> GetCpuAsync()
         {
-            var request = new RestRequest("/api/3/cpu", DataFormat.Json);
+            var request = new RestRequest("/api/3/cpu");
             return _client.GetAsync<Cpu>(request, _cancellationTokenSource.Token);
         }
 
         public Task<List<DiskIO>> GetDiskIOAsync()
         {
-            var request = new RestRequest("/api/3/diskio", DataFormat.Json);
+            var request = new RestRequest("/api/3/diskio");
             return _client.GetAsync<List<DiskIO>>(request, _cancellationTokenSource.Token);
         }
 
         public Task<Memory> GetMemoryAsync()
         {
-            var request = new RestRequest("/api/3/mem", DataFormat.Json);
+            var request = new RestRequest("/api/3/mem");
             return _client.GetAsync<Memory>(request, _cancellationTokenSource.Token);
         }
 
         public Task<Swap> GetSwapAsync()
         {
-            var request = new RestRequest("/api/3/memswap", DataFormat.Json);
+            var request = new RestRequest("/api/3/memswap");
             return _client.GetAsync<Swap>(request, _cancellationTokenSource.Token);
         }
 
         public Task<List<Network>> GetNetworkAsync()
         {
-            var request = new RestRequest("/api/3/network", DataFormat.Json);
+            var request = new RestRequest("/api/3/network");
             return _client.GetAsync<List<Network>>(request, _cancellationTokenSource.Token);
         }
 
         public Task<DatabaseProcess> GetDatabaseProcessAsync(int pid)
         {
-            var request = new RestRequest($"/api/3/processlist/pid/{pid}", DataFormat.Json);
+            var request = new RestRequest($"/api/3/processlist/pid/{pid}");
             return _client.GetAsync<DatabaseProcess>(request, _cancellationTokenSource.Token);
         }
 

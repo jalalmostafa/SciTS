@@ -37,7 +37,7 @@ namespace BenchmarkTool
             }
         }
 
-        public Task<List<QueryStatusRead>> RunQuery()
+        public async Task<List<QueryStatusRead>> RunQuery()
         {
             int loop = Config.GetTestRetries();
             var sensorsFilter = Config.GetSensorsFilter();
@@ -58,7 +58,7 @@ namespace BenchmarkTool
                         Log.Information("Executing Range Raw Query");
                         var startDate = GetRandomDateTime();
                         var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
-                        var status = _targetDb.RangeQueryRaw(query);
+                        var status = await _targetDb.RangeQueryRaw(query);
                         status.Iteration = i;
                         statuses.Add(status);
                     }
@@ -69,7 +69,7 @@ namespace BenchmarkTool
                         Log.Information("Executing Range Aggregared Query");
                         var startDate = GetRandomDateTime();
                         var aggQuery = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
-                        var status = _targetDb.RangeQueryAgg(aggQuery);
+                        var status = await _targetDb.RangeQueryAgg(aggQuery);
                         status.Iteration = i;
                         statuses.Add(status);
                     }
@@ -80,7 +80,7 @@ namespace BenchmarkTool
                         Log.Information("Executing Out of Range Query");
                         var startDate = GetRandomDateTime();
                         var oorangeQuery = new OORangeQuery(startDate, _minutes, sensorId, maxValue, minValue);
-                        var status = _targetDb.OutOfRangeQuery(oorangeQuery);
+                        var status = await _targetDb.OutOfRangeQuery(oorangeQuery);
                         status.Iteration = i;
                         statuses.Add(status);
                     }
@@ -91,7 +91,7 @@ namespace BenchmarkTool
                         Log.Information("Executing Agg Difference Query");
                         var startDate = GetRandomDateTime();
                         var comparisonQuery = new ComparisonQuery(startDate, _minutes, firstSensorId, secondSensorId);
-                        var status = _targetDb.AggregatedDifferenceQuery(comparisonQuery);
+                        var status = await _targetDb.AggregatedDifferenceQuery(comparisonQuery);
                         status.Iteration = i;
                         statuses.Add(status);
                     }
@@ -101,7 +101,7 @@ namespace BenchmarkTool
                     {
                         Log.Information("Executing Standard Deviation Query");
                         var startDate = GetRandomDateTime();
-                        var status = _targetDb.StandardDevQuery(new SpecificQuery(startDate, _minutes, secondSensorId));
+                        var status = await _targetDb.StandardDevQuery(new SpecificQuery(startDate, _minutes, secondSensorId));
                         status.Iteration = i;
                         statuses.Add(status);
                     }
@@ -112,7 +112,7 @@ namespace BenchmarkTool
 
             _targetDb.Cleanup();
             _targetDb.Close();
-            return Task.FromResult(statuses);
+            return statuses;
         }
 
         private DateTime GetRandomDateTime() {

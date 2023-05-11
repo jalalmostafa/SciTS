@@ -2,13 +2,13 @@
 
 namespace BenchmarkTool.Generators
 {
-    public class Batch
+    public class Timeline
     {
-        public Batch (){
+        public Timeline (){
             Records = new List<IRecord>();
         }
 
-        public Batch(int size)
+        public Timeline(int size)
         {
             Size = size;
             Records = new List<IRecord>();

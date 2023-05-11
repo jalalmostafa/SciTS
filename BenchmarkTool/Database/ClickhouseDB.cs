@@ -1,4 +1,6 @@
-﻿using ClickHouse.Ado;
+﻿// using ClickHouse.Ado; deprecated, doesnt support Async
+using ClickHouse.Client.ADO;  
+using ClickHouse.Client.Utility;
 using Serilog;
 using System;
 using System.Threading.Tasks;
@@ -11,8 +13,8 @@ namespace BenchmarkTool.Database
 {
     public class ClickhouseDB : IDatabase
     {
-        private ClickHouseConnection _connection;
-        private IQuery _query;
+        private ClickHouse.Client.ADO.ClickHouseConnection _connection;
+        private IQuery<String> _query;
         private int _aggInterval;
 
         public void Cleanup()
@@ -28,6 +30,7 @@ namespace BenchmarkTool.Database
             {
                 if (_connection != null)
                     _connection.Close();
+
             }
             catch (Exception ex)
             {
@@ -39,7 +42,12 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                var settings = new ClickHouseConnectionSettings()
+                
+                _connection = new ClickHouse.Client.ADO.ClickHouseConnection("Host="+Config.GetClickhouseHost()+";Protocol=https;Port="+Config.GetClickhousePort()+";Username="+Config.GetClickhouseUser()); // new ClickHouseConnection(settings);
+                _connection.ChangeDatabase(Config.GetClickhouseDatabase());
+                _connection.OpenAsync();
+
+                  var settings = new ClickHouse.Ado.ClickHouseConnectionSettings()
                 {
                     Host = Config.GetClickhouseHost(),
                     Port = Config.GetClickhousePort(),
@@ -47,8 +55,7 @@ namespace BenchmarkTool.Database
                     User = Config.GetClickhouseUser(),
                     SocketTimeout = 5000
                 };
-                _connection = new ClickHouseConnection(settings);
-                _connection.Open();
+
                 _query = new ClickhouseQuery();
                 _aggInterval = Config.GetAggregationInterval();
             }
@@ -58,7 +65,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead OutOfRangeQuery(OORangeQuery query)
+        public  async Task<QueryStatusRead>  OutOfRangeQuery(OORangeQuery query)
         {
             int points = 0;
             try
@@ -75,8 +82,11 @@ namespace BenchmarkTool.Database
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = cmd.ExecuteReader();
-                reader.ReadAll(rowReader => { points++; });
+                var reader = await cmd.ExecuteReaderAsync();
+                 while (reader.Read())
+                {
+                    points++;
+                }
                 sw.Stop();
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
@@ -88,7 +98,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead RangeQueryAgg(RangeQuery query)
+        public  async Task<QueryStatusRead>  RangeQueryAgg(RangeQuery query)
         {
             int points = 0;
             try
@@ -103,8 +113,11 @@ namespace BenchmarkTool.Database
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = cmd.ExecuteReader();
-                reader.ReadAll(rowReader => { points++; });
+                var reader = await cmd.ExecuteReaderAsync();
+                 while (reader.Read())
+                {
+                    points++;
+                }
                 sw.Stop();
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
@@ -116,7 +129,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead RangeQueryRaw(RangeQuery query)
+        public  async Task<QueryStatusRead>  RangeQueryRaw(RangeQuery query)
         {
             int points = 0;
             try
@@ -130,8 +143,11 @@ namespace BenchmarkTool.Database
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = cmd.ExecuteReader();
-                reader.ReadAll(rowReader => { points++; });
+                var reader = await cmd.ExecuteReaderAsync();
+                 while (reader.Read())
+                {
+                    points++;
+                }
                 sw.Stop();
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawData));
@@ -143,7 +159,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead AggregatedDifferenceQuery(ComparisonQuery query)
+        public  async Task<QueryStatusRead>  AggregatedDifferenceQuery(ComparisonQuery query)
         {
             int points = 0;
             try
@@ -159,8 +175,11 @@ namespace BenchmarkTool.Database
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = cmd.ExecuteReader();
-                reader.ReadAll(rowReader => { points++; });
+                var reader = await cmd.ExecuteReaderAsync();
+                 while (reader.Read())
+                {
+                    points++;
+                }
                 sw.Stop();
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.DifferenceAggQuery));
             }
@@ -171,7 +190,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead StandardDevQuery(SpecificQuery query)
+        public  async Task<QueryStatusRead>  StandardDevQuery(SpecificQuery query)
         {
             int points = 0;
             try
@@ -185,8 +204,11 @@ namespace BenchmarkTool.Database
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = cmd.ExecuteReader();
-                reader.ReadAll(rowReader => { points++; });
+                var reader = await cmd.ExecuteReaderAsync();
+                 while (reader.Read())
+                {
+                    points++;
+                }
                 sw.Stop();
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
             }
@@ -197,53 +219,43 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public Task<QueryStatusWrite> WriteBatch(Batch batch)
+        public async Task<QueryStatusWrite> WriteBatch(Batch batch)
         {
             try
-            {
+            { 
                 var command = _connection.CreateCommand();
 
-                command.CommandText = String.Format("INSERT INTO {0} ({1}, {2}, {3}) VALUES @bulk", Constants.TableName, Constants.SensorID, Constants.Value, Constants.Time);
-                command.Parameters.Add(new ClickHouseParameter
-                {
-                    ParameterName = "bulk",
-                    Value = batch.Records
-                });
+                command.CommandText = String.Format("INSERT INTO {0} ({1}, {2}, {3}) VALUES "+batch.Records, Constants.TableName, Constants.SensorID, Constants.Value, Constants.Time);
 
                 Stopwatch sw = Stopwatch.StartNew();
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
                 sw.Stop();
-                return Task.FromResult(new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion)));
+                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
             }
             catch (Exception ex)
             {
                 Log.Error(String.Format("Failed to insert batch into Clickhouse. Exception: {0}", ex.ToString()));
-                return Task.FromResult(new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString()));
+                return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString());
             }
         }
 
-        public Task<QueryStatusWrite> WriteRecord(IRecord record)
+        public async Task<QueryStatusWrite> WriteRecord(IRecord record)
         {
             try
             {
                 var command = _connection.CreateCommand();
 
-                command.CommandText = String.Format("INSERT INTO {0} ({1}, {2}, {3}) VALUES @record", Constants.TableName, Constants.SensorID, Constants.Value, Constants.Time);
-                command.Parameters.Add(new ClickHouseParameter
-                {
-                    ParameterName = "record",
-                    Value = record
-                });
+                command.CommandText = String.Format("INSERT INTO {0} ({1}, {2}, {3}) VALUES "+record, Constants.TableName, Constants.SensorID, Constants.Value, Constants.Time);
 
                 Stopwatch sw = Stopwatch.StartNew();
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
                 sw.Stop();
-                return Task.FromResult(new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, 1, 0, Operation.StreamIngestion)));
+                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, 1, 0, Operation.StreamIngestion));
             }
             catch (Exception ex)
             {
                 Log.Error(String.Format("Failed to insert batch into Clickhouse. Exception: {0}", ex.ToString()));
-                return Task.FromResult(new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, 1, Operation.StreamIngestion), ex, ex.ToString()));
+                return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, 1, Operation.StreamIngestion), ex, ex.ToString());
             }
         }
     }

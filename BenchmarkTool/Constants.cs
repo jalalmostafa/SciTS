@@ -8,7 +8,9 @@
         public const string SensorID = "sensor_id";
         public const string Value = "value";
         public const string Time = "time";
+                public const string VictoriametricsDBClass = "VictoriametricsDB";
 
+        public const string DatalayertsDBClass = "DatalayertsDB";
         public const string TimescaleDBClass = "TimescaleDB";
         public const string InfluxDBClass = "InfluxDB";
         public const string ClickhouseClass = "ClickhouseDB";

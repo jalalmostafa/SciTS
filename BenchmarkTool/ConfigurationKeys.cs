@@ -6,7 +6,12 @@ namespace BenchmarkTool
 {
     static class ConfigurationKeys
     {
+        public const string PrintModeEnabled = "PrintModeEnabled";
         public const string PostgresConnection = "PostgresConnection";
+        public const string DatalayertsConnection = "DatalayertsConnection";
+        public const string DatalayertsUser = "DatalayertsUser";
+        public const string DatalayertsPassword = "DatalayertsPassword";
+        public const string DatalayertsScaleMilliseconds = "DatalayertsScaleMilliseconds";
         public const string TimescaleConnection = "TimescaleConnection";
         public const string MySQLConnection = "MySQLConnection";
 
@@ -14,6 +19,7 @@ namespace BenchmarkTool
         public const string BatchSize = "BatchSize";
         public const string ClientNumber = "ClientNumber";
         public const string SensorNumber = "SensorNumber";
+        public const string DataDimensionsNr = "DataDimensionsNr";
         public const string StartTime = "StartTime";
         public const string BatchTimeOffset = "BatchTimeOffset";
         public const string GlobalTimeOffset = "GlobalTimeOffset";
@@ -27,6 +33,13 @@ namespace BenchmarkTool
         public const string ClickhousePort = "ClickhousePort";
         public const string ClickhouseUser = "ClickhouseUser";
         public const string ClickhouseDatabase = "ClickhouseDatabase";
+        public const string VictoriametricsDBHost = "VictoriametricsDBHost";
+        public const string VictoriametricsDBToken = "VictoriametricsDBToken";
+        public const string VictoriametricsDBBucket = "VictoriametricsDBBucket";
+        public const string VictoriametricsDBOrganization = "VictoriametricsDBOrganization";
+
+        public const string IngestionType = "IngestionType";
+
         public const string QueryType = "QueryType";
         public const string TimescaleDBRangeQuery = "TimescaleDBRangeQuery";
         public const string AggregationFunction = "AggregationFunction";
