@@ -395,3 +395,4 @@ FodyWeavers.xsd
 *.csv
 BenchmarkTool/App.config
 Results/
+history.md
