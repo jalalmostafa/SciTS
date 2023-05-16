@@ -58,7 +58,7 @@ namespace BenchmarkTool.Database
                     .Bucket(Config.GetInfluxBucket())
                     .TimeOut(t)
                     .Build();
-                _client = InfluxDBClientFactory.Create(_options);
+                _client = new InfluxDBClient(_options);
 
                 _writeApi = _client.GetWriteApiAsync();
 

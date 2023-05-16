@@ -1,5 +1,6 @@
 ﻿using MySqlConnector;
 using System;
+using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using System.Data;
@@ -70,7 +71,7 @@ namespace BenchmarkTool.Database
 
                 foreach (var record in batch.Records)
                 {
-                    Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, record.ValuesArray));
+                    Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID,   string.Join(",", record.ValuesArray.Select(x => x.ToString()).ToArray())   ));
                 }
 
 
@@ -81,7 +82,7 @@ namespace BenchmarkTool.Database
                  
                 
                     sw.Start();
-                 await  File.AppendAllTextAsync( "/tmp/dummy.txt", sCommand.ToString() );
+                 await  File.AppendAllTextAsync( "/tmp/dummy_"+DateTime.Now.Day.ToString()+".txt", sCommand.ToString() );
                     sw.Stop();
                  
 

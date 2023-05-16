@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using CsvHelper;
 using Serilog;
-using BenchmarkTool;
 
 namespace BenchmarkTool.System.Metrics
 {
