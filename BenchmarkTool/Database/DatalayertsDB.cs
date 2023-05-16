@@ -338,7 +338,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public async Task Print(object readResult, string type, bool enabled)
+        public  Task Print(object readResult, string type, bool enabled)
         {
             throw new NotImplementedException();
         }

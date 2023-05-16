@@ -26,9 +26,11 @@ namespace BenchmarkTool.Database
                     return new ClickhouseDB();
                 case Constants.PostgresClass:
                     return new PostgresDB();
+                case Constants.DummyClass:
+                    return new DummyDB();
                 case Constants.MySQLClass:
                     return new MySQLDB();
-                    case Constants.VictoriametricsDBClass:
+                case Constants.VictoriametricsDBClass:
                     return new VictoriametricsDB();
                 default:
                     throw new NotImplementedException();

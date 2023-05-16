@@ -16,5 +16,6 @@
         public const string ClickhouseClass = "ClickhouseDB";
         public const string MySQLClass = "MySQLDB";
         public const string PostgresClass = "PostgresDB";
+        public const string DummyClass = "DummyDB";
     }
 }
