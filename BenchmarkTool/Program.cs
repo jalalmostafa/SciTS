@@ -39,7 +39,7 @@ namespace BenchmarkTool
                     case "write":
                         await Batching(true);
                         break;
-                    case "consecutive": // TODO 
+                    case "consecutive": 
                         await Batching(true);
                         await BenchmarkReadData(); 
                         break;

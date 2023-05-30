@@ -226,6 +226,14 @@ namespace BenchmarkTool
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.IngestionType));
             return val;
         }
+        public static string GetMultiDimensionStorageType()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.MultiDimensionStorageType];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.MultiDimensionStorageType));
+            return val;
+        }
+        
 
         public static int GetAggregationInterval()
         {

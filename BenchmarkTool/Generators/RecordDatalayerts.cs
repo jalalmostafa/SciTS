@@ -9,21 +9,22 @@ namespace BenchmarkTool.Generators
         {
             SensorID = sensorId;
             Time = timestamp;
-            Value = value;
+            // Value = value;
+            ValuesArray[0] = value;
         }
         public RecordDatalayerts(int sensorId, DateTime timestamp, float[] values)
         {
             SensorID = sensorId;
             Time = timestamp;
             ValuesArray = values;
-            polyDim = true;
+            // polyDim = true;
         }
         float getFirstValue(){
-            return ValuesArray[1];
+            return ValuesArray[0];
         }
          public float[] ValuesArray { get; set; }
          public float Value { get; set; }
-         public bool polyDim { get;  }
+        //  public bool polyDim { get;  }
 
         public int SensorID { get; set; }
 
@@ -34,10 +35,10 @@ namespace BenchmarkTool.Generators
             yield return SensorID;
 
             yield return Time;
-            if (polyDim == true)
+            // if (polyDim == true)
                 yield return ValuesArray;
-            else
-                yield return Value;
+            // else
+            //     yield return Value;
         }
 
     }

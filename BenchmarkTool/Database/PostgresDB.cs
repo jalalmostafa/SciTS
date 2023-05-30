@@ -54,10 +54,108 @@ namespace BenchmarkTool.Database
             try
             {
                 _connection = new NpgsqlConnection(_connectionConfig);
-                _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
-                       .MapTimeStamp(Constants.Time, x => x.Time)
-                       .MapInteger(Constants.SensorID, x => x.SensorID)
-                        .MapArray(Constants.Value, x => x.ValuesArray);
+
+                if (Config.GetMultiDimensionStorageType() == "column")
+                {
+                    switch (Config.GetDataDimensionsNr())
+                    {
+                        case 2:
+                            _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
+                                .MapTimeStamp(Constants.Time, x => x.Time)
+                                .MapInteger(Constants.SensorID, x => x.SensorID)
+                                .MapReal(Constants.Value+"_2", x => x.ValuesArray[1]);
+                                
+                            break;
+                        case 3:
+                            _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
+                                .MapTimeStamp(Constants.Time, x => x.Time)
+                                .MapInteger(Constants.SensorID, x => x.SensorID)
+                                .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
+                                .MapReal(Constants.Value+"_3", x => x.ValuesArray[2]);
+                            break;
+                        case 4:
+                            _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
+                                .MapTimeStamp(Constants.Time, x => x.Time)
+                                .MapInteger(Constants.SensorID, x => x.SensorID)
+                                .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
+                                .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
+                                .MapReal(Constants.Value+"_4", x => x.ValuesArray[3]);
+                            break;
+                        case 5:
+                            _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
+                                .MapTimeStamp(Constants.Time, x => x.Time)
+                                .MapInteger(Constants.SensorID, x => x.SensorID)
+                                .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
+                                .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
+                                .MapReal(Constants.Value+"_4", x => x.ValuesArray[3])
+                                .MapReal(Constants.Value+"_5", x => x.ValuesArray[4]);
+                            break;
+                        case 6:
+                            _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
+                                .MapTimeStamp(Constants.Time, x => x.Time)
+                                .MapInteger(Constants.SensorID, x => x.SensorID)
+                                .MapReal(Constants.Value, x => x.ValuesArray[0])
+                                .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
+                                .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
+                                .MapReal(Constants.Value+"_4", x => x.ValuesArray[3])
+                                .MapReal(Constants.Value+"_5", x => x.ValuesArray[4])
+                                .MapReal(Constants.Value+"_6", x => x.ValuesArray[5]);
+                            break;
+                        case 7:
+                            _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
+                                .MapTimeStamp(Constants.Time, x => x.Time)
+                                .MapInteger(Constants.SensorID, x => x.SensorID)
+                                .MapReal(Constants.Value, x => x.ValuesArray[0])
+                                .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
+                                .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
+                                .MapReal(Constants.Value+"_4", x => x.ValuesArray[3])
+                                .MapReal(Constants.Value+"_5", x => x.ValuesArray[4])
+                                .MapReal(Constants.Value+"_6", x => x.ValuesArray[5])
+                                .MapReal(Constants.Value+"_7", x => x.ValuesArray[6]);
+                            break;
+                        case 8:
+                            _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
+                                .MapTimeStamp(Constants.Time, x => x.Time)
+                                .MapInteger(Constants.SensorID, x => x.SensorID)
+                                .MapReal(Constants.Value, x => x.ValuesArray[0])
+                                .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
+                                .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
+                                .MapReal(Constants.Value+"_4", x => x.ValuesArray[3])
+                                .MapReal(Constants.Value+"_5", x => x.ValuesArray[4])
+                                .MapReal(Constants.Value+"_6", x => x.ValuesArray[5])
+                                .MapReal(Constants.Value+"_7", x => x.ValuesArray[6])
+                                .MapReal(Constants.Value+"_8", x => x.ValuesArray[7]);
+                            break;
+                        case 9:
+                            _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
+                                .MapTimeStamp(Constants.Time, x => x.Time)
+                                .MapInteger(Constants.SensorID, x => x.SensorID)
+                                .MapReal(Constants.Value, x => x.ValuesArray[0])
+                                .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
+                                .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
+                                .MapReal(Constants.Value+"_4", x => x.ValuesArray[3])
+                                .MapReal(Constants.Value+"_5", x => x.ValuesArray[4])
+                                .MapReal(Constants.Value+"_6", x => x.ValuesArray[5])
+                                .MapReal(Constants.Value+"_7", x => x.ValuesArray[6])
+                                .MapReal(Constants.Value+"_8", x => x.ValuesArray[7])
+                                .MapReal(Constants.Value+"_9", x => x.ValuesArray[8]);
+                            break;
+                        default:
+                            _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
+                                .MapTimeStamp(Constants.Time, x => x.Time)
+                                .MapInteger(Constants.SensorID, x => x.SensorID)
+                                .MapReal(Constants.Value, x => x.ValuesArray[0]);
+                            break;
+                    }
+
+                }
+                else
+                {
+                    _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Constants.TableName)
+                           .MapTimeStamp(Constants.Time, x => x.Time)
+                           .MapInteger(Constants.SensorID, x => x.SensorID)
+                            .MapArray(Constants.Value, x => x.ValuesArray);
+                }
                 _connection.Open();
             }
             catch (Exception ex)
@@ -85,7 +183,7 @@ namespace BenchmarkTool.Database
                     points++;
                 }
                 sw.Stop();
-await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
+                await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
             }
             catch (Exception ex)
@@ -114,7 +212,7 @@ await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                     points++;
                 }
                 sw.Stop();
-await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
+                await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.DifferenceAggQuery));
             }
             catch (Exception ex)
@@ -143,7 +241,7 @@ await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                     points++;
                 }
                 sw.Stop();
-await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
+                await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
             }
             catch (Exception ex)
@@ -173,7 +271,7 @@ await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                     points++;
                 }
                 sw.Stop();
-await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
+                await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
             catch (Exception ex)
@@ -200,7 +298,7 @@ await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                     points++;
                 }
                 sw.Stop();
-await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
+                await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
             }
             catch (Exception ex)
@@ -236,7 +334,7 @@ await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
             try
             {
                 Stopwatch sw = Stopwatch.StartNew();
-                await _copyHelper.SaveAllAsync(_connection, batch.Records); // TODO hier schickt er noch den PolyDIM value mit
+                await _copyHelper.SaveAllAsync(_connection, batch.Records);
                 sw.Stop();
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
             }
@@ -249,10 +347,10 @@ await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
 
         public async Task Print(object result, string query, bool enabled)
         {
-            if(enabled == true)
-            while (((NpgsqlDataReader) result).Read())
+            if (enabled == true)
+                while (((NpgsqlDataReader)result).Read())
                 {
-                   await Console.Out.WriteLineAsync(" read | " + result.ToString() + " at " + result.ToString() + "in: " + result.ToString() + "from Query:| " + query); 
+                    await Console.Out.WriteLineAsync(" read | " + result.ToString() + " at " + result.ToString() + "in: " + result.ToString() + "from Query:| " + query);
                 }
         }
     }

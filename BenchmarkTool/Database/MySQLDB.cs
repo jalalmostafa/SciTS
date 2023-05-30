@@ -80,18 +80,7 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                StringBuilder sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value`) VALUES ");
-
-                List<string> Rows = new List<string>();
-
-
-                foreach (var record in batch.Records)
-                {
-                    Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, record.ValuesArray));
-                }
-
-
-                sCommand.Append(string.Join(",", Rows));
+                StringBuilder sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value`) VALUES "+ batch.Records);
                 sCommand.Append(";");
                 Stopwatch sw = new Stopwatch();
                 using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), _connection))

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace BenchmarkTool.Generators
 {
-    public class EnhancedDataGenerator : IDataGenerator // does regular , random , single and polydimensional Data
+    public class RegularDataGenerator : IDataGenerator
     {
         private Random _rnd = new Random();
         private int timeindex;
 
         public Batch GenerateBatch(int batchSize, int sensorStartId, decimal sensorsPerClient, int offset, int clientOffset, DateTime date) // date is here relative to the number of batches which have been written before and th eTestretries
-        { 
+        {
 
             RecordFactory recordFactory = new RecordFactory();
             Random rndval = new Random(); //TODO seeded
@@ -29,12 +29,33 @@ namespace BenchmarkTool.Generators
             }
             return batch;
         }
-         
+        public Batch GenerateBatch(int batchSize, List<int> sensorIdsForThisClientList, DateTime date) // date is here relative to the number of batches which have been written before and th eTestretries
+        {
+
+            RecordFactory recordFactory = new RecordFactory();
+            Random rndval = new Random(); //TODO seeded
+            Batch batch = new Batch(batchSize);
+
+            timeindex = 0;
+            for (int dataPointNr = 0; dataPointNr < batchSize; dataPointNr++)
+            {
+                var chosenSensor = dataPointNr % sensorIdsForThisClientList.Count;
+                if (chosenSensor == 0 && dataPointNr != 0)
+                {
+                    timeindex++;
+                }
+                var recordTimestamp = GetRecordTimestamp(date, timeindex);
+                batch.Records.Add(recordFactory.Create(chosenSensor, recordTimestamp, rndval.Next()));
+
+
+            }
+            return batch;
+        }
         public Batch GenerateBatch(int batchSize, List<int> sensorIdsForThisClientList, DateTime date, int dimensions) // date is here relative to the number of batches which have been written before and th eTestretries
         {
 
             RecordFactory recordFactory = new RecordFactory();
-            _rnd= new XorShiftRng(3345345345,234234234);
+            Random rndval = new Random(); //TODO seeded
             Batch batch = new Batch(batchSize);
 
 
@@ -52,6 +73,8 @@ namespace BenchmarkTool.Generators
 
                 batch.Records.Add(recordFactory.Create(chosenSensor, recordTimestamp, GetInput(dimensions)));
             }
+
+
             return batch;
         }
         private float[] GetInput(int dimensions)
@@ -60,21 +83,13 @@ namespace BenchmarkTool.Generators
             List<float> inputList = new List<float>();
             for (int c = 1; c <= dimensions; c++)
             {
-                inputList.Add( (float) _rnd.NextDouble()   );
+                inputList.Add(new Random().Next());
             }
             return inputList.ToArray();
-
-            
         }
-
- 
         private DateTime GetRecordTimestamp(DateTime baseTime, int timeindex)
         {
-            if(Config.GetIngestionType() == "regular")
             return baseTime.AddMilliseconds(Config.GetDatalayertsScaleMilliseconds() * timeindex);
-            else
-            return baseTime.AddMilliseconds(_rnd.Next(1000));
- 
         }
     }
 }

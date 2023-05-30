@@ -18,8 +18,8 @@ namespace BenchmarkTool.System
 
         public GlancesMonitor(string baseUrl)
         {
-            _client = new RestClient( new RestClientOptions( baseUrl) )     ; // nwetonsoftJson? TODO
-                     
+            _client = new RestClient( new RestClientOptions( baseUrl) )  ;  // nwetonsoftJson? TODO
+                    //   .UseNewtonsoftJson();
 
         }
 
@@ -29,11 +29,11 @@ namespace BenchmarkTool.System
             return _client.GetAsync<Cpu>(request, _cancellationTokenSource.Token);
         }
 
-        public Task<List<DiskIO>> GetDiskIOAsync()
+        public Task<List<DiskIO>> GetDiskIOAsync() // TODO returns empty list without names
         {
             var request = new RestRequest("/api/3/diskio");
-            return _client.GetAsync<List<DiskIO>>(request, _cancellationTokenSource.Token);
-        }
+            return _client.GetAsync<List<DiskIO>>(request, _cancellationTokenSource.Token); 
+        } 
 
         public Task<Memory> GetMemoryAsync()
         {

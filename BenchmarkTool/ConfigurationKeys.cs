@@ -39,7 +39,7 @@ namespace BenchmarkTool
         public const string VictoriametricsDBOrganization = "VictoriametricsDBOrganization";
 
         public const string IngestionType = "IngestionType";
-
+        public const string MultiDimensionStorageType = "MultiDimensionStorageType";
         public const string QueryType = "QueryType";
         public const string TimescaleDBRangeQuery = "TimescaleDBRangeQuery";
         public const string AggregationFunction = "AggregationFunction";

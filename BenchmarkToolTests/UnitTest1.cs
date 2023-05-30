@@ -1,10 +1,14 @@
+using BenchmarkTool;
+
+
 namespace BenchmarkToolTests;
 
 public class UnitTest1
 {
     [Fact]
-    public void Test1()
+    public void ToRecordTest()
     {
-        Console.Out.WriteLine("test in action");
+                
     }
 }
+

@@ -2,6 +2,7 @@
 using InfluxDB.Client.Api.Domain;
 using Serilog;
 using System;
+using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Numerics;
@@ -186,7 +187,14 @@ namespace BenchmarkTool.Database
                 {
                     var timeSpan = item.Time.Subtract(EpochStart);
                     var time = TimeSpanToBigInteger(timeSpan, WritePrecision.Ns);
-                    lineData.Add($"{Constants.TableName},sensor_id={item.SensorID} value={item.ValuesArray} {time}");
+
+                    if(Config.GetMultiDimensionStorageType() == "column"){
+                        int c = 1 ; StringBuilder builder = new StringBuilder("");
+                        while(c < Config.GetDataDimensionsNr()) { builder.Append("value={"+item.ValuesArray[(c)]+"}"); c++; }
+                        lineData.Add($"{Constants.TableName},sensor_id={item.SensorID} value={item.ValuesArray[0]} "+ builder + "{time}");
+                    }
+                    else
+                        lineData.Add($"{Constants.TableName},sensor_id={item.SensorID} value={item.ValuesArray} {time}");
                 }
 
                 Stopwatch sw = Stopwatch.StartNew();
