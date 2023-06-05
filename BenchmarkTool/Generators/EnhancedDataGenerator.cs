@@ -12,7 +12,7 @@ namespace BenchmarkTool.Generators
         { 
 
             RecordFactory recordFactory = new RecordFactory();
-            Random rndval = new Random(); //TODO seeded
+            Random rndval = new Random();  
             Batch batch = new Batch(batchSize);
             var sensorid = (clientOffset + offset) * batchSize + sensorStartId >= sensorsPerClient + sensorStartId ? sensorStartId : (clientOffset + offset) * batchSize + sensorStartId;
             timeindex = 0;

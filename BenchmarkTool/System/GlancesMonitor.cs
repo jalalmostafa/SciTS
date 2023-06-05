@@ -47,7 +47,7 @@ namespace BenchmarkTool.System
             return _client.GetAsync<Swap>(request, _cancellationTokenSource.Token);
         }
 
-        public Task<List<Network>> GetNetworkAsync()
+        public Task<List<Network>> GetNetworkAsync() // TODO returns empty list without names
         {
             var request = new RestRequest("/api/3/network");
             return _client.GetAsync<List<Network>>(request, _cancellationTokenSource.Token);

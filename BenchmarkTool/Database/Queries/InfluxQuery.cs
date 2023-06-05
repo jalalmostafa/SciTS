@@ -48,30 +48,30 @@ namespace BenchmarkTool.Database.Queries
                                                         |> yield(name: ""mean"")";
         public String RangeAgg =>
             String.Format(_rangeAgg, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Constants.TableName,
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam,
             Config.GetAggregationInterval());
 
         public String RangeRaw =>
             String.Format(_rangeRaw, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Constants.TableName,
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam);
 
         public String OutOfRange =>
             String.Format(_outOfRange, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Constants.TableName,
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDParam, Constants.Value,
             Config.GetAggregationInterval(), Constants.SensorID,
             QueryParams.MinValParam, QueryParams.MaxValParam);
 
         public String StdDev =>
             String.Format(_stdDev, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Constants.TableName,
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDParam);
 
         public String AggDifference =>
             String.Format(_aggDifference, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Constants.TableName,
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.FirstSensorIDParam,
             QueryParams.SecondSensorIDParam, Constants.Value,
             Config.GetAggregationInterval());

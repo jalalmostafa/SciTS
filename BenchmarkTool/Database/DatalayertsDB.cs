@@ -67,7 +67,7 @@ namespace BenchmarkTool.Database
                             {
                                 DimSensorInfo[item.SensorID * Config.GetDataDimensionsNr() + d] = new int[2] { item.SensorID, d };
                                 DictOfSensorListsWithValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d].Add(ValueDoubleArray[d]);
-                            }
+                        }
                             else
                                 DictOfSensorListsWithValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d] = new List<double>();
                         }
@@ -88,7 +88,7 @@ namespace BenchmarkTool.Database
                     {
                         for (int d = 0; d < Config.GetDataDimensionsNr(); d++)
                         {
-                            vectorContainer.Vectors[j * Config.GetDataDimensionsNr() + d].Directory = Constants.TableName + "_in_" + scale + "_ms_steps_with_" + Config.GetDataDimensionsNr() + "_dimensions";
+                            vectorContainer.Vectors[j * Config.GetDataDimensionsNr() + d].Directory = Config.GetPolyDimTableName() + "_in_" + scale + "_ms_steps_with_" + Config.GetDataDimensionsNr() + "_dimensions";
                             vectorContainer.Vectors[j * Config.GetDataDimensionsNr() + d].Series = "sensor_id_" + j + "_dim_" + d;
                             vectorContainer.Vectors[j * Config.GetDataDimensionsNr() + d].Values = new double[val_col.First().Count]; ;
                         }
@@ -96,7 +96,7 @@ namespace BenchmarkTool.Database
                     // fill
                     foreach (var DimSensorNr in DictOfSensorListsWithValueArrays.Keys)
                     {
-                        vectorContainer.Vectors[DimSensorNr].Directory = Constants.TableName + "_in_" + scale + "_ms_steps_with_" + Config.GetDataDimensionsNr() + "_dimensions";
+                        vectorContainer.Vectors[DimSensorNr].Directory = Config.GetPolyDimTableName() + "_in_" + scale + "_ms_steps_with_" + Config.GetDataDimensionsNr() + "_dimensions";
                         vectorContainer.Vectors[DimSensorNr].Series = "sensor_id_" + DimSensorInfo[DimSensorNr][0] + "_dim_" + DimSensorInfo[DimSensorNr][1];
                         vectorContainer.Vectors[DimSensorNr].Values = val_col.Select(a => a.ToArray()).ToArray()[DimSensorNr];
 
@@ -147,7 +147,7 @@ namespace BenchmarkTool.Database
                     for (int j = 0; j < Config.GetSensorNumber(); j++)
                     {
                         vectorContainer.Vectors[j] = new TimeSeriesVector<double>();
-                        vectorContainer.Vectors[j].Directory = Constants.TableName + "_in_" + scale + "_ms_steps";
+                        vectorContainer.Vectors[j].Directory = Config.GetPolyDimTableName() + "_in_" + scale + "_ms_steps";
                         vectorContainer.Vectors[j].Series = "sensor_id_" + j;
                         vectorContainer.Vectors[j].Values = ValueVectors[j];
 
@@ -347,7 +347,7 @@ namespace BenchmarkTool.Database
             if (enabled == true)
             {
                 for (int c = 0; c < readResult.Timestamps.Length; c++)
-                { //debug TODO
+                {  
                     for (int d = 0; d < readResult.Vectors.Length; d++)
                     {
                         if (readResult.Vectors[d].Values[c] > 0)
@@ -361,9 +361,9 @@ namespace BenchmarkTool.Database
         private string GetDirectoryName()
         {
             if (Config.GetDataDimensionsNr() == 1)
-                return Constants.TableName + "_in_" + Config.GetDatalayertsScaleMilliseconds().ToString() + "_ms_steps";
+                return Config.GetPolyDimTableName() + "_in_" + Config.GetDatalayertsScaleMilliseconds().ToString() + "_ms_steps";
             else
-                return Constants.TableName + "_in_" + Config.GetDatalayertsScaleMilliseconds().ToString() + "_ms_steps_with_" + Config.GetDataDimensionsNr() + "_dimensions";
+                return Config.GetPolyDimTableName() + "_in_" + Config.GetDatalayertsScaleMilliseconds().ToString() + "_ms_steps_with_" + Config.GetDataDimensionsNr() + "_dimensions";
         }
 
         private string[] GetSeriesNames(int SensorID)

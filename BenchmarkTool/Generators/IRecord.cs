@@ -6,7 +6,7 @@ namespace BenchmarkTool.Generators
     {
         int SensorID { get; set; }
         // float Value { get; set; }
-        float[] ValuesArray { get; set; } // TODO check if obj ansatz besser sist
+        float[] ValuesArray { get; set; }  
         DateTime Time { get; set; }
         // bool polyDim { get;  }
 

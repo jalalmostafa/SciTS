@@ -1,34 +1,24 @@
 ﻿using ClickHouse.Ado;
-using ClickHouse.Client.ADO;
-using ClickHouse.Client.Utility;
 using Serilog;
 using System;
-using System.Text;
 using System.Threading.Tasks;
-using System.Linq;
-using System.Collections.Generic;
 using BenchmarkTool.Queries;
 using BenchmarkTool.Generators;
 using System.Diagnostics;
 using BenchmarkTool.Database.Queries;
-using System.Globalization;
-
-
 
 namespace BenchmarkTool.Database
 {
-    public class ClickhouseDB : IDatabase
+    public class oldClickhouseDB : IDatabase
     {
-        private ClickHouse.Client.ADO.ClickHouseConnection _read_connection;
-        private ClickHouse.Ado.ClickHouseConnection _write_connection;
-
+        private ClickHouseConnection _connection;
         private IQuery<String> _query;
         private int _aggInterval;
 
         public void Cleanup()
         {
             // var command = _connection.CreateCommand();
-            // command.CommandText = $"ALTER TABLE { Config.GetPolyDimTableName() } DELETE WHERE {Constants.SensorID} IS NOT NULL";
+            // command.CommandText = $"ALTER TABLE {Constants.TableName} DELETE WHERE {Constants.SensorID} IS NOT NULL";
             // command.ExecuteNonQuery();
         }
 
@@ -36,11 +26,8 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                if (_read_connection != null)
-                    _read_connection.Close();
-                if (_write_connection != null)
-                    _write_connection.Close();
-
+                if (_connection != null)
+                    _connection.Close();
             }
             catch (Exception ex)
             {
@@ -52,14 +39,7 @@ namespace BenchmarkTool.Database
         {
             try
             {
-
-
-
-                _read_connection = new ClickHouse.Client.ADO.ClickHouseConnection("Host=" + Config.GetClickhouseHost() + ";Protocol=https;Port=" + Config.GetClickhousePort() + ";Username=" + Config.GetClickhouseUser()); // new ClickHouseConnection(settings);
-                _read_connection.ChangeDatabase(Config.GetClickhouseDatabase());
-                _read_connection.OpenAsync();
-
-                var read_settings = new ClickHouse.Ado.ClickHouseConnectionSettings()
+                var settings = new ClickHouseConnectionSettings()
                 {
                     Host = Config.GetClickhouseHost(),
                     Port = Config.GetClickhousePort(),
@@ -67,18 +47,8 @@ namespace BenchmarkTool.Database
                     User = Config.GetClickhouseUser(),
                     SocketTimeout = 5000
                 };
-                var write_settings = new ClickHouseConnectionSettings()
-                {
-                    Host = Config.GetClickhouseHost(),
-                    Port = Config.GetClickhousePort(),
-                    Database = Config.GetClickhouseDatabase(),
-                    User = Config.GetClickhouseUser(),
-                    SocketTimeout = 5000
-                };
-
-                _write_connection = new ClickHouse.Ado.ClickHouseConnection(write_settings);
-                _write_connection.Open();
-
+                _connection = new ClickHouseConnection(settings);
+                _connection.Open();
                 _query = new ClickhouseQuery();
                 _aggInterval = Config.GetAggregationInterval();
             }
@@ -101,15 +71,12 @@ namespace BenchmarkTool.Database
                 sql = sql.Replace(QueryParams.MaxValParam, query.MaxValue.ToString());
 
                 Log.Information(sql);
-                var cmd = _read_connection.CreateCommand();
+                var cmd = _connection.CreateCommand();
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    points++;
-                }
+                var reader = cmd.ExecuteReader();
+                reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
@@ -132,15 +99,12 @@ namespace BenchmarkTool.Database
                 sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorFilter);
 
                 Log.Information(sql);
-                var cmd = _read_connection.CreateCommand();
+                var cmd = _connection.CreateCommand();
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    points++;
-                }
+                var reader = cmd.ExecuteReader();
+                reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
@@ -162,15 +126,12 @@ namespace BenchmarkTool.Database
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorFilter);
                 Log.Information(sql);
-                var cmd = _read_connection.CreateCommand();
+                var cmd = _connection.CreateCommand();
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    points++;
-                }
+                var reader = cmd.ExecuteReader();
+                reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawData));
@@ -194,15 +155,12 @@ namespace BenchmarkTool.Database
                 sql = sql.Replace(QueryParams.SecondSensorIDParam, query.SecondSensorID.ToString());
 
                 Log.Information(sql);
-                var cmd = _read_connection.CreateCommand();
+                var cmd = _connection.CreateCommand();
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    points++;
-                }
+                var reader = cmd.ExecuteReader();
+                reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.DifferenceAggQuery));
             }
@@ -223,15 +181,12 @@ namespace BenchmarkTool.Database
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.SensorIDParam, query.SensorID.ToString());
                 Log.Information(sql);
-                var cmd = _read_connection.CreateCommand();
+                var cmd = _connection.CreateCommand();
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    points++;
-                }
+                var reader = cmd.ExecuteReader();
+                reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
             }
@@ -242,13 +197,13 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public async Task<QueryStatusWrite> WriteBatch(Batch batch)
+        public Task<QueryStatusWrite> WriteBatch(Batch batch)
         {
             try
             {
-                var command = _write_connection.CreateCommand();
+                var command = _connection.CreateCommand();
 
-                command.CommandText = String.Format("INSERT INTO {0} ({1}, {2}, {3}) VALUES @bulk", Config.GetPolyDimTableName() , Constants.SensorID, Constants.Value, Constants.Time);
+                command.CommandText = String.Format("INSERT INTO {0} ({1}, {2}, {3}) VALUES @bulk", Config.GetPolyDimTableName(), Constants.SensorID, Constants.Value, Constants.Time);
                 command.Parameters.Add(new ClickHouseParameter
                 {
                     ParameterName = "bulk",
@@ -258,22 +213,22 @@ namespace BenchmarkTool.Database
                 Stopwatch sw = Stopwatch.StartNew();
                 command.ExecuteNonQuery();
                 sw.Stop();
-                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
+                return Task.FromResult(new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion)));
             }
             catch (Exception ex)
             {
                 Log.Error(String.Format("Failed to insert batch into Clickhouse. Exception: {0}", ex.ToString()));
-                return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString());
+                return Task.FromResult(new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString()));
             }
         }
 
-        public async Task<QueryStatusWrite> WriteRecord(IRecord record)
+        public Task<QueryStatusWrite> WriteRecord(IRecord record)
         {
-           try
+            try
             {
-                var command = _write_connection.CreateCommand();
+                var command = _connection.CreateCommand();
 
-                command.CommandText = String.Format("INSERT INTO {0} ({1}, {2}, {3}) VALUES @record",  Config.GetPolyDimTableName() , Constants.SensorID, Constants.Value, Constants.Time);
+                command.CommandText = String.Format("INSERT INTO {0} ({1}, {2}, {3}) VALUES @record", Constants.TableName, Constants.SensorID, Constants.Value, Constants.Time);
                 command.Parameters.Add(new ClickHouseParameter
                 {
                     ParameterName = "record",
@@ -283,12 +238,12 @@ namespace BenchmarkTool.Database
                 Stopwatch sw = Stopwatch.StartNew();
                 command.ExecuteNonQuery();
                 sw.Stop();
-                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, 1, 0, Operation.StreamIngestion));
+                return Task.FromResult(new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, 1, 0, Operation.StreamIngestion)));
             }
             catch (Exception ex)
             {
                 Log.Error(String.Format("Failed to insert batch into Clickhouse. Exception: {0}", ex.ToString()));
-                return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, 1, Operation.StreamIngestion), ex, ex.ToString());
+                return Task.FromResult(new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, 1, Operation.StreamIngestion), ex, ex.ToString()));
             }
         }
     }

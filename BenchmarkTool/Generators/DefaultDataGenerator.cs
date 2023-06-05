@@ -29,7 +29,7 @@ namespace BenchmarkTool.Generators
         {
 
             RecordFactory recordFactory = new RecordFactory();
-            Random rndval = new Random(); //TODO seeded
+            Random rndval = new Random();  
             Batch batch = new Batch(batchSize);
 
 
@@ -53,7 +53,7 @@ namespace BenchmarkTool.Generators
         {
 
             RecordFactory recordFactory = new RecordFactory();
-            Random rndval = new Random(); //TODO seeded
+            Random rndval = new Random();  
             Batch batch = new Batch(batchSize);
             
              List<float>inputList = new List<float>();

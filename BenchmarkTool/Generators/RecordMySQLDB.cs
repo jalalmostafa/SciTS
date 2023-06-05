@@ -6,9 +6,9 @@ namespace BenchmarkTool.Generators
     public class RecordMySQLDB : IRecord
     {
         public int SensorID { get; set; }
-        // public float Value { get; set; }
-                public float[] ValuesArray { get; set; }
-// public bool polyDim { get;  }
+        // public float Value { get; set; } TODO clean
+        public float[] ValuesArray { get; set; }
+        // public bool polyDim { get;  }
         public DateTime Time { get; set; }
 
         public RecordMySQLDB(int sensorId, DateTime timestamp, float value)
@@ -16,7 +16,7 @@ namespace BenchmarkTool.Generators
             SensorID = sensorId;
             Time = timestamp;
             // Value = value;
-                    ValuesArray[0] = value;
+            ValuesArray[0] = value;
 
         }
         public RecordMySQLDB(int sensorId, DateTime timestamp, float[] values)

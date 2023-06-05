@@ -30,15 +30,15 @@ namespace BenchmarkTool.Database.Queries
         private static string _stdDev = @"SELECT stddevSamp({0}) from {1}
                                         where {2} >= toDateTime('{3}') and {2} <= toDateTime('{4}') and {5} = {6}";
 
-        public String RangeAgg => String.Format(_rangeAgg, Constants.Time, Config.GetAggregationInterval(), Constants.Value, Constants.SensorID, Constants.TableName, QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDsParam);
+        public String RangeAgg => String.Format(_rangeAgg, Constants.Time, Config.GetAggregationInterval(), Constants.Value, Constants.SensorID, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDsParam);
 
-        public String RangeRaw => String.Format(_rangeRaw, Constants.TableName, Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
+        public String RangeRaw => String.Format(_rangeRaw, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
 
-        public String OutOfRange => String.Format(_outOfRange, Constants.Time, Config.GetAggregationInterval(), Constants.Value, Constants.SensorID, Constants.TableName, QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDParam, QueryParams.MinValParam, QueryParams.MaxValParam);
+        public String OutOfRange => String.Format(_outOfRange, Constants.Time, Config.GetAggregationInterval(), Constants.Value, Constants.SensorID, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDParam, QueryParams.MinValParam, QueryParams.MaxValParam);
 
-        public String StdDev => String.Format(_stdDev, Constants.Value, Constants.TableName, Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDParam);
+        public String StdDev => String.Format(_stdDev, Constants.Value, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDParam);
 
         public String AggDifference => String.Format(_aggDifference, Constants.Time, Config.GetAggregationInterval(), Constants.Value,
-            Constants.TableName, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.FirstSensorIDParam, QueryParams.SecondSensorIDParam);
+            Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.FirstSensorIDParam, QueryParams.SecondSensorIDParam);
     }
 }

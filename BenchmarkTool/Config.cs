@@ -38,6 +38,12 @@ namespace BenchmarkTool
             int.TryParse(val, out int sensors);
             return sensors;
         }
+        public static string GetPolyDimTableName()
+        {
+            var val = Constants.TableName + "_dim_"+Config.GetDataDimensionsNr();
+            
+            return val;
+        }
         public static int GetTestRetries()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.TestRetries];
@@ -233,7 +239,7 @@ namespace BenchmarkTool
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.MultiDimensionStorageType));
             return val;
         }
-        
+
 
         public static int GetAggregationInterval()
         {

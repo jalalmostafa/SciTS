@@ -186,7 +186,7 @@ namespace BenchmarkTool.Database
                 {
                     var timeSpan = item.Time.Subtract(EpochStart);
                     var time = TimeSpanToBigInteger(timeSpan, WritePrecision.Ns);
-                    lineData.Add($"{Constants.TableName},sensor_id={item.SensorID} value={item.ValuesArray} {time}");
+                    lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} value={item.ValuesArray} {time}");
                 }
 
                 Stopwatch sw = Stopwatch.StartNew();
@@ -208,7 +208,7 @@ namespace BenchmarkTool.Database
                  var lineData = new List<string>();
                 var timeSpan = record.Time.Subtract(EpochStart);
                 var time = TimeSpanToBigInteger(timeSpan, WritePrecision.Ns);
-                  lineData.Add($"{Constants.TableName},sensor_id={record.SensorID} value={record.ValuesArray} {time}");
+                  lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={record.SensorID} value={record.ValuesArray} {time}");
 
                 Stopwatch sw = Stopwatch.StartNew();
                 await _writeApi.WriteRecordsAsync( lineData, WritePrecision.Ns );

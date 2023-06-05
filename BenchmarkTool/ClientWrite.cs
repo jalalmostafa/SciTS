@@ -44,7 +44,7 @@ namespace BenchmarkTool
                     return await RunIngestion(new EnhancedDataGenerator());
         }
 
-        public async Task<List<QueryStatusWrite>> RunIngestion(EnhancedDataGenerator dataGenerator) //Reg() // instead TODO: RunINgestion(RegularDataGenerator ddd)
+        public async Task<List<QueryStatusWrite>> RunIngestion(EnhancedDataGenerator dataGenerator)  
         {
 
             // new logic: modulo
@@ -89,7 +89,7 @@ namespace BenchmarkTool
 
             var statuses = new List<QueryStatusWrite>();
             var period = 24.0 / loop;
-            for (var day = 0; day < _daySpan; day++)   // TODO  hae? adds day in a until dayspan loop
+            for (var day = 0; day < _daySpan; day++)   
             {
                 var batchStartdate = _date.AddDays(day);
                 for (var i = 0; i < loop; i++)

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using BenchmarkTool.Queries;
 using BenchmarkTool.Generators;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace BenchmarkTool.Database
 {
@@ -64,29 +65,29 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                StringBuilder sCommand;
+                StringBuilder sCommand; // TODO supstitute with Binary insert
                 List<string> Rows = new List<string>();
                 if (Config.GetMultiDimensionStorageType() == "column")
                 {
                     int c = 1; StringBuilder builder = new StringBuilder("");
-                    while (c < Config.GetDataDimensionsNr()) { builder.Append(", dim_" + (c + 1)); c++; }
-                    sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value`" + builder + ") VALUES "  );
+                    while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_dim" + (c + 1)); c++; }
+                    sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value_dim1`" + builder + ") VALUES "  );
 
                     foreach (var record in batch.Records)
                         {
-                            Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, string.Join(",", record.ValuesArray.Select(x => x.ToString()).ToArray())));
+                            Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, string.Join(",", record.ValuesArray.Select(x => x.ToString(CultureInfo.InvariantCulture)).ToArray())));
                         }   sCommand.AppendLine(string.Join(",", Rows));
                 }
                 else{
                     sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value`) VALUES "  );
                     foreach (var record in batch.Records)
                         {
-                            Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, "{"+string.Join(",", record.ValuesArray.Select(x => x.ToString()).ToArray()) +"}"));
+                            Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, "{"+string.Join(",", record.ValuesArray.Select(x => x.ToString(CultureInfo.InvariantCulture)).ToArray()) +"}"));
                         }  sCommand.AppendLine(string.Join(",", Rows));
-                }
+                }     
 
-              
                 sCommand.Append(";");
+
 
                 Stopwatch sw = new Stopwatch();
 
