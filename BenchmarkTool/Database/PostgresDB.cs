@@ -2,6 +2,8 @@ using Npgsql;
 using PostgreSQLCopyHelper;
 using Serilog;
 using System;
+using System.Text;
+
 using System.Threading.Tasks;
 using BenchmarkTool.Queries;
 using BenchmarkTool.Generators;
@@ -54,107 +56,27 @@ namespace BenchmarkTool.Database
             try
             {
                 _connection = new NpgsqlConnection(_connectionConfig);
+                _connection.Open();
 
                 if (Config.GetMultiDimensionStorageType() == "column")
                 {
+                    // create table
+                    var command = _connection.CreateCommand();
+                    int c = 0; StringBuilder builder = new StringBuilder("");
+                    while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_" + c + " double precision"); c++; }
+                    command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + Config.GetPolyDimTableName() + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON sensor_data(time DESC); CREATE INDEX ON sensor_data(sensor_id, time DESC); --UNIQUE ; ");
+                    command.ExecuteNonQuery();
+
+
+                    int i = 0;
                     _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
                                 .MapTimeStamp(Constants.Time, x => x.Time)
                                 .MapInteger(Constants.SensorID, x => x.SensorID);
-                                for(var i=0; i<4;i++)
-                                    _copyHelper = _copyHelper.MapReal(Constants.Value + "_" + i, x => x.ValuesArray[i]); 
-                                
-                                
+                    while (i < Config.GetDataDimensionsNr())
+                    {//TODO weird error OOB
+                        _copyHelper = _copyHelper.MapReal(Constants.Value + "_" + i, x => x.ValuesArray[i]); i++;
+                    }
 
-                    // switch (Config.GetDataDimensionsNr())
-                    // {
-                    //     case 2:
-                    //         _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
-                    //             .MapTimeStamp(Constants.Time, x => x.Time)
-                    //             .MapInteger(Constants.SensorID, x => x.SensorID)
-                    //             .MapReal(Constants.Value+"_2", x => x.ValuesArray[1]);
-                                
-                    //         break;
-                    //     case 3:
-                    //         _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
-                    //             .MapTimeStamp(Constants.Time, x => x.Time)
-                    //             .MapInteger(Constants.SensorID, x => x.SensorID)
-                    //             .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
-                    //             .MapReal(Constants.Value+"_3", x => x.ValuesArray[2]);
-                    //         break;
-                    //     case 4:
-                    //         _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
-                    //             .MapTimeStamp(Constants.Time, x => x.Time)
-                    //             .MapInteger(Constants.SensorID, x => x.SensorID)
-                    //             .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
-                    //             .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
-                    //             .MapReal(Constants.Value+"_4", x => x.ValuesArray[3]);
-                    //         break;
-                    //     case 5:
-                    //         _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
-                    //             .MapTimeStamp(Constants.Time, x => x.Time)
-                    //             .MapInteger(Constants.SensorID, x => x.SensorID)
-                    //             .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
-                    //             .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
-                    //             .MapReal(Constants.Value+"_4", x => x.ValuesArray[3])
-                    //             .MapReal(Constants.Value+"_5", x => x.ValuesArray[4]);
-                    //         break;
-                    //     case 6:
-                    //         _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
-                    //             .MapTimeStamp(Constants.Time, x => x.Time)
-                    //             .MapInteger(Constants.SensorID, x => x.SensorID)
-                    //             .MapReal(Constants.Value, x => x.ValuesArray[0])
-                    //             .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
-                    //             .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
-                    //             .MapReal(Constants.Value+"_4", x => x.ValuesArray[3])
-                    //             .MapReal(Constants.Value+"_5", x => x.ValuesArray[4])
-                    //             .MapReal(Constants.Value+"_6", x => x.ValuesArray[5]);
-                    //         break;
-                    //     case 7:
-                    //         _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
-                    //             .MapTimeStamp(Constants.Time, x => x.Time)
-                    //             .MapInteger(Constants.SensorID, x => x.SensorID)
-                    //             .MapReal(Constants.Value, x => x.ValuesArray[0])
-                    //             .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
-                    //             .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
-                    //             .MapReal(Constants.Value+"_4", x => x.ValuesArray[3])
-                    //             .MapReal(Constants.Value+"_5", x => x.ValuesArray[4])
-                    //             .MapReal(Constants.Value+"_6", x => x.ValuesArray[5])
-                    //             .MapReal(Constants.Value+"_7", x => x.ValuesArray[6]);
-                    //         break;
-                    //     case 8:
-                    //         _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
-                    //             .MapTimeStamp(Constants.Time, x => x.Time)
-                    //             .MapInteger(Constants.SensorID, x => x.SensorID)
-                    //             .MapReal(Constants.Value, x => x.ValuesArray[0])
-                    //             .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
-                    //             .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
-                    //             .MapReal(Constants.Value+"_4", x => x.ValuesArray[3])
-                    //             .MapReal(Constants.Value+"_5", x => x.ValuesArray[4])
-                    //             .MapReal(Constants.Value+"_6", x => x.ValuesArray[5])
-                    //             .MapReal(Constants.Value+"_7", x => x.ValuesArray[6])
-                    //             .MapReal(Constants.Value+"_8", x => x.ValuesArray[7]);
-                    //         break;
-                    //     case 9:
-                    //         _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
-                    //             .MapTimeStamp(Constants.Time, x => x.Time)
-                    //             .MapInteger(Constants.SensorID, x => x.SensorID)
-                    //             .MapReal(Constants.Value, x => x.ValuesArray[0])
-                    //             .MapReal(Constants.Value+"_2", x => x.ValuesArray[1])
-                    //             .MapReal(Constants.Value+"_3", x => x.ValuesArray[2])
-                    //             .MapReal(Constants.Value+"_4", x => x.ValuesArray[3])
-                    //             .MapReal(Constants.Value+"_5", x => x.ValuesArray[4])
-                    //             .MapReal(Constants.Value+"_6", x => x.ValuesArray[5])
-                    //             .MapReal(Constants.Value+"_7", x => x.ValuesArray[6])
-                    //             .MapReal(Constants.Value+"_8", x => x.ValuesArray[7])
-                    //             .MapReal(Constants.Value+"_9", x => x.ValuesArray[8]);
-                    //         break;
-                    //     default:
-                    //         _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
-                    //             .MapTimeStamp(Constants.Time, x => x.Time)
-                    //             .MapInteger(Constants.SensorID, x => x.SensorID)
-                    //             .MapReal(Constants.Value, x => x.ValuesArray[0]);
-                    //         break;
-                    // }
 
                 }
                 else
@@ -164,7 +86,7 @@ namespace BenchmarkTool.Database
                            .MapInteger(Constants.SensorID, x => x.SensorID)
                             .MapArray(Constants.Value, x => x.ValuesArray);
                 }
-                _connection.Open();
+
             }
             catch (Exception ex)
             {

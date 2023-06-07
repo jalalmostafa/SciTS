@@ -18,8 +18,10 @@ namespace BenchmarkTool.System
 
         public GlancesMonitor(string baseUrl)
         {
-            _client = new RestClient( new RestClientOptions( baseUrl) )  ;  // nwetonsoftJson? TODO
-                    //   .UseNewtonsoftJson();
+            _client = new RestClient( new RestClientOptions( baseUrl) , configureSerialization: s => s.UseNewtonsoftJson()  );
+            
+            //  , new ConfigureSerialization(    s => s.UseSerializer(() =>  new UseNewtonsoftJson()    ) )   )  ;  // nwetonsoftJson? TODO
+            //         //   .UseNewtonsoftJson();
 
         }
 
@@ -69,7 +71,7 @@ namespace BenchmarkTool.System
             var swapAsync = GetSwapAsync();
 
             var metrics = new AllMetrics()
-            {
+            { // TODO bugfix
                 Cpu = await cpuAsync,
                 DatabaseProcess = await processAsync,
                 DiskIO = (await diskIOAsync).Find(d => d.DiskName == disk),

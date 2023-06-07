@@ -18,7 +18,7 @@ namespace BenchmarkTool.Generators
             ValuesArray[0] = value;
 
         }
-public bool polyDim { get;  }
+        public bool polyDim { get; }
 
         public RecordClickhouse(int sensorId, DateTime timestamp, float[] values)
         {
@@ -26,14 +26,21 @@ public bool polyDim { get;  }
             Time = timestamp;
             ValuesArray = values;
         }
-        float getFirstValue(){
+        float getFirstValue()
+        {
             return ValuesArray[0];
         }
         public IEnumerator GetEnumerator()
         {
-            yield return SensorID;
-            yield return ValuesArray;
             yield return Time;
+            yield return SensorID;
+            // yield return ValuesArray;
+            foreach (int n in ValuesArray)
+            {
+                yield return ValuesArray[n];
+            }
+
         }
     }
 }
+

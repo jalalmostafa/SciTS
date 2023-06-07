@@ -100,7 +100,7 @@ namespace BenchmarkTool.Database
                         vectorContainer.Vectors[DimSensorNr].Series = "sensor_id_" + DimSensorInfo[DimSensorNr][0] + "_dim_" + DimSensorInfo[DimSensorNr][1];
                         vectorContainer.Vectors[DimSensorNr].Values = val_col.Select(a => a.ToArray()).ToArray()[DimSensorNr];
 
-                        //debug TODO   outcomment
+                        if(Config.GetPrintModeEnabled() == true) // Todo remove
                         for (int i = 0; i < vectorContainer.Vectors[DimSensorNr].Values.GetLength(0); i++)
                         {
                             if (vectorContainer.Vectors[DimSensorNr].Values[i] > 0) await Console.Out.WriteLineAsync("write  | " + vectorContainer.Vectors[DimSensorNr].Values[i] + " in  " + vectorContainer.Vectors[DimSensorNr].Series + " at TS: " + roundedDate.AddMilliseconds(i * Config.GetDatalayertsScaleMilliseconds()).ToString());
@@ -151,7 +151,7 @@ namespace BenchmarkTool.Database
                         vectorContainer.Vectors[j].Series = "sensor_id_" + j;
                         vectorContainer.Vectors[j].Values = ValueVectors[j];
 
-                        //debug TODO   outcomment
+                        if(Config.GetPrintModeEnabled() == true)
                         for (int i = 0; i < vectorContainer.Vectors[j].Values.GetLength(0); i++)
                         {
                             if (vectorContainer.Vectors[j].Values[i] > 0) await Console.Out.WriteLineAsync(" write | " + vectorContainer.Vectors[j].Values[i] + " in sensor_id_" + j + " at TS: " + roundedDate.AddMilliseconds(i * Config.GetDatalayertsScaleMilliseconds()).ToString());

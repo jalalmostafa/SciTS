@@ -23,7 +23,7 @@ namespace BenchmarkTool.Database
                 case Constants.InfluxDBClass:
                     return new InfluxDB();
                 case Constants.ClickhouseClass: // Todo remove old
-                    return new oldClickhouseDB();
+                    return new ClickhouseDB();
                 case Constants.PostgresClass:
                     return new PostgresDB();
                 case Constants.DummyClass:

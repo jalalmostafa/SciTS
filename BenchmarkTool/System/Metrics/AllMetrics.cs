@@ -170,7 +170,7 @@ namespace BenchmarkTool.System.Metrics
             public string ProcessIOCounters { get; set; }
             public string ProcessMemoryInfo { get; set; }
             public double ProcessMemoryPercent { get; set; }
-            public int ProcessThreadsNumber { get; set; }
+            public int? ProcessThreadsNumber { get; set; }
             public string ProcessStatus { get; set; }
         }
     }
