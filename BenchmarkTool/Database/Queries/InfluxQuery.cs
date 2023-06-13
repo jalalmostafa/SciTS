@@ -4,7 +4,12 @@ namespace BenchmarkTool.Database.Queries
 {
     public class InfluxQuery : IQuery<String>
     {
-        private static string _rangeRaw = @"from(bucket: ""{0}"")   
+        private static string _rangeRawAllDims = @"from(bucket: ""{0}"")   
+                                                        |> range(start: {1}, stop: {2})   
+                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
+                                                        |> filter(fn: (r) => r[""{4}""] =~ {5}) ";
+        private static string _rangeRaw = @"from(bucket: ""{0}"") 
+                                                        |> keep(columns: [""{4}"", ""{6}"",""{7}""]) 
                                                         |> range(start: {1}, stop: {2})   
                                                         |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
                                                         |> filter(fn: (r) => r[""{4}""] =~ {5}) ";
@@ -55,12 +60,16 @@ namespace BenchmarkTool.Database.Queries
         public String RangeRaw =>
             String.Format(_rangeRaw, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
+            Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_1");
+        public String RangeRawAllDims =>
+            String.Format(_rangeRaw, Config.GetInfluxBucket(),
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam);
 
         public String OutOfRange =>
             String.Format(_outOfRange, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDParam, Constants.Value,
+            Constants.SensorID, QueryParams.SensorIDParam, Constants.Value + "_1",
             Config.GetAggregationInterval(), Constants.SensorID,
             QueryParams.MinValParam, QueryParams.MaxValParam);
 
@@ -73,7 +82,7 @@ namespace BenchmarkTool.Database.Queries
             String.Format(_aggDifference, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.FirstSensorIDParam,
-            QueryParams.SecondSensorIDParam, Constants.Value,
+            QueryParams.SecondSensorIDParam, Constants.Value + "_1",
             Config.GetAggregationInterval());
     }
 }

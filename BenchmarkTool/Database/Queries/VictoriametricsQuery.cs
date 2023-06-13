@@ -4,7 +4,12 @@ namespace BenchmarkTool.Database.Queries
 {
     public class VictoriametricsQuery : IQuery<String>
     {
-        private static string _rangeRaw = @"from(bucket: ""{0}"")   
+        private static string _rangeRawAllDims = @"from(bucket: ""{0}"")   
+                                                        |> range(start: {1}, stop: {2})   
+                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
+                                                        |> filter(fn: (r) => r[""{4}""] =~ {5}) ";
+        private static string _rangeRaw = @"from(bucket: ""{0}"") 
+                                                        |> keep(columns: [""{4}"", ""{6}"",""{7}""]) 
                                                         |> range(start: {1}, stop: {2})   
                                                         |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
                                                         |> filter(fn: (r) => r[""{4}""] =~ {5}) ";
@@ -53,7 +58,11 @@ namespace BenchmarkTool.Database.Queries
             Config.GetAggregationInterval());
 
         public String RangeRaw =>
-            String.Format(_rangeRaw, Config.GetVictoriametricsBucket(),
+            String.Format(_rangeRaw, Config.GetInfluxBucket(),
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
+            Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_1");
+        public String RangeRawAllDims =>
+            String.Format(_rangeRaw, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam);
 

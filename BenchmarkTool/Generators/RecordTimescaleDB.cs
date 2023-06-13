@@ -18,6 +18,8 @@ namespace BenchmarkTool.Generators
             SensorID = sensorId;
             Time = timestamp;
             // Value = value;  
+                        ValuesArray = new float[1];
+
                       ValuesArray[0] = value;
 
         }

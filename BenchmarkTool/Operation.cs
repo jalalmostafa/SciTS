@@ -10,6 +10,7 @@ namespace BenchmarkTool
         StreamIngestion,
         Population,
         RangeQueryRawData,
+        RangeQueryRawAllDimsData,
         RangeQueryAggData,
         OutOfRangeQuery,
         DifferenceAggQuery,

@@ -109,5 +109,9 @@ namespace BenchmarkTool.Database
             }
         }
 
+        Task<QueryStatusRead> IDatabase.RangeQueryRawAllDims(RangeQuery rangeQuery)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -52,25 +52,22 @@ namespace BenchmarkTool.Database
                 Dictionary<int, List<double>> DictOfSensorIDsToListsFromValueArrays = new Dictionary<int, List<double>>();
                 Dictionary<int, int[]> IndexOfSensorIDsDimensions = new Dictionary<int, int[]>();
 
-        
+
                 foreach (var item in batch.Records)
                 {
-                    double[] ThisRecodsValueArray = new double[item.ValuesArray.Length];
-
-                    for (int i = 0; i < item.ValuesArray.Length; i++)
-                    {
-                        ThisRecodsValueArray[i] = item.ValuesArray[i];  // no casting needed // maybe no for loop needed TODO
-                    }
+                  
 
                     for (int d = 0; d < Config.GetDataDimensionsNr(); d++)
                     {
+                       
+
                         if (!DictOfSensorIDsToListsFromValueArrays.ContainsKey(item.SensorID * Config.GetDataDimensionsNr() + d))
                         {
                             DictOfSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d] = new List<double>();
                         }
 
                         IndexOfSensorIDsDimensions[item.SensorID * Config.GetDataDimensionsNr() + d] = new int[2] { item.SensorID, d };
-                        DictOfSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d].Add(ThisRecodsValueArray[d]); 
+                        DictOfSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d].Add(item.ValuesArray[d]);
 
                     }
 
@@ -83,24 +80,17 @@ namespace BenchmarkTool.Database
                 {
                     FirstTimestamp = roundedDate,
                     IntervalTicks = 10000 * scale, // second = 10mil
-                    LastTimestamp = roundedDate.AddMilliseconds((val_col.First().Count-1) * scale )
+                    LastTimestamp = roundedDate.AddMilliseconds((val_col.First().Count - 1) * scale)
                 };
                 vectorContainer.Vectors = new TimeSeriesVector<double>[Config.GetSensorNumber() * Config.GetDataDimensionsNr()].Select(a => new TimeSeriesVector<double>()).ToArray();
-                // init
-                for (int j = 0; j < Config.GetSensorNumber(); j++)
-                {
-                    for (int d = 0; d < Config.GetDataDimensionsNr(); d++)
-                    {
-                        vectorContainer.Vectors[j * Config.GetDataDimensionsNr() + d].Directory = Config.GetPolyDimTableName() + "_in_" + scale + "_ms_steps_with_" + Config.GetDataDimensionsNr() + "_dimensions";
-                        vectorContainer.Vectors[j * Config.GetDataDimensionsNr() + d].Series = "sensor_id_" + j + "_dim_" + d;
-                        vectorContainer.Vectors[j * Config.GetDataDimensionsNr() + d].Values = new double[val_col.First().Count]; ;
-                    }
-                }
-                // fill
+
                 foreach (var DimSensorNr in DictOfSensorIDsToListsFromValueArrays.Keys)
                 {
-                    vectorContainer.Vectors[DimSensorNr].Directory = Config.GetPolyDimTableName() + "_in_" + scale + "_ms_steps_with_" + Config.GetDataDimensionsNr() + "_dimensions";
-                    vectorContainer.Vectors[DimSensorNr].Series = "sensor_id_" + IndexOfSensorIDsDimensions[DimSensorNr][0] + "_dim_" + IndexOfSensorIDsDimensions[DimSensorNr][1];
+                    vectorContainer.Vectors[DimSensorNr].Directory = GetDirectoryName();
+                    vectorContainer.Vectors[DimSensorNr].Series = GetSeriesNames( IndexOfSensorIDsDimensions[DimSensorNr][0] , IndexOfSensorIDsDimensions[DimSensorNr][1] );
+
+                    // vectorContainer.Vectors[DimSensorNr].Values = new double[val_col.First().Count]; 
+
                     vectorContainer.Vectors[DimSensorNr].Values = val_col.Select(a => a.ToArray()).ToArray()[DimSensorNr];
 
                     if (Config.GetPrintModeEnabled() == true) // Todo remove
@@ -142,7 +132,7 @@ namespace BenchmarkTool.Database
                 DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.EndDate, DateTimeKind.Utc);
 
                 string dir = GetDirectoryName();
-                string[] series = GetSeriesNames(query.SensorIDs);
+                string[] series = GetSeriesNames(query.SensorIDs, new int[1]{0});
                 DltsQuery.Selection.Add(dir, series);
 
                 Stopwatch sw = Stopwatch.StartNew();
@@ -159,6 +149,35 @@ namespace BenchmarkTool.Database
             {
                 Log.Error(String.Format("Failed to execute Range Query Raw Data. Exception: {0}", ex.ToString()));
                 return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData), ex, ex.ToString());
+            }
+        }
+        public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
+        {
+            try
+            {
+                var DltsQuery = _iquery.RangeRawAllDims;
+
+                DltsQuery.FirstTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc);
+                DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.EndDate, DateTimeKind.Utc);
+
+                string dir = GetDirectoryName();
+                string[] series = GetSeriesNames(query.SensorIDs);
+                DltsQuery.Selection.Add(dir, series);
+
+                Stopwatch sw = Stopwatch.StartNew();
+                var readResult = await _client.RetrieveVectorsAsync<double>(DltsQuery, true, true).ConfigureAwait(false);
+                var points = 0;
+                points = readResult.Vectors.Length;
+                _aggInterval = 0;
+                sw.Stop();
+                await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
+
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute Range Query Raw Data. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData), ex, ex.ToString());
             }
         }
 
@@ -312,31 +331,41 @@ namespace BenchmarkTool.Database
 
         private string GetDirectoryName()
         {
-            if (Config.GetDataDimensionsNr() == 1)
+ 
                 return Config.GetPolyDimTableName() + "_in_" + Config.GetDatalayertsScaleMilliseconds().ToString() + "_ms_steps";
-            else
-                return Config.GetPolyDimTableName() + "_in_" + Config.GetDatalayertsScaleMilliseconds().ToString() + "_ms_steps_with_" + Config.GetDataDimensionsNr() + "_dimensions";
+
         }
 
         private string[] GetSeriesNames(int SensorID)
         {
-            return GetSeriesNames(new int[1] { SensorID });
+            int[] AllDim = new int[Config.GetDataDimensionsNr()];
+            AllDim  = Enumerable.Range(0, Config.GetDataDimensionsNr()).ToArray(); 
+
+            return GetSeriesNames(new int[1] { SensorID } , AllDim );
         }
-        private string[] GetSeriesNames(int[] SensorIDs)
+         private string GetSeriesNames(int SensorID, int dim)
+        {
+            return GetSeriesNames(new int[1] { SensorID } , new int[1] {dim} ).First();
+        }
+           private string[] GetSeriesNames(int[] SensorIDs)
+        {
+            int[] AllDim = new int[Config.GetDataDimensionsNr()];
+            AllDim  = Enumerable.Range(0, Config.GetDataDimensionsNr()).ToArray(); 
+
+            return GetSeriesNames( SensorIDs , AllDim );
+        }
+        private string[] GetSeriesNames(int[] SensorIDs, int[] dimensions)
         {
             string[] series;
-            if (Config.GetDataDimensionsNr() == 1)
-                series = SensorIDs.ToString().Select(i => "sensor_id_" + i.ToString()).ToArray();
-            else
+
+            series = new String[Config.GetDataDimensionsNr() * Config.GetSensorNumber()];
+            foreach (int c in SensorIDs)
             {
-                series = new String[Config.GetDataDimensionsNr() * SensorIDs.Length];
-                for (int c = 0; c < SensorIDs.Length; c++)
-                {
-                    for (int d = 0; d < Config.GetDataDimensionsNr(); d++)
-                        series[c * Config.GetDataDimensionsNr() + d] = "sensor_id_" + c + "_dim_" + d;
-                }
+                foreach (int d in dimensions)
+                    series[c * Config.GetDataDimensionsNr() + d] = "sensor_id_" + c + "_dim_" + d;
             }
-            return series;
+
+            return series.Where(c => c != null).ToArray();
         }
 
     }

@@ -63,6 +63,17 @@ namespace BenchmarkTool
                         statuses.Add(status);
                     }
                     break;
+                case Operation.RangeQueryRawAllDimsData:
+                    for (var i = 0; i < loop; i++)
+                    {
+                        Log.Information("Executing Range Raw Query");
+                        var startDate = GetRandomDateTime();
+                        var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
+                        var status = await _targetDb.RangeQueryRawAllDims(query);
+                        status.Iteration = i;
+                        statuses.Add(status);
+                    }
+                    break;
                 case Operation.RangeQueryAggData:
                     for (int i = 0; i < loop; i++)
                     {
@@ -115,7 +126,8 @@ namespace BenchmarkTool
             return statuses;
         }
 
-        private DateTime GetRandomDateTime() {
+        private DateTime GetRandomDateTime()
+        {
             return _date.AddDays(_rnd.Next(_daySpan)).AddHours(_rnd.Next(24));
         }
     }

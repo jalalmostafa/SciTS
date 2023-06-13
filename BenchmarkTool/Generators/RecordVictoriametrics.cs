@@ -20,6 +20,8 @@ namespace BenchmarkTool.Generators
             SensorID = sensorId;
             Time = TimeZoneInfo.ConvertTimeToUtc(timestamp);
             // Value = value;
+                        ValuesArray = new float[1];
+
                         ValuesArray[0] = value;
 
         }

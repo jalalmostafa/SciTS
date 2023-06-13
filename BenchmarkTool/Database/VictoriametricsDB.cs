@@ -152,6 +152,33 @@ namespace BenchmarkTool.Database
             }
         }
 
+          public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
+        {
+            try
+            {
+                var flux = _influxQueries.RangeRawAllDims.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
+                flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
+                var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
+                var ids = String.Concat("/", String.Join("|", sensorIds), "/");
+                flux = flux.Replace(QueryParams.SensorIDsParam, ids);
+                Log.Information("Flux query: " + flux);
+
+                var queryApi = _client.GetQueryApi();
+                Stopwatch sw = Stopwatch.StartNew();
+                var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
+                sw.Stop();
+                int count = results != null && results.Count > 0 ? results[0].Records.Count : 0; // TODO understand better
+                Log.Information("Number of points: " + count.ToString());
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute Range Query Raw Data on InfluxDB. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0,
+                                           query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawAllDimsData), ex, ex.ToString());
+            }
+        }
+
         public async Task<QueryStatusRead> AggregatedDifferenceQuery(ComparisonQuery query)
         {
             try

@@ -213,6 +213,35 @@ namespace BenchmarkTool.Database
                 return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData), ex, ex.ToString());
             }
         }
+             public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
+        {
+            try
+            {
+                Log.Information(String.Format("Start Date: {0}", query.StartDate.ToString()));
+                Log.Information(String.Format("End Date: {0}", query.EndDate.ToString()));
+
+                using var cmd = new NpgsqlCommand(_query.RangeRawAllDims, _connection);
+                cmd.Parameters.AddWithValue(QueryParams.Start, NpgsqlTypes.NpgsqlDbType.Timestamp, query.StartDate);
+                cmd.Parameters.AddWithValue(QueryParams.End, NpgsqlTypes.NpgsqlDbType.Timestamp, query.EndDate);
+                cmd.Parameters.AddWithValue(QueryParams.SensorIDs, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Integer, query.SensorIDs);
+                var points = 0;
+                cmd.Prepare();
+                Stopwatch sw = Stopwatch.StartNew();
+                using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    points++;
+                }
+                sw.Stop();
+                await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute Range Query Raw Data. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData), ex, ex.ToString());
+            }
+        }
 
         public async Task<QueryStatusRead> StandardDevQuery(SpecificQuery query)
         {

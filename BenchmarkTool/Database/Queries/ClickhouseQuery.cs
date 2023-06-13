@@ -4,8 +4,9 @@ namespace BenchmarkTool.Database.Queries
 {
     public class ClickhouseQuery : IQuery<String>
     {
-// TODO remove newline
-        private static string _rangeRaw = @"SELECT * from {0} 
+         private static string _rangeRawAllDims = @"SELECT * from {0} 
+                                            where {1} >= toDateTime('{2}') and {1} <= toDateTime('{3}') and {4} IN ({5})";
+        private static string _rangeRaw = @"SELECT {6} from {0} 
                                             where {1} >= toDateTime('{2}') and {1} <= toDateTime('{3}') and {4} IN ({5})";
 
         private static string _rangeAgg = @"SELECT toStartOfInterval({0}, INTERVAL {1} hour) as interval, avg({2}), {3} from {4}
@@ -29,9 +30,10 @@ namespace BenchmarkTool.Database.Queries
 
         private static string _stdDev = @"SELECT stddevSamp({0}) from {1}
                                         where {2} >= toDateTime('{3}') and {2} <= toDateTime('{4}') and {5} = {6}";
-// TODO multidim query
-        public String RangeAgg => String.Format(_rangeAgg, Constants.Time, Config.GetAggregationInterval(), Constants.Value+"_1", Constants.SensorID, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDsParam);
-        public String RangeRaw => String.Format(_rangeRaw, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
+         public String RangeAgg => String.Format(_rangeAgg, Constants.Time, Config.GetAggregationInterval(), Constants.Value+"_1", Constants.SensorID, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDsParam);
+        public String RangeRawAllDims => String.Format(_rangeRawAllDims, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
+
+        public String RangeRaw => String.Format(_rangeRaw, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam, Constants.Value+"_1");
 
         public String OutOfRange => String.Format(_outOfRange, Constants.Time, Config.GetAggregationInterval(), Constants.Value+"_1", Constants.SensorID, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDParam, QueryParams.MinValParam, QueryParams.MaxValParam);
 

@@ -13,5 +13,7 @@ namespace BenchmarkTool.Database.Queries
         public String StdDev => throw new NotImplementedException();
 
         public String AggDifference => throw new NotImplementedException();
+
+        public String RangeRawAllDims => throw new NotImplementedException();
     }
 }

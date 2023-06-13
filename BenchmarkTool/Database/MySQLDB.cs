@@ -59,6 +59,10 @@ namespace BenchmarkTool.Database
         {
             throw new NotImplementedException();
         }
+        public  Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery rangeQuery)
+        {
+            throw new NotImplementedException();
+        }
 
         public  Task<QueryStatusRead> StandardDevQuery(SpecificQuery query)
         {

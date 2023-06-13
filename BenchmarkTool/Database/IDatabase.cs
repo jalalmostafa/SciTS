@@ -19,6 +19,7 @@ namespace BenchmarkTool.Database
         Task<QueryStatusWrite> WriteRecord(IRecord record);
 
         Task<QueryStatusRead> RangeQueryRaw(RangeQuery rangeQuery);
+        Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery rangeQuery);
 
         Task<QueryStatusRead> RangeQueryAgg(RangeQuery rangeQuery);
 
