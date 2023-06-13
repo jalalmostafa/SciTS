@@ -37,9 +37,8 @@ namespace BenchmarkTool
             }
         }
 
-        public async Task<List<QueryStatusRead>> RunQuery()
+        public async Task<List<QueryStatusRead>> RunQuery(int TestRetryReadIteration)
         {
-            int loop = Config.GetTestRetries();
             var sensorsFilter = Config.GetSensorsFilter();
             var sensorsFilterString = Config.GetSensorsFilterString();
             var sensorId = Config.GetSensorID();
@@ -53,67 +52,61 @@ namespace BenchmarkTool
             {
 
                 case Operation.RangeQueryRawData:
-                    for (var i = 0; i < loop; i++)
                     {
                         Log.Information("Executing Range Raw Query");
                         var startDate = GetRandomDateTime();
                         var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
                         var status = await _targetDb.RangeQueryRaw(query);
-                        status.Iteration = i;
+                        status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
                     }
                     break;
                 case Operation.RangeQueryRawAllDimsData:
-                    for (var i = 0; i < loop; i++)
                     {
                         Log.Information("Executing Range Raw Query");
                         var startDate = GetRandomDateTime();
                         var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
                         var status = await _targetDb.RangeQueryRawAllDims(query);
-                        status.Iteration = i;
+                        status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
                     }
                     break;
                 case Operation.RangeQueryAggData:
-                    for (int i = 0; i < loop; i++)
                     {
                         Log.Information("Executing Range Aggregared Query");
                         var startDate = GetRandomDateTime();
                         var aggQuery = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
                         var status = await _targetDb.RangeQueryAgg(aggQuery);
-                        status.Iteration = i;
+                        status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
                     }
                     break;
                 case Operation.OutOfRangeQuery:
-                    for (int i = 0; i < loop; i++)
                     {
                         Log.Information("Executing Out of Range Query");
                         var startDate = GetRandomDateTime();
                         var oorangeQuery = new OORangeQuery(startDate, _minutes, sensorId, maxValue, minValue);
                         var status = await _targetDb.OutOfRangeQuery(oorangeQuery);
-                        status.Iteration = i;
+                        status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
                     }
                     break;
                 case Operation.DifferenceAggQuery:
-                    for (int i = 0; i < loop; i++)
                     {
                         Log.Information("Executing Agg Difference Query");
                         var startDate = GetRandomDateTime();
                         var comparisonQuery = new ComparisonQuery(startDate, _minutes, firstSensorId, secondSensorId);
                         var status = await _targetDb.AggregatedDifferenceQuery(comparisonQuery);
-                        status.Iteration = i;
+                        status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
                     }
                     break;
                 case Operation.STDDevQuery:
-                    for (int i = 0; i < loop; i++)
                     {
                         Log.Information("Executing Standard Deviation Query");
                         var startDate = GetRandomDateTime();
                         var status = await _targetDb.StandardDevQuery(new SpecificQuery(startDate, _minutes, secondSensorId));
-                        status.Iteration = i;
+                        status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
                     }
                     break;

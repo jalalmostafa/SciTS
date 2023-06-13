@@ -8,6 +8,7 @@ namespace BenchmarkTool
         public double SucceededDataPoints { get; }
         public double FailedDataPoints { get; }
         public string Operation { get; }
+        public string Mode {get;}
         public string TargetDatabase { get; }
         public double Latency { get; }
         public long Duration { get; }
@@ -18,13 +19,14 @@ namespace BenchmarkTool
         public int Dimensions { get; }
 
         public LogRecordRead(double latency, double succeededPoints, long epoch,
-                            double failedPoints, Operation operation,
+                            double failedPoints, Operation operation, string mode,
                             DateTime startDate, long duration, int aggregation)
         {
             Latency = latency;
             SucceededDataPoints = succeededPoints;
             FailedDataPoints = failedPoints;
             Operation = operation.ToString();
+            Mode = mode;
             Date = epoch;
             TargetDatabase = Config.GetTargetDatabase();
             StartDate = startDate;

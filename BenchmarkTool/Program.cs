@@ -13,6 +13,8 @@ namespace BenchmarkTool
 {
     static class Program
     {
+        static string Mode;
+        static int _TestRetryWriteIteration;
         static async Task Main(string[] args)
         {
             try
@@ -29,22 +31,27 @@ namespace BenchmarkTool
                 switch (action)
                 {
                     case "populate":
+                        Mode = "distinct";
                         await Batching(false);
                         break;
 
                     case "read":
+                        Mode = "distinct";
                         await BenchmarkReadData();
                         break;
 
                     case "write":
+                        Mode = "distinct";
                         await Batching(true);
                         break;
-                    case "consecutive": 
+                    case "consecutive":
+                        Mode = "distinct";
                         await Batching(true);
-                        await BenchmarkReadData(); 
+                        await BenchmarkReadData();
                         break;
                     case "concurrent":
-                        await Task.WhenAll( new Task[]{Batching(true),BenchmarkReadData()} );
+                        Mode = "concurrent";
+                        await Task.WhenAll(new Task[] { Batching(true), BenchmarkReadData() });
                         break;
 
                     default:
@@ -62,15 +69,16 @@ namespace BenchmarkTool
 
         private async static Task<List<QueryStatusWrite>> RunIngestionTask(ClientWrite client)
         {
-            return await client.RunIngestion();
+            return await client.RunIngestion(_TestRetryWriteIteration);
         }
 
-        
+
 
         private async static Task Batching(bool log)
         {
-
-
+ for (int TestRetryWriteIteration = 0; TestRetryWriteIteration < Config.GetTestRetries(); TestRetryWriteIteration++)
+{
+    _TestRetryWriteIteration=TestRetryWriteIteration;
             var resultsLogger = new CsvLogger<LogRecordWrite>();
 
             int sensorsNb = Config.GetSensorNumber();
@@ -78,6 +86,7 @@ namespace BenchmarkTool
             int[] batchSizeArray = Config.GetBatchSizeOptions();
             var daySpan = Config.GetDaySpan();
             int loop = 0;
+
 
             foreach (var totalClientsNb in clientNumberArray)
             {
@@ -97,7 +106,7 @@ namespace BenchmarkTool
                         glances.Commit();
                         foreach (var result in results)
                         {
-                            var record = result.PerformanceMetric.ToLogRecord(
+                            var record = result.PerformanceMetric.ToLogRecord(Mode,
                                 result.Timestamp, batchSize, totalClientsNb, sensorsNb,
                                 result.Client, result.Iteration);
                             resultsLogger.WriteRecord(record);
@@ -107,27 +116,33 @@ namespace BenchmarkTool
                     loop++;
                 }
             }
-            resultsLogger.Dispose();
+            resultsLogger.Dispose();}
         }
 
         private static async Task BenchmarkReadData()
         {
-            var client = new ClientRead();
-            var sensorsNb = Config.GetSensorNumber();
-            var glances = new GlancesStarter(Config.GetQueryType().ToEnum<Operation>(), 1, 0, sensorsNb);
-            glances.BeginMonitor();
-            var results = await client.RunQuery();
-
-            glances.Commit();
-            using (var csvLogger = new CsvLogger<LogRecordRead>())
+            for (int TestRetryReadIteration = 0; TestRetryReadIteration < Config.GetTestRetries(); TestRetryReadIteration++)
             {
-                foreach (var result in results)
+                var client = new ClientRead();
+                var sensorsNb = Config.GetSensorNumber();
+                var glances = new GlancesStarter(Config.GetQueryType().ToEnum<Operation>(), 1, 0, sensorsNb);
+                glances.BeginMonitor();
+
+
+
+                var results = await client.RunQuery(TestRetryReadIteration);
+
+                glances.Commit();
+                using (var csvLogger = new CsvLogger<LogRecordRead>())
                 {
-                    var record = result.PerformanceMetric.ToLogRecord(result.Timestamp, -1, -1, -1, 0, result.Iteration);
-                    csvLogger.WriteRecord(record);
+                    foreach (var result in results)
+                    {
+                        var record = result.PerformanceMetric.ToLogRecord(Mode, result.Timestamp, -1, -1, -1, 0, result.Iteration);
+                        csvLogger.WriteRecord(record);
+                    }
                 }
+                glances.EndMonitor();
             }
-            glances.EndMonitor();
         }
     }
 }

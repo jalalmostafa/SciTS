@@ -10,8 +10,9 @@ namespace BenchmarkTool
             SucceededDataPoints = succeededDataPoints;
             FailedDataPoints = failedDataPoints;
             PerformedOperation = operation;
+           
         }
-
+public string Mode {get;}
         public double Latency { get; }
 
         public long SucceededDataPoints { get; }
@@ -20,6 +21,6 @@ namespace BenchmarkTool
 
         public Operation PerformedOperation { get; }
 
-        public abstract T ToLogRecord(long timestamp, int batchSize, int clientsNb, int sensorNb, int client, int iteration);
+        public abstract T ToLogRecord(string mode, long timestamp, int batchSize, int clientsNb, int sensorNb, int client, int iteration);
     }
 }

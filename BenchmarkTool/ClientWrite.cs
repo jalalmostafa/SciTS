@@ -39,12 +39,12 @@ namespace BenchmarkTool
                 Log.Error(ex.ToString());
             }
         }
-        public async Task<List<QueryStatusWrite>> RunIngestion()
+        public async Task<List<QueryStatusWrite>> RunIngestion(int TestRetryWriteIteration)
         {
-                    return await RunIngestion(new EnhancedDataGenerator());
+                    return await RunIngestion(new EnhancedDataGenerator(), TestRetryWriteIteration);
         }
 
-        public async Task<List<QueryStatusWrite>> RunIngestion(EnhancedDataGenerator dataGenerator)  
+        public async Task<List<QueryStatusWrite>> RunIngestion(EnhancedDataGenerator dataGenerator,int TestRetryWriteIteration)  
         {
 
             // new logic: modulo
@@ -60,14 +60,13 @@ namespace BenchmarkTool
 
             var statuses = new List<QueryStatusWrite>();
 
-            for (var i = 0; i < Config.GetTestRetries(); i++) // every Benchmark iteration writes to another year
             {
-                var batchStartdate = _date.AddYears(i);
+                var batchStartdate = _date;
                 Batch batch = dataGenerator.GenerateBatch(_BatchSize, sensorIdsForThisClientList, batchStartdate, Config.GetDataDimensionsNr());
 
                 var status = await _targetDb.WriteBatch(batch);
-                Console.WriteLine($"[{_chosenClientIndex}-{i}-{batchStartdate}] [Clients Number {_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber} with Dimensions:{Config.GetDataDimensionsNr()}] Latency:{status.PerformanceMetric.Latency}");
-                status.Iteration = i;
+                Console.WriteLine($"[{_chosenClientIndex}-{TestRetryWriteIteration}-{batchStartdate}] [Clients Number {_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber} with Dimensions:{Config.GetDataDimensionsNr()}] Latency:{status.PerformanceMetric.Latency}");
+                status.Iteration = TestRetryWriteIteration;
                 status.Client = _chosenClientIndex;
                 statuses.Add(status);
             }

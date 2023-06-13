@@ -8,6 +8,7 @@ namespace BenchmarkTool
         public double SucceededDataPoints { get; }
         public double FailedDataPoints { get; }
         public string Operation { get; }
+        public string Mode {get;}
         public string TargetDatabase { get; }
         public double Latency { get; }
         public int ClientsNumber { get; }
@@ -20,13 +21,14 @@ namespace BenchmarkTool
         public int Dimensions { get; }
 
         public LogRecordWrite(double latency, double succeededPoints, long epoch,
-                                double failedPoints, Operation operation, int clientsNb,
+                                double failedPoints, Operation operation,string mode, int clientsNb,
                                 int batchSize, int sensorsNb, int client, int iteration)
         {
             Latency = latency;
             SucceededDataPoints = succeededPoints;
             FailedDataPoints = failedPoints;
             Operation = operation.ToString();
+            Mode = mode;
             Date = epoch;
             TargetDatabase = Config.GetTargetDatabase();
             SensorsNumber = sensorsNb;
