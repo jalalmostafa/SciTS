@@ -17,6 +17,8 @@ namespace BenchmarkTool
         public int Client { get; }
         public int Iteration { get; }
 
+        public int Dimensions { get; }
+
         public LogRecordWrite(double latency, double succeededPoints, long epoch,
                                 double failedPoints, Operation operation, int clientsNb,
                                 int batchSize, int sensorsNb, int client, int iteration)
@@ -28,11 +30,13 @@ namespace BenchmarkTool
             Date = epoch;
             TargetDatabase = Config.GetTargetDatabase();
             SensorsNumber = sensorsNb;
+            Dimensions = Config.GetDataDimensionsNr();
             BatchSize = batchSize;
             ClientsNumber = clientsNb;
             Loop = Config.GetTestRetries();
             Client = client;
             Iteration = iteration;
+            
         }
     }
 }

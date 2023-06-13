@@ -11,7 +11,7 @@ namespace BenchmarkTool.Generators
         // bool polyDim { get;  }
 
         float getFirstValue(){
-            return ValuesArray[1];
+            return ValuesArray[0];
         }
 
 

@@ -10,6 +10,7 @@ namespace BenchmarkTool.Generators
             SensorID = sensorId;
             Time = timestamp;
             // Value = value;
+            ValuesArray = new float[1];
             ValuesArray[0] = value;
         }
         public RecordDatalayerts(int sensorId, DateTime timestamp, float[] values)

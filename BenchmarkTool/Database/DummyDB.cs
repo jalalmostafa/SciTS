@@ -11,6 +11,7 @@ using BenchmarkTool.Generators;
 using System.Diagnostics;
 using System.Globalization;
 
+
 namespace BenchmarkTool.Database
 {
     public class DummyDB : IDatabase
@@ -93,7 +94,9 @@ namespace BenchmarkTool.Database
 
 
                 sw.Start();
-                await File.AppendAllTextAsync("/tmp/dummy_" + DateTime.Now.Day.ToString() + ".txt", sCommand.ToString());
+                // await File.AppendAllTextAsync("/tmp/dummy_" + DateTime.Now.Day.ToString() + ".txt", sCommand.ToString());
+                await File.AppendAllTextAsync("/tmp/dummy_empty_" + DateTime.Now.Day.ToString() + ".txt", " ") ;
+
                 sw.Stop();
 
 

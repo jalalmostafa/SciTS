@@ -15,6 +15,8 @@ namespace BenchmarkTool
         public DateTime StartDate { get; }
         public int Aggregation { get; }
 
+        public int Dimensions { get; }
+
         public LogRecordRead(double latency, double succeededPoints, long epoch,
                             double failedPoints, Operation operation,
                             DateTime startDate, long duration, int aggregation)
@@ -26,9 +28,12 @@ namespace BenchmarkTool
             Date = epoch;
             TargetDatabase = Config.GetTargetDatabase();
             StartDate = startDate;
+             Dimensions = Config.GetDataDimensionsNr();
             Duration = duration;
             Aggregation = aggregation;
             Loop = Config.GetTestRetries();
+
+
         }
     }
 }

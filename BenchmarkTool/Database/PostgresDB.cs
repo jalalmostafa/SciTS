@@ -68,13 +68,16 @@ namespace BenchmarkTool.Database
                     command.ExecuteNonQuery();
 
 
-                    int i = 0;
+                    
                     _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
                                 .MapTimeStamp(Constants.Time, x => x.Time)
                                 .MapInteger(Constants.SensorID, x => x.SensorID);
-                    while (i < Config.GetDataDimensionsNr())
+                                Console.WriteLine(Config.GetDataDimensionsNr());
+                    for (int i = 0;i < Config.GetDataDimensionsNr() ; i++)
                     {//TODO weird error OOB
-                        _copyHelper = _copyHelper.MapReal(Constants.Value + "_" + i, x => x.ValuesArray[i]); i++;
+                    Console.WriteLine(i);
+                    if(i==Config.GetDataDimensionsNr() ) break;
+                        _copyHelper = _copyHelper.MapReal(Constants.Value + "_" + i, x => { if(i== Config.GetDataDimensionsNr()  ) i--; Console.WriteLine(i); return  x.ValuesArray[i]; } );
                     }
 
 

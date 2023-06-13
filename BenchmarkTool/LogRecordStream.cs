@@ -14,6 +14,8 @@ namespace BenchmarkTool
         public int Loop { get; }
         public int SensorsNumber { get; }
 
+        public int Dimensions { get; }
+
         public LogRecordStream(double latency, long succeededPoints, long epoch,
                                 long failedPoints, Operation operation, int clientsNb,
                                 int sensorsNb)
@@ -25,8 +27,11 @@ namespace BenchmarkTool
             Duration = epoch;
             TargetDatabase = Config.GetTargetDatabase();
             SensorsNumber = sensorsNb;
+            Dimensions = Config.GetDataDimensionsNr();
             ClientsNumber = clientsNb;
             Loop = Config.GetTestRetries();
+            
+
         }
     }
 }
