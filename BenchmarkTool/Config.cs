@@ -218,9 +218,14 @@ namespace BenchmarkTool
             return val;
         }
 
+        public static string QueryTypeOnRunTime = "All"; 
+
         public static string GetQueryType()
         {
+           
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.QueryType];
+            if(val == "All")
+                val = QueryTypeOnRunTime;
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.QueryType));
             return val;

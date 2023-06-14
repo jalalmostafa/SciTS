@@ -34,7 +34,8 @@ namespace BenchmarkTool.Generators
         {
 
             RecordFactory recordFactory = new RecordFactory();
-            _rnd= new XorShiftRng(3345345345,234234234);
+            _rnd = new Random(9497839);
+            // _rnd= new XorShiftRng(3345345345,234234234);
             Batch batch = new Batch(batchSize);
 
 

@@ -76,72 +76,85 @@ namespace BenchmarkTool
 
         private async static Task Batching(bool log)
         {
- for (int TestRetryWriteIteration = 0; TestRetryWriteIteration < Config.GetTestRetries(); TestRetryWriteIteration++)
-{
-    _TestRetryWriteIteration=TestRetryWriteIteration;
-            var resultsLogger = new CsvLogger<LogRecordWrite>();
-
-            int sensorsNb = Config.GetSensorNumber();
-            int[] clientNumberArray = Config.GetClientNumberOptions();
-            int[] batchSizeArray = Config.GetBatchSizeOptions();
-            var daySpan = Config.GetDaySpan();
-            int loop = 0;
-
-
-            foreach (var totalClientsNb in clientNumberArray)
+            for (int TestRetryWriteIteration = 0; TestRetryWriteIteration < Config.GetTestRetries(); TestRetryWriteIteration++)
             {
-                foreach (var batchSize in batchSizeArray)
+                _TestRetryWriteIteration = TestRetryWriteIteration;
+                var resultsLogger = new CsvLogger<LogRecordWrite>();
+
+                int sensorsNb = Config.GetSensorNumber();
+                int[] clientNumberArray = Config.GetClientNumberOptions();
+                int[] batchSizeArray = Config.GetBatchSizeOptions();
+                var daySpan = Config.GetDaySpan();
+                int loop = 0;
+
+
+                foreach (var totalClientsNb in clientNumberArray)
                 {
-                    var date = Config.GetStartTime().AddDays(loop * daySpan);
-                    var clients = new List<ClientWrite>();
-                    for (var chosenClientIndex = 1; chosenClientIndex <= totalClientsNb; chosenClientIndex++)
+                    foreach (var batchSize in batchSizeArray)
                     {
-                        clients.Add(new ClientWrite(chosenClientIndex, totalClientsNb, sensorsNb, batchSize, date));
-                    }
-                    var glances = new GlancesStarter(Operation.BatchIngestion, totalClientsNb, batchSize, sensorsNb);
-                    glances.BeginMonitor();
-                    var results = await clients.ParallelForEachAsync(RunIngestionTask, totalClientsNb);
-                    if (log)
-                    {
-                        glances.Commit();
-                        foreach (var result in results)
+                        var date = Config.GetStartTime().AddDays(loop * daySpan);
+                        var clients = new List<ClientWrite>();
+                        for (var chosenClientIndex = 1; chosenClientIndex <= totalClientsNb; chosenClientIndex++)
                         {
-                            var record = result.PerformanceMetric.ToLogRecord(Mode,
-                                result.Timestamp, batchSize, totalClientsNb, sensorsNb,
-                                result.Client, result.Iteration);
-                            resultsLogger.WriteRecord(record);
+                            clients.Add(new ClientWrite(chosenClientIndex, totalClientsNb, sensorsNb, batchSize, date));
                         }
+                        var glances = new GlancesStarter(Operation.BatchIngestion, totalClientsNb, batchSize, sensorsNb);
+                        glances.BeginMonitor();
+                        var results = await clients.ParallelForEachAsync(RunIngestionTask, totalClientsNb);
+                        if (log)
+                        {
+                            glances.Commit();
+                            foreach (var result in results)
+                            {
+                                var record = result.PerformanceMetric.ToLogRecord(Mode,
+                                    result.Timestamp, batchSize, totalClientsNb, sensorsNb,
+                                    result.Client, result.Iteration);
+                                resultsLogger.WriteRecord(record);
+                            }
+                        }
+                        glances.EndMonitor();
+                        loop++;
                     }
-                    glances.EndMonitor();
-                    loop++;
                 }
+                resultsLogger.Dispose();
             }
-            resultsLogger.Dispose();}
         }
 
         private static async Task BenchmarkReadData()
         {
+            string[] QueryArray;
+
+            if (Config.GetQueryType() == "All")
+                QueryArray = new string[] { "RangeQueryRawData", "RangeQueryRawAllDimsData", "RangeQueryAggData", "OutOfRangeQuery", "DifferenceAggQuery", "STDDevQuery" };
+            else
+                QueryArray = new string[] { Config.GetQueryType() };
+                
             for (int TestRetryReadIteration = 0; TestRetryReadIteration < Config.GetTestRetries(); TestRetryReadIteration++)
             {
-                var client = new ClientRead();
-                var sensorsNb = Config.GetSensorNumber();
-                var glances = new GlancesStarter(Config.GetQueryType().ToEnum<Operation>(), 1, 0, sensorsNb);
-                glances.BeginMonitor();
-
-
-
-                var results = await client.RunQuery(TestRetryReadIteration);
-
-                glances.Commit();
-                using (var csvLogger = new CsvLogger<LogRecordRead>())
+                foreach (string Query in QueryArray)
                 {
-                    foreach (var result in results)
+                    Config.QueryTypeOnRunTime = Query;
+
+                    var client = new ClientRead();
+                    var sensorsNb = Config.GetSensorNumber();
+                    var glances = new GlancesStarter(Config.GetQueryType().ToEnum<Operation>(), 1, 0, sensorsNb);
+                    glances.BeginMonitor();
+
+
+
+                    var results = await client.RunQuery(TestRetryReadIteration);
+
+                    glances.Commit();
+                    using (var csvLogger = new CsvLogger<LogRecordRead>())
                     {
-                        var record = result.PerformanceMetric.ToLogRecord(Mode, result.Timestamp, -1, -1, -1, 0, result.Iteration);
-                        csvLogger.WriteRecord(record);
+                        foreach (var result in results)
+                        {
+                            var record = result.PerformanceMetric.ToLogRecord(Mode, result.Timestamp, -1, -1, -1, 0, result.Iteration);
+                            csvLogger.WriteRecord(record);
+                        }
                     }
+                    glances.EndMonitor();
                 }
-                glances.EndMonitor();
             }
         }
     }

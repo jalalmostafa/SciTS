@@ -20,7 +20,7 @@ namespace BenchmarkTool
 
         public LogRecordRead(double latency, double succeededPoints, long epoch,
                             double failedPoints, Operation operation, string mode,
-                            DateTime startDate, long duration, int aggregation)
+                            DateTime startDate, long duration, int aggregation,int iteration)
         {
             Latency = latency;
             SucceededDataPoints = succeededPoints;
@@ -33,7 +33,7 @@ namespace BenchmarkTool
              Dimensions = Config.GetDataDimensionsNr();
             Duration = duration;
             Aggregation = aggregation;
-            Loop = Config.GetTestRetries();
+            Loop = iteration;
 
 
         }

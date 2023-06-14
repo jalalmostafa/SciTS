@@ -30,7 +30,7 @@ namespace BenchmarkTool
         {
             return new LogRecordRead(Latency, SucceededDataPoints, timestamp,
                                     FailedDataPoints, PerformedOperation, mode,
-                                    StartDate, Duration, Aggregation);
+                                    StartDate, Duration, Aggregation,iteration);
         }
     }
 }

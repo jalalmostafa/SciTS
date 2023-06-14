@@ -109,15 +109,16 @@ namespace BenchmarkTool.Database
                 sql = sql.Replace(QueryParams.MaxValParam, query.MaxValue.ToString());
 
                 Log.Information(sql);
-                var cmd = _read_connection.CreateCommand();
+                var cmd = _write_connection.CreateCommand();
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    points++;
-                }
+                var reader =  cmd.ExecuteReader();
+                // while (reader.Read())
+                // {
+                //     points++;
+                // }
+                   reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
@@ -240,15 +241,16 @@ namespace BenchmarkTool.Database
                 sql = sql.Replace(QueryParams.SecondSensorIDParam, query.SecondSensorID.ToString());
 
                 Log.Information(sql);
-                var cmd = _read_connection.CreateCommand();
+                var cmd = _write_connection.CreateCommand();
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    points++;
-                }
+                var reader =  cmd.ExecuteReader();
+                // while (reader.Read())
+                // {
+                //     points++;
+                // }
+                   reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.DifferenceAggQuery));
             }
@@ -269,15 +271,16 @@ namespace BenchmarkTool.Database
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.SensorIDParam, query.SensorID.ToString());
                 Log.Information(sql);
-                var cmd = _read_connection.CreateCommand();
+                var cmd = _write_connection.CreateCommand();
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader = await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    points++;
-                }
+                var reader =  cmd.ExecuteReader();
+                // while (reader.Read())
+                // {
+                //     points++;
+                // }
+                 reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
             }
