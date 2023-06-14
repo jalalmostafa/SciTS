@@ -31,26 +31,26 @@ namespace BenchmarkTool
                 switch (action)
                 {
                     case "populate":
-                        Mode = "distinct";
+                        Mode = "distinct_"+Config.GetIngestionType();
                         await Batching(false);
                         break;
 
                     case "read":
-                        Mode = "distinct";
+                        Mode = "distinct_"+Config.GetIngestionType();
                         await BenchmarkReadData();
                         break;
 
                     case "write":
-                        Mode = "distinct";
+                        Mode = "distinct_"+Config.GetIngestionType();
                         await Batching(true);
                         break;
                     case "consecutive":
-                        Mode = "distinct";
+                        Mode = "distinct_"+Config.GetIngestionType();
                         await Batching(true);
                         await BenchmarkReadData();
                         break;
                     case "concurrent":
-                        Mode = "concurrent";
+                        Mode = "concurrent_"+Config.GetIngestionType();
                         await Task.WhenAll(new Task[] { Batching(true), BenchmarkReadData() });
                         break;
 
