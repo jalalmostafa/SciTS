@@ -37,8 +37,8 @@ namespace BenchmarkTool
                 {
                     case "populate":
                         _waitReadComplete = true;
-                        Mode = "dedicated_" + Config.GetIngestionType();
-                        await Batching(false);
+                        Mode = "populate_" + Config.GetIngestionType();
+                        Populate();
                         break;
 
                     case "read":
@@ -88,7 +88,12 @@ namespace BenchmarkTool
             return await client.RunQuery(_TestRetryReadIteration);
         }
 
+        private static void Populate()
+        {
 
+            var client = new ClientWrite(1, 1, Config.GetSensorNumber(), Config.GetSensorNumber() * Config.GetDataDimensionsNr() * 86400 * (1000 / Config.GetDatalayertsScaleMilliseconds()), Config.GetStartTime());
+            Task.FromResult(client.RunIngestion(1));
+        }
         private async static Task Batching(bool log)
         {
 
@@ -115,9 +120,10 @@ namespace BenchmarkTool
                         var totalClientsNb = ClientsNb;
                         foreach (var batchSize in batchSizeArray)
                         {
-                            if (TestRetryWriteIteration >= Config.GetTestRetries()){ 
+                            if (TestRetryWriteIteration >= Config.GetTestRetries())
+                            {
                                 totalClientsNb = clientNumberArray.Last() + 1;
-                                }
+                            }
 
                             var date = Config.GetStartTime().AddDays(loop * daySpan);
                             var clients = new List<ClientWrite>();
@@ -144,7 +150,7 @@ namespace BenchmarkTool
                         }
                     }
                     resultsLogger.Dispose();
-                    if(TestRetryWriteIteration == Config.GetTestRetries())_waitWriteComplete = true;
+                    if (TestRetryWriteIteration == Config.GetTestRetries()) _waitWriteComplete = true;
                 }
 
             }
@@ -209,7 +215,7 @@ namespace BenchmarkTool
                             glances.EndMonitor();
                         }
                     }
-                    if(TestRetryReadIteration == Config.GetTestRetries()) _waitReadComplete = true;
+                    if (TestRetryReadIteration == Config.GetTestRetries()) _waitReadComplete = true;
                 }
 
             }
