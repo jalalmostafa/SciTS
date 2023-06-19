@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using BenchmarkTool.Queries;
 using BenchmarkTool.Database;
 using System.Collections.Generic;
+using BenchmarkTool;
 
 namespace BenchmarkTool
 {
@@ -37,6 +38,7 @@ namespace BenchmarkTool
             }
         }
 
+
         public async Task<List<QueryStatusRead>> RunQuery(int TestRetryReadIteration)
         {
             var sensorsFilter = Config.GetSensorsFilter();
@@ -59,6 +61,8 @@ namespace BenchmarkTool
                         var status = await _targetDb.RangeQueryRaw(query);
                         status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date{startDate},min:{_minutes}] [ {BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{Config.GetDataDimensionsNr()}] Latency:{status.PerformanceMetric.Latency}");
+
                     }
                     break;
                 case Operation.RangeQueryRawAllDimsData:
@@ -69,6 +73,8 @@ namespace BenchmarkTool
                         var status = await _targetDb.RangeQueryRawAllDims(query);
                         status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date{startDate},min:{_minutes}] [ {BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{Config.GetDataDimensionsNr()}] Latency:{status.PerformanceMetric.Latency}");
+
                     }
                     break;
                 case Operation.RangeQueryAggData:
@@ -79,6 +85,8 @@ namespace BenchmarkTool
                         var status = await _targetDb.RangeQueryAgg(aggQuery);
                         status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date{startDate},min:{_minutes}] [ {BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{Config.GetDataDimensionsNr()}] Latency:{status.PerformanceMetric.Latency}");
+
                     }
                     break;
                 case Operation.OutOfRangeQuery:
@@ -89,6 +97,8 @@ namespace BenchmarkTool
                         var status = await _targetDb.OutOfRangeQuery(oorangeQuery);
                         status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date{startDate},min:{_minutes}] [ {BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{Config.GetDataDimensionsNr()}] Latency:{status.PerformanceMetric.Latency}");
+
                     }
                     break;
                 case Operation.DifferenceAggQuery:
@@ -99,6 +109,8 @@ namespace BenchmarkTool
                         var status = await _targetDb.AggregatedDifferenceQuery(comparisonQuery);
                         status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date{startDate},min:{_minutes}] [ {BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{Config.GetDataDimensionsNr()}] Latency:{status.PerformanceMetric.Latency}");
+
                     }
                     break;
                 case Operation.STDDevQuery:
@@ -108,6 +120,8 @@ namespace BenchmarkTool
                         var status = await _targetDb.StandardDevQuery(new SpecificQuery(startDate, _minutes, secondSensorId));
                         status.Iteration = TestRetryReadIteration;
                         statuses.Add(status);
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date{startDate},min:{_minutes}] [ {BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{Config.GetDataDimensionsNr()}] Latency:{status.PerformanceMetric.Latency}");
+
                     }
                     break;
                 default:
@@ -116,6 +130,7 @@ namespace BenchmarkTool
 
             _targetDb.Cleanup();
             _targetDb.Close();
+
             return statuses;
         }
 

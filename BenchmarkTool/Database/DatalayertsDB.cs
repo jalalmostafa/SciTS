@@ -241,7 +241,7 @@ namespace BenchmarkTool.Database
                 _aggInterval = 0;
                 sw.Stop();
 
-                await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
+                // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.OutOfRangeQuery));
             }

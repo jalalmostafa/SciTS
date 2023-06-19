@@ -65,7 +65,7 @@ namespace BenchmarkTool.Database
                     var command = _connection.CreateCommand();
                     int c = 0; StringBuilder builder = new StringBuilder("");
                     while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_" + c + " double precision"); c++; }
-                    command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + Config.GetPolyDimTableName() + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON sensor_data(time DESC); CREATE INDEX ON sensor_data(sensor_id, time DESC); --UNIQUE ; ");
+                    command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + Config.GetPolyDimTableName() + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX IF NOT EXISTS ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE  ");
                     command.ExecuteNonQuery();
 
 

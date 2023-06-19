@@ -66,6 +66,39 @@ namespace BenchmarkTool
             return results.SelectMany(r => r).ToList();
         }
 
+
+             public static async Task<List<QueryStatusRead>> ParallelForEachAsync(
+            this IEnumerable<ClientRead> source,
+            Func<ClientRead, Task<List<QueryStatusRead>>> func,
+            int maxDegreeOfParallelism)
+        {
+            async Task<List<QueryStatusRead>> AwaitPartition(IEnumerator<ClientRead> partition)
+            {
+                var results = new List<QueryStatusRead>();
+                using (partition)
+                {
+                    while (partition.MoveNext())
+                    {
+                        await Task.Yield(); // prevents a sync/hot thread hangup
+                        var partitionResults = await func(partition.Current);
+                        results.AddRange(partitionResults);
+                    }
+                }
+                return results;
+            }
+
+            var results = await Task.WhenAll(
+                Partitioner
+                    .Create(source)
+                    .GetPartitions(maxDegreeOfParallelism)
+                    .AsParallel()
+                    .Select(p => AwaitPartition(p)));
+            return results.SelectMany(r => r).ToList();
+        }
+
+
+
+
         public static long GetNanoEpoch()
         {
             TimeSpan t = DateTime.Now - Epoch;

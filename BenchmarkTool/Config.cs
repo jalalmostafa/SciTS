@@ -233,8 +233,8 @@ namespace BenchmarkTool
         public static string GetIngestionType()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.IngestionType];
-            if (String.IsNullOrEmpty(val))
-                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.IngestionType));
+            if (String.IsNullOrEmpty(val) | (val != "regular" & val != "irregular"))
+                throw new Exception(String.Format("Invalid or Null or empty app settings val for key={0}", ConfigurationKeys.IngestionType));
             return val;
         }
         public static string GetMultiDimensionStorageType()
