@@ -50,6 +50,7 @@ namespace BenchmarkTool.Database
                 Log.Error(String.Format("Failed to close. Exception: {0}", ex.ToString()));
             }
         }
+        float debugdummy(IRecord x,int i ){Console.WriteLine(i);return x.ValuesArray[i];}
 
         public void Init()
         {
@@ -73,12 +74,13 @@ namespace BenchmarkTool.Database
                                 .MapTimeStamp(Constants.Time, x => x.Time)
                                 .MapInteger(Constants.SensorID, x => x.SensorID);
                                 Console.WriteLine(Config.GetDataDimensionsNr());
-                    for (int i = 0;i < Config.GetDataDimensionsNr() ; i++)
+                    for (var i = 0;i < Config.GetDataDimensionsNr() ; i++)
                     {//TODO weird error OOB
-                    Console.WriteLine(i);
-                    if(i==Config.GetDataDimensionsNr() ) break;
-                        _copyHelper = _copyHelper.MapReal(Constants.Value + "_" + i, x => { if(i== Config.GetDataDimensionsNr()  ) i--; Console.WriteLine(i); return  x.ValuesArray[i]; } );
+                    int j=i;
+                    _copyHelper = _copyHelper.MapReal(Constants.Value + "_" + i, x => x.ValuesArray[j]);
+                    Console.WriteLine(j);
                     }
+                    //debugdummy(x,j) 
 
 
                 }
@@ -296,7 +298,7 @@ namespace BenchmarkTool.Database
             try
             {
                 Stopwatch sw = Stopwatch.StartNew();
-                await _copyHelper.SaveAllAsync(_connection, batch.Records);
+                
                 sw.Stop();
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
             }

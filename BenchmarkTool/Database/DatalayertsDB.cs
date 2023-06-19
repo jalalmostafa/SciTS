@@ -49,7 +49,7 @@ namespace BenchmarkTool.Database
             {
                 int scale = Config.GetDatalayertsScaleMilliseconds();
                 DateTime roundedDate = new DateTime(Config.GetStartTime().Year, Config.GetStartTime().Month, Config.GetStartTime().Day, Config.GetStartTime().Hour, Config.GetStartTime().Minute, Config.GetStartTime().Second, Config.GetStartTime().Millisecond, DateTimeKind.Utc);
-                Dictionary<int, List<double>> DictOfSensorIDsToListsFromValueArrays = new Dictionary<int, List<double>>();
+                Dictionary<int, List<double>> DictOfDimXSensorIDsToListsFromValueArrays = new Dictionary<int, List<double>>();
                 Dictionary<int, int[]> IndexOfSensorIDsDimensions = new Dictionary<int, int[]>();
 
 
@@ -61,18 +61,19 @@ namespace BenchmarkTool.Database
                     {
                        
 
-                        if (!DictOfSensorIDsToListsFromValueArrays.ContainsKey(item.SensorID * Config.GetDataDimensionsNr() + d))
+                        if (!DictOfDimXSensorIDsToListsFromValueArrays.ContainsKey(item.SensorID * Config.GetDataDimensionsNr() + d))
                         {
-                            DictOfSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d] = new List<double>();
+                            DictOfDimXSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d] = new List<double>();
                         }
 
                         IndexOfSensorIDsDimensions[item.SensorID * Config.GetDataDimensionsNr() + d] = new int[2] { item.SensorID, d };
-                        DictOfSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d].Add(item.ValuesArray[d]);
+                        DictOfDimXSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d].Add(item.ValuesArray[d]);
 
                     }
 
                 }
-                Dictionary<int, List<double>>.ValueCollection val_col = DictOfSensorIDsToListsFromValueArrays.Values;
+
+                Dictionary<int, List<double>>.ValueCollection val_col = DictOfDimXSensorIDsToListsFromValueArrays.Values;
 
                 string[] series = new int[Config.GetSensorNumber()].Select(i => "sensor_id_" + i.ToString()).ToArray();
 
@@ -82,9 +83,9 @@ namespace BenchmarkTool.Database
                     IntervalTicks = 10000 * scale, // second = 10mil
                     LastTimestamp = roundedDate.AddMilliseconds((val_col.First().Count - 1) * scale)
                 };
-                vectorContainer.Vectors = new TimeSeriesVector<double>[Config.GetSensorNumber() * Config.GetDataDimensionsNr()].Select(a => new TimeSeriesVector<double>()).ToArray();
+                vectorContainer.Vectors = new TimeSeriesVector<double>[val_col.Count()].Select(a => new TimeSeriesVector<double>()).ToArray();
 
-                foreach (var DimSensorNr in DictOfSensorIDsToListsFromValueArrays.Keys)
+                foreach (var DimSensorNr in DictOfDimXSensorIDsToListsFromValueArrays.Keys)
                 {
                     vectorContainer.Vectors[DimSensorNr].Directory = GetDirectoryName();
                     vectorContainer.Vectors[DimSensorNr].Series = GetSeriesNames( IndexOfSensorIDsDimensions[DimSensorNr][0] , IndexOfSensorIDsDimensions[DimSensorNr][1] );
