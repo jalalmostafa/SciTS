@@ -12,6 +12,8 @@ public sealed class XorShiftRng: Random
 
         s[0] = seed1;
         s[1] = seed2;
+                sI[0] = (int)seed1;
+        sI[1] =(int) seed2;
     }
 
     public XorShiftRng()
@@ -31,6 +33,17 @@ public sealed class XorShiftRng: Random
             s1 ^= s1 << 31;
             s[p] = s1 ^ s0 ^ (s1 >> 11) ^ (s0 >> 30);
             return s[p]*1181783497276652981;
+        }
+    }
+        public int NextInt()
+    {
+        unchecked
+        {
+            int s0 = sI[p];
+            int s1 = sI[p = (p + 1) & 15];
+            s1 ^= s1 << 31;
+            sI[p] = s1 ^ s0 ^ (s1 >> 11) ^ (s0 >> 30);
+            return sI[p]*1618789;
         }
     }
 
@@ -86,9 +99,14 @@ public sealed class XorShiftRng: Random
     {
         return NextUlong() / (ulong.MaxValue + 1.0);
     }
+         public  float NextFloat()
+    {
+        return NextInt() / 1000000;
+    }
 
 
     readonly ulong[] s = new ulong[16];
+    readonly int[] sI = new int[16];
     int p;
 }
 

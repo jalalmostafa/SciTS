@@ -65,7 +65,7 @@ namespace BenchmarkTool.Database
                     var command = _connection.CreateCommand();
                     int c = 0; StringBuilder builder = new StringBuilder("");
                     while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_" + c + " double precision"); c++; }
-                    command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + Config.GetPolyDimTableName() + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX IF NOT EXISTS ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE  ");
+                    command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + Config.GetPolyDimTableName() + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE;  ");
                     command.ExecuteNonQuery();
 
 
@@ -73,12 +73,12 @@ namespace BenchmarkTool.Database
                     _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
                                 .MapTimeStamp(Constants.Time, x => x.Time)
                                 .MapInteger(Constants.SensorID, x => x.SensorID);
-                                Console.WriteLine(Config.GetDataDimensionsNr());
+                                // Console.WriteLine(Config.GetDataDimensionsNr());
                     for (var i = 0;i < Config.GetDataDimensionsNr() ; i++)
                     {//TODO weird error OOB
                     int j=i;
                     _copyHelper = _copyHelper.MapReal(Constants.Value + "_" + i, x => x.ValuesArray[j]);
-                    Console.WriteLine(j);
+                    // Console.WriteLine(j);
                     }
                     //debugdummy(x,j) 
 

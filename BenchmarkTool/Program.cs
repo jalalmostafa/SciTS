@@ -14,8 +14,8 @@ namespace BenchmarkTool
     static class Program
     {
         static string Mode;
-        static bool _waitWriteComplete = false;
-        static bool _waitReadComplete = false;
+        static bool _WriteComplete = false;
+        static bool _ReadComplete = false;
         public static int _currentReadClientsNR;
         static int _TestRetryWriteIteration;
         static int _TestRetryReadIteration;
@@ -36,25 +36,25 @@ namespace BenchmarkTool
                 switch (action)
                 {
                     case "populate":
-                        _waitReadComplete = true;
-                        Mode = "populate_" + Config.GetIngestionType();
-                        Populate();
+                        _ReadComplete = true;
+                        Mode = "populate_1Day_" + Config.GetIngestionType();
+                        PopulateOneDayRegularData();
                         break;
 
                     case "read":
-                        _waitWriteComplete = true;
+                        _WriteComplete = true;
                         Mode = "dedicated_" + Config.GetIngestionType();
                         await BenchmarkReadData();
                         break;
 
                     case "write":
-                        _waitReadComplete = true;
+                        _ReadComplete = true;
                         Mode = "dedicated_" + Config.GetIngestionType();
                         await Batching(true);
                         break;
                     case "consecutive":
-                        _waitReadComplete = true;
-                        _waitWriteComplete = true;
+                        _ReadComplete = true;
+                        _WriteComplete = true;
                         Mode = "dedicated_" + Config.GetIngestionType();
                         await Batching(true);
                         await BenchmarkReadData();
@@ -88,7 +88,7 @@ namespace BenchmarkTool
             return await client.RunQuery(_TestRetryReadIteration);
         }
 
-        private static void Populate()
+        private static void PopulateOneDayRegularData()
         {
 
             var client = new ClientWrite(1, 1, Config.GetSensorNumber(), Config.GetSensorNumber() * Config.GetDataDimensionsNr() * 86400 * (1000 / Config.GetDatalayertsScaleMilliseconds()), Config.GetStartTime());
@@ -99,7 +99,7 @@ namespace BenchmarkTool
 
             int TestRetryWriteIteration = 0;
             {
-                while ((_waitWriteComplete & _waitReadComplete) == false & TestRetryWriteIteration < Config.GetTestRetries())
+                while (  (_WriteComplete & _ReadComplete) == false & TestRetryWriteIteration < Config.GetTestRetries())
                 {
                     TestRetryWriteIteration++;
 
@@ -125,7 +125,7 @@ namespace BenchmarkTool
                                 totalClientsNb = clientNumberArray.Last() + 1;
                             }
 
-                            var date = Config.GetStartTime().AddDays(loop * daySpan);
+                            var date = Config.GetStartTime().AddDays(loop * daySpan); // TODO ask if keep "new client -new day" or change to "all clients one day, overwrite "
                             var clients = new List<ClientWrite>();
                             for (var chosenClientIndex = 1; chosenClientIndex <= totalClientsNb; chosenClientIndex++)
                             {
@@ -150,7 +150,7 @@ namespace BenchmarkTool
                         }
                     }
                     resultsLogger.Dispose();
-                    if (TestRetryWriteIteration == Config.GetTestRetries()) _waitWriteComplete = true;
+                    if (TestRetryWriteIteration == Config.GetTestRetries()) _WriteComplete = true;
                 }
 
             }
@@ -170,7 +170,7 @@ namespace BenchmarkTool
 
             int TestRetryReadIteration = 0;
             {
-                while ((_waitWriteComplete & _waitReadComplete) == false & TestRetryReadIteration < Config.GetTestRetries())
+                while ((_WriteComplete & _ReadComplete) == false & TestRetryReadIteration < Config.GetTestRetries())
                 {
                     TestRetryReadIteration++;
                     _TestRetryReadIteration = TestRetryReadIteration;
@@ -215,7 +215,7 @@ namespace BenchmarkTool
                             glances.EndMonitor();
                         }
                     }
-                    if (TestRetryReadIteration == Config.GetTestRetries()) _waitReadComplete = true;
+                    if (TestRetryReadIteration == Config.GetTestRetries()) _ReadComplete = true;
                 }
 
             }

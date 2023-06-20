@@ -29,7 +29,7 @@
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/BenchmarkTool/bin/Debug/net7.0/BenchmarkTool.dll",
             "args": [
-                "mixed" // can be read, write, mixed, consecutive
+                "write" // can be populate, read, write, mixed, consecutive
             ],
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",

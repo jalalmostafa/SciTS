@@ -65,7 +65,7 @@ namespace BenchmarkTool
                 Batch batch = dataGenerator.GenerateBatch(_BatchSize, sensorIdsForThisClientList, batchStartdate, Config.GetDataDimensionsNr());
 
                 var status = await _targetDb.WriteBatch(batch);
-                Console.WriteLine($"[{_chosenClientIndex}-{TestRetryWriteIteration}-{batchStartdate}] [Clients Number {_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber} with Dimensions:{Config.GetDataDimensionsNr()}] Latency:{status.PerformanceMetric.Latency}");
+                Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] [Clients Number {_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber} with Dimensions:{Config.GetDataDimensionsNr()}] Latency:{status.PerformanceMetric.Latency}");
                 status.Iteration = TestRetryWriteIteration;
                 status.Client = _chosenClientIndex;
                 statuses.Add(status);
@@ -98,7 +98,7 @@ namespace BenchmarkTool
                     Batch batch;
                     batch = dataGenerator.GenerateBatch(_BatchSize, startId, sensorsPerClient, i, _chosenClientIndex, batchStartdate);
                     var status = await _targetDb.WriteBatch(batch);
-                    Console.WriteLine($"[{_chosenClientIndex}-{i}-{batchStartdate}] [Clients Number {_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber}] {status.PerformanceMetric.Latency}");
+                    Console.WriteLine($"[ClientID{_chosenClientIndex}-Iteration:{i}-{batchStartdate}] [Clients Number {_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber}] {status.PerformanceMetric.Latency}");
                     status.Iteration = i;
                     status.Client = _chosenClientIndex;
                     statuses.Add(status);
