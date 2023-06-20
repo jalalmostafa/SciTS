@@ -99,7 +99,7 @@ namespace BenchmarkTool
 
             int TestRetryWriteIteration = 0;
             {
-                while (  (_WriteComplete & _ReadComplete) == false & TestRetryWriteIteration < Config.GetTestRetries())
+                while (  !(_WriteComplete & _ReadComplete) | TestRetryWriteIteration < Config.GetTestRetries())
                 {
                     TestRetryWriteIteration++;
 
@@ -120,7 +120,7 @@ namespace BenchmarkTool
                         var totalClientsNb = ClientsNb;
                         foreach (var batchSize in batchSizeArray)
                         {
-                            if (TestRetryWriteIteration >= Config.GetTestRetries())
+                            if (TestRetryWriteIteration > Config.GetTestRetries())
                             {
                                 totalClientsNb = clientNumberArray.Last() + 1;
                             }
@@ -170,7 +170,7 @@ namespace BenchmarkTool
 
             int TestRetryReadIteration = 0;
             {
-                while ((_WriteComplete & _ReadComplete) == false & TestRetryReadIteration < Config.GetTestRetries())
+                while (   !(_WriteComplete & _ReadComplete)  |  TestRetryReadIteration < Config.GetTestRetries()   )
                 {
                     TestRetryReadIteration++;
                     _TestRetryReadIteration = TestRetryReadIteration;
@@ -179,7 +179,7 @@ namespace BenchmarkTool
                         _currentReadClientsNR = totalClientsNb;
                         foreach (string Query in QueryArray)
                         {
-                            if (TestRetryReadIteration >= Config.GetTestRetries())
+                            if (TestRetryReadIteration > Config.GetTestRetries())
                             {
                                 _currentReadClientsNR = clientNumberArray.Last() + 1;
                             }
