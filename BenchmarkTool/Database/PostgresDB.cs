@@ -50,7 +50,7 @@ namespace BenchmarkTool.Database
                 Log.Error(String.Format("Failed to close. Exception: {0}", ex.ToString()));
             }
         }
-        float debugdummy(IRecord x,int i ){Console.WriteLine(i);return x.ValuesArray[i];}
+        float debugdummy(IRecord x, int i) { Console.WriteLine(i); return x.ValuesArray[i]; }
 
         public void Init()
         {
@@ -69,16 +69,16 @@ namespace BenchmarkTool.Database
                     command.ExecuteNonQuery();
 
 
-                    
+
                     _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
                                 .MapTimeStamp(Constants.Time, x => x.Time)
                                 .MapInteger(Constants.SensorID, x => x.SensorID);
-                                // Console.WriteLine(Config.GetDataDimensionsNr());
-                    for (var i = 0;i < Config.GetDataDimensionsNr() ; i++)
+                    // Console.WriteLine(Config.GetDataDimensionsNr());
+                    for (var i = 0; i < Config.GetDataDimensionsNr(); i++)
                     {//TODO weird error OOB
-                    int j=i;
-                    _copyHelper = _copyHelper.MapReal(Constants.Value + "_" + i, x => x.ValuesArray[j]);
-                    // Console.WriteLine(j);
+                        int j = i;
+                        _copyHelper = _copyHelper.MapReal(Constants.Value + "_" + i, x => x.ValuesArray[j]);
+                        // Console.WriteLine(j);
                     }
                     //debugdummy(x,j) 
 
@@ -215,7 +215,7 @@ namespace BenchmarkTool.Database
                 return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData), ex, ex.ToString());
             }
         }
-             public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
+        public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
         {
             try
             {
@@ -298,7 +298,7 @@ namespace BenchmarkTool.Database
             try
             {
                 Stopwatch sw = Stopwatch.StartNew();
-                
+                await _copyHelper.SaveAllAsync(_connection, batch.Records);
                 sw.Stop();
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
             }
