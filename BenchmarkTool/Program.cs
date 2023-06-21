@@ -37,11 +37,17 @@ namespace BenchmarkTool
                 if (args.Length >= 2)
                 {
                     action = args[0];
-                    setting = args[2];
                     ingType = args[1];
                     Config.SetIngestionType(ingType);
+                    if (args.Length >= 3)
+                    {
+                        setting = args[2];
+                        Config.SetTargetDatabase(setting);
+                    }
 
-                    Config.SetTargetDatabase(setting);
+
+
+
                 }
                 switch (action)
                 {

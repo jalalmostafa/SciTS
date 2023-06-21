@@ -225,7 +225,7 @@ private static string _DbSetting = "null";
             return val;
         }
 
-        private static string QueryTypeOnRunTime = "All";
+        public static string QueryTypeOnRunTime = "All";
 
         public static string GetQueryType()
         {
