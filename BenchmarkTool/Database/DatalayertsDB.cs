@@ -59,7 +59,7 @@ namespace BenchmarkTool.Database
             {
                 VectorContainer<double> vectorContainer ;
                 // TODO to config
-                string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
+                // string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
 // if(File.Exists(pth))
 // { // TODOtrycatch
 
@@ -131,7 +131,7 @@ namespace BenchmarkTool.Database
 
 
                 // TODO to config
-                // string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
+                string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
 
                 using (Stream stream = File.Open(pth, FileMode.Create))
                 {
