@@ -3,15 +3,25 @@ using DataLayerTS.Models;
 using Serilog;
 using System;
 using System.Linq;
-
+using System.IO;
+using System.Text;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BenchmarkTool.Queries;
 using BenchmarkTool.Generators;
 using System.Diagnostics;
 using BenchmarkTool.Database.Queries;
+using MemoryPack;
+using System;
+using System.Collections;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
-
+using System;
+using System.IO;
+using System.Collections;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 
 namespace BenchmarkTool.Database
 {
@@ -47,6 +57,23 @@ namespace BenchmarkTool.Database
 
             try
             {
+                VectorContainer<double> vectorContainer ;
+                // TODO to config
+                string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
+// if(File.Exists(pth))
+// { // TODOtrycatch
+
+
+// using (Stream stream = File.Open(pth, FileMode.Open))  
+//         {  
+//             var reader = new BinaryReader(stream);
+//             var bin = reader.Read();
+//            vectorContainer  = MemoryPackSerializer.Deserialize<VectorContainer<double>>(bin);
+//         } 
+// }
+// else
+// {
+
                 int scale = Config.GetDatalayertsScaleMilliseconds();
                 DateTime roundedDate = new DateTime(Config.GetStartTime().Year, Config.GetStartTime().Month, Config.GetStartTime().Day, Config.GetStartTime().Hour, Config.GetStartTime().Minute, Config.GetStartTime().Second, Config.GetStartTime().Millisecond, DateTimeKind.Utc);
                 Dictionary<int, List<double>> DictOfDimXSensorIDsToListsFromValueArrays = new Dictionary<int, List<double>>();
@@ -55,11 +82,11 @@ namespace BenchmarkTool.Database
 
                 foreach (var item in batch.Records)
                 {
-                  
+
 
                     for (int d = 0; d < Config.GetDataDimensionsNr(); d++)
                     {
-                       
+
 
                         if (!DictOfDimXSensorIDsToListsFromValueArrays.ContainsKey(item.SensorID * Config.GetDataDimensionsNr() + d))
                         {
@@ -77,7 +104,7 @@ namespace BenchmarkTool.Database
 
                 string[] series = new int[Config.GetSensorNumber()].Select(i => "sensor_id_" + i.ToString()).ToArray();
 
-                VectorContainer<double> vectorContainer = new VectorContainer<double>()
+                vectorContainer = new VectorContainer<double>()
                 {
                     FirstTimestamp = roundedDate,
                     IntervalTicks = 10000 * scale, // second = 10mil
@@ -88,7 +115,7 @@ namespace BenchmarkTool.Database
                 foreach (var DimSensorNr in DictOfDimXSensorIDsToListsFromValueArrays.Keys)
                 {
                     vectorContainer.Vectors[DimSensorNr].Directory = GetDirectoryName();
-                    vectorContainer.Vectors[DimSensorNr].Series = GetSeriesNames( IndexOfSensorIDsDimensions[DimSensorNr][0] , IndexOfSensorIDsDimensions[DimSensorNr][1] );
+                    vectorContainer.Vectors[DimSensorNr].Series = GetSeriesNames(IndexOfSensorIDsDimensions[DimSensorNr][0], IndexOfSensorIDsDimensions[DimSensorNr][1]);
 
                     // vectorContainer.Vectors[DimSensorNr].Values = new double[val_col.First().Count]; 
 
@@ -101,6 +128,18 @@ namespace BenchmarkTool.Database
                         }
                     // }
                 }
+
+
+                // TODO to config
+                // string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
+
+                using (Stream stream = File.Open(pth, FileMode.Create))
+                {
+                    var bin = MemoryPackSerializer.Serialize(vectorContainer);
+                    var writer = new BinaryWriter(stream);
+                    writer.Write(bin);
+                }
+                // }
 
                 Stopwatch sw = Stopwatch.StartNew();
                 await _client.IngestVectorsAsync<double>(vectorContainer, OverwriteMode.older, TimeSeriesCreationTimestampStorageType.NONE, default);
@@ -133,7 +172,7 @@ namespace BenchmarkTool.Database
                 DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.EndDate, DateTimeKind.Utc);
 
                 string dir = GetDirectoryName();
-                string[] series = GetSeriesNames(query.SensorIDs, new int[1]{0});
+                string[] series = GetSeriesNames(query.SensorIDs, new int[1] { 0 });
                 DltsQuery.Selection.Add(dir, series);
 
                 Stopwatch sw = Stopwatch.StartNew();
@@ -332,28 +371,28 @@ namespace BenchmarkTool.Database
 
         private string GetDirectoryName()
         {
- 
-                return Config.GetPolyDimTableName() + "_in_" + Config.GetDatalayertsScaleMilliseconds().ToString() + "_ms_steps";
+
+            return Config.GetPolyDimTableName() + "_in_" + Config.GetDatalayertsScaleMilliseconds().ToString() + "_ms_steps";
 
         }
 
         private string[] GetSeriesNames(int SensorID)
         {
             int[] AllDim = new int[Config.GetDataDimensionsNr()];
-            AllDim  = Enumerable.Range(0, Config.GetDataDimensionsNr()).ToArray(); 
+            AllDim = Enumerable.Range(0, Config.GetDataDimensionsNr()).ToArray();
 
-            return GetSeriesNames(new int[1] { SensorID } , AllDim );
+            return GetSeriesNames(new int[1] { SensorID }, AllDim);
         }
-         private string GetSeriesNames(int SensorID, int dim)
+        private string GetSeriesNames(int SensorID, int dim)
         {
-            return GetSeriesNames(new int[1] { SensorID } , new int[1] {dim} ).First();
+            return GetSeriesNames(new int[1] { SensorID }, new int[1] { dim }).First();
         }
-           private string[] GetSeriesNames(int[] SensorIDs)
+        private string[] GetSeriesNames(int[] SensorIDs)
         {
             int[] AllDim = new int[Config.GetDataDimensionsNr()];
-            AllDim  = Enumerable.Range(0, Config.GetDataDimensionsNr()).ToArray(); 
+            AllDim = Enumerable.Range(0, Config.GetDataDimensionsNr()).ToArray();
 
-            return GetSeriesNames( SensorIDs , AllDim );
+            return GetSeriesNames(SensorIDs, AllDim);
         }
         private string[] GetSeriesNames(int[] SensorIDs, int[] dimensions)
         {

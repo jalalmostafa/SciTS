@@ -29,7 +29,7 @@
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/BenchmarkTool/bin/Debug/net7.0/BenchmarkTool.dll",
             "args": [
-                "write" // can be populate, read, write, mixed, consecutive
+                "write"  // can be populate, read, write, mixed, consecutive on first place and X_DB on second. e.g. "write","PostgresDB"
             ],
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",

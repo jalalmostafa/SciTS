@@ -33,6 +33,12 @@ namespace BenchmarkTool
                 Log.Information("Application started");
 
                 var action = args != null && args.Length > 0 ? args[0] : "read";
+                string setting;
+                if (args.Length == 2)
+                {
+                    action = args[0]; setting = args[1];
+                    Config.SetTargetDatabase(setting);
+                }
                 switch (action)
                 {
                     case "populate":
@@ -99,7 +105,7 @@ namespace BenchmarkTool
 
             int TestRetryWriteIteration = 0;
             {
-                while (  !(_WriteComplete & _ReadComplete) | TestRetryWriteIteration < Config.GetTestRetries())
+                while (!(_WriteComplete & _ReadComplete) | TestRetryWriteIteration < Config.GetTestRetries())
                 {
                     TestRetryWriteIteration++;
 
@@ -170,7 +176,7 @@ namespace BenchmarkTool
 
             int TestRetryReadIteration = 0;
             {
-                while (   !(_WriteComplete & _ReadComplete)  |  TestRetryReadIteration < Config.GetTestRetries()   )
+                while (!(_WriteComplete & _ReadComplete) | TestRetryReadIteration < Config.GetTestRetries())
                 {
                     TestRetryReadIteration++;
                     _TestRetryReadIteration = TestRetryReadIteration;

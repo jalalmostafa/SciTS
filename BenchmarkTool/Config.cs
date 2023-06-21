@@ -40,8 +40,8 @@ namespace BenchmarkTool
         }
         public static string GetPolyDimTableName()
         {
-            var val = Constants.TableName + "_dim_"+Config.GetDataDimensionsNr();
-            
+            var val = Constants.TableName + "_dim_" + Config.GetDataDimensionsNr();
+
             return val;
         }
         public static int GetTestRetries()
@@ -52,13 +52,20 @@ namespace BenchmarkTool
             int.TryParse(val, out int loop);
             return loop;
         }
-
+private static string _DbSetting = "null";
         public static string GetTargetDatabase()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.TargetDatabase];
+            if(_DbSetting.Contains("DB")){
+                val = _DbSetting;
+            }
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.TargetDatabase));
             return val;
+        }
+        internal static void SetTargetDatabase(string setting)
+        {
+            _DbSetting = setting;
         }
 
         public static string GetPostgresConnection()
@@ -218,13 +225,13 @@ namespace BenchmarkTool
             return val;
         }
 
-        public static string QueryTypeOnRunTime = "All"; 
+        public static string QueryTypeOnRunTime = "All";
 
         public static string GetQueryType()
         {
-           
+
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.QueryType];
-            if(val == "All")
+            if (val == "All")
                 val = QueryTypeOnRunTime;
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.QueryType));
@@ -400,5 +407,7 @@ namespace BenchmarkTool
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.GlancesNIC));
             return val;
         }
+
+
     }
 }
