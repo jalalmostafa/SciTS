@@ -33,10 +33,14 @@ namespace BenchmarkTool
                 Log.Information("Application started");
 
                 var action = args != null && args.Length > 0 ? args[0] : "read";
-                string setting;
-                if (args.Length == 2)
+                string setting; string ingType;
+                if (args.Length >= 2)
                 {
-                    action = args[0]; setting = args[1];
+                    action = args[0];
+                    setting = args[2];
+                    ingType = args[1];
+                    Config.SetIngestionType(ingType);
+
                     Config.SetTargetDatabase(setting);
                 }
                 switch (action)

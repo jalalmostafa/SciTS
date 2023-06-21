@@ -225,7 +225,7 @@ private static string _DbSetting = "null";
             return val;
         }
 
-        public static string QueryTypeOnRunTime = "All";
+        private static string QueryTypeOnRunTime = "All";
 
         public static string GetQueryType()
         {
@@ -237,9 +237,16 @@ private static string _DbSetting = "null";
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.QueryType));
             return val;
         }
+        private static string _ingType = "null";
+                internal static void SetIngestionType(string ingType)
+        {
+            _ingType = ingType;
+        }
         public static string GetIngestionType()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.IngestionType];
+            if(_ingType.Contains("reg"))
+            val = _ingType;
             if (String.IsNullOrEmpty(val) | (val != "regular" & val != "irregular"))
                 throw new Exception(String.Format("Invalid or Null or empty app settings val for key={0}", ConfigurationKeys.IngestionType));
             return val;
