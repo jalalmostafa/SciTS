@@ -400,3 +400,5 @@ history.md
 store/
 metadata/
 data/
+DLTS_SensNb100_Dim99_Date132854688000000000_Scale1000_batchsize1000.bin
+DLTS_SensNb100_Dim99_Date132854688000000000_Scale1000_batchsize10000.bin

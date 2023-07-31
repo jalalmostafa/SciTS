@@ -82,7 +82,7 @@ namespace BenchmarkTool.Database
                 // create table
                 var command = _write_connection.CreateCommand();
                 int c = 0; StringBuilder builder = new StringBuilder("");
-                while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_" + c + " Float32"); c++; }
+                while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_" + c + " Float64"); c++; }
                 command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + Config.GetPolyDimTableName() + " ( time DateTime64(9) , sensor_id Int32 " + builder + ") ENGINE = MergeTree() PARTITION BY toYYYYMMDD(time) ORDER BY (sensor_id, time);");
                 command.ExecuteNonQuery();
 

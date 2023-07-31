@@ -18,8 +18,9 @@ namespace BenchmarkTool
         {
             Succeeded = succeeded;
             PerformanceMetric = metric;
-            Timestamp = Helper.GetNanoEpoch();
-        }
+            // Timestamp = Helper.GetNanoEpoch(); // TODO CHECK
+            Timestamp = Helper.GetMilliEpoch();        
+            }
 
         public QueryStatus(bool succeeded, int dataPoints, T metric) : this(succeeded, metric)
         {

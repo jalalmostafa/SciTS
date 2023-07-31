@@ -115,7 +115,7 @@ namespace BenchmarkTool
 
             int TestRetryWriteIteration = 0;
             {
-                while (!(_WriteComplete & _ReadComplete) | TestRetryWriteIteration < Config.GetTestRetries())
+                while (!(_WriteComplete && _ReadComplete) || TestRetryWriteIteration < Config.GetTestRetries())
                 {
                     TestRetryWriteIteration++;
 
@@ -186,7 +186,7 @@ namespace BenchmarkTool
 
             int TestRetryReadIteration = 0;
             {
-                while (!(_WriteComplete & _ReadComplete) | TestRetryReadIteration < Config.GetTestRetries())
+                while (!(_WriteComplete && _ReadComplete) || TestRetryReadIteration < Config.GetTestRetries())
                 {
                     TestRetryReadIteration++;
                     _TestRetryReadIteration = TestRetryReadIteration;

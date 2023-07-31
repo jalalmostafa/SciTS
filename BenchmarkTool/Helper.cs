@@ -67,10 +67,10 @@ namespace BenchmarkTool
         }
 
 
-             public static async Task<List<QueryStatusRead>> ParallelForEachAsync(
-            this IEnumerable<ClientRead> source,
-            Func<ClientRead, Task<List<QueryStatusRead>>> func,
-            int maxDegreeOfParallelism)
+        public static async Task<List<QueryStatusRead>> ParallelForEachAsync(
+       this IEnumerable<ClientRead> source,
+       Func<ClientRead, Task<List<QueryStatusRead>>> func,
+       int maxDegreeOfParallelism)
         {
             async Task<List<QueryStatusRead>> AwaitPartition(IEnumerator<ClientRead> partition)
             {
@@ -97,10 +97,14 @@ namespace BenchmarkTool
         }
 
 
-
+        public static long GetMilliEpoch()
+        {
+           TimeSpan t = DateTime.Now - Epoch;
+            return t.Milliseconds;
+        }
 
         public static long GetNanoEpoch()
-        {
+        { // TODO check if it makes sense
             TimeSpan t = DateTime.Now - Epoch;
             return t.Ticks * 100;
         }

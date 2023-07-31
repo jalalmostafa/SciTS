@@ -54,7 +54,7 @@ namespace BenchmarkTool.System.Metrics
         {
             return new GlancesRecord()
             {
-                Timestamp = Helper.GetNanoEpoch(),
+                Timestamp =  Helper.GetMilliEpoch(),
 
                 Database = _database,
                 Operation = operation,

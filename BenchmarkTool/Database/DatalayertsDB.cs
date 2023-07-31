@@ -12,13 +12,6 @@ using BenchmarkTool.Generators;
 using System.Diagnostics;
 using BenchmarkTool.Database.Queries;
 using MemoryPack;
-using System;
-using System.Collections;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-
-using System;
-using System.IO;
 using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
@@ -54,98 +47,158 @@ namespace BenchmarkTool.Database
         public async Task<QueryStatusWrite> WriteBatch(Batch batch)
         {
 
+            // TODO
+
+
+
+
 
             try
             {
-                VectorContainer<double> vectorContainer ;
-                // TODO to config
-                // string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
-// if(File.Exists(pth))
-// { // TODOtrycatch
+                VectorContainer<double> vectorContainer;
 
-
-// using (Stream stream = File.Open(pth, FileMode.Open))  
-//         {  
-//             var reader = new BinaryReader(stream);
-//             var bin = reader.Read();
-//            vectorContainer  = MemoryPackSerializer.Deserialize<VectorContainer<double>>(bin);
-//         } 
-// }
-// else
-// {
-
-                int scale = Config.GetDatalayertsScaleMilliseconds();
-                DateTime roundedDate = new DateTime(Config.GetStartTime().Year, Config.GetStartTime().Month, Config.GetStartTime().Day, Config.GetStartTime().Hour, Config.GetStartTime().Minute, Config.GetStartTime().Second, Config.GetStartTime().Millisecond, DateTimeKind.Utc);
-                Dictionary<int, List<double>> DictOfDimXSensorIDsToListsFromValueArrays = new Dictionary<int, List<double>>();
-                Dictionary<int, int[]> IndexOfSensorIDsDimensions = new Dictionary<int, int[]>();
-
-
-                foreach (var item in batch.Records)
+                if (Config.GetIngestionType() == "irregular")
+                    throw new NotImplementedException();
+                else
                 {
-
-
-                    for (int d = 0; d < Config.GetDataDimensionsNr(); d++)
+                    DateTime roundedDate = new DateTime(Config.GetStartTime().Year, Config.GetStartTime().Month, Config.GetStartTime().Day, Config.GetStartTime().Hour, Config.GetStartTime().Minute, Config.GetStartTime().Second, Config.GetStartTime().Millisecond, DateTimeKind.Utc);
+                    int dataDims = Config.GetDataDimensionsNr();
+                    int timestepIndex = -1;
+                    int anzahlSensorenInBatch = 0;
+                    int i = 0; bool f = true;
+                    while (f)
                     {
-
-
-                        if (!DictOfDimXSensorIDsToListsFromValueArrays.ContainsKey(item.SensorID * Config.GetDataDimensionsNr() + d))
-                        {
-                            DictOfDimXSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d] = new List<double>();
-                        }
-
-                        IndexOfSensorIDsDimensions[item.SensorID * Config.GetDataDimensionsNr() + d] = new int[2] { item.SensorID, d };
-                        DictOfDimXSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d].Add(item.ValuesArray[d]);
-
+                        var alt = batch.Records.ElementAt(i).SensorID;
+                        i++;
+                        var neu = batch.Records.ElementAt(i).SensorID;
+                        if (neu > alt)
+                            anzahlSensorenInBatch++;
+                        if (alt > neu || batch.Records.ElementAt(i) == batch.Records.Last()) { f = false; }
                     }
+                    int anzahlTimestepsPerDimSensor = batch.Records.Count() / anzahlSensorenInBatch;
+                    ;
 
-                }
+                    vectorContainer = new VectorContainer<double>()
+                    {
+                        FirstTimestamp = roundedDate,
+                        IntervalTicks = 10000 * Config.GetDatalayertsScaleMilliseconds(), // second = 10mil
+                        LastTimestamp = roundedDate.AddMilliseconds(anzahlTimestepsPerDimSensor * Config.GetDatalayertsScaleMilliseconds())
+                    };
+                    vectorContainer.Vectors = new TimeSeriesVector<double>[Config.GetSensorNumber() * Config.GetDataDimensionsNr()].Select(a => new TimeSeriesVector<double>()).ToArray();
 
-                Dictionary<int, List<double>>.ValueCollection val_col = DictOfDimXSensorIDsToListsFromValueArrays.Values;
+                    foreach (var record in batch.Records)
+                    {
+                        int sensorId = record.SensorID;
+                        int indexOfFirstDimensionOfSensor = sensorId * dataDims;
 
-                string[] series = new int[Config.GetSensorNumber()].Select(i => "sensor_id_" + i.ToString()).ToArray();
+                        if (sensorId == 0) //runs through all sensor IDs of the same time, then steps to the sensors of the next timeslot
+                            timestepIndex++;
 
-                vectorContainer = new VectorContainer<double>()
-                {
-                    FirstTimestamp = roundedDate,
-                    IntervalTicks = 10000 * scale, // second = 10mil
-                    LastTimestamp = roundedDate.AddMilliseconds((val_col.First().Count - 1) * scale)
-                };
-                vectorContainer.Vectors = new TimeSeriesVector<double>[val_col.Count()].Select(a => new TimeSeriesVector<double>()).ToArray();
-
-                foreach (var DimSensorNr in DictOfDimXSensorIDsToListsFromValueArrays.Keys)
-                {
-                    vectorContainer.Vectors[DimSensorNr].Directory = GetDirectoryName();
-                    vectorContainer.Vectors[DimSensorNr].Series = GetSeriesNames(IndexOfSensorIDsDimensions[DimSensorNr][0], IndexOfSensorIDsDimensions[DimSensorNr][1]);
-
-                    // vectorContainer.Vectors[DimSensorNr].Values = new double[val_col.First().Count]; 
-
-                    vectorContainer.Vectors[DimSensorNr].Values = val_col.Select(a => a.ToArray()).ToArray()[DimSensorNr];
-
-                    if (Config.GetPrintModeEnabled() == true) // Todo remove
-                        for (int i = 0; i < vectorContainer.Vectors[DimSensorNr].Values.GetLength(0); i++)
+                        for (int j = 0; j < dataDims; j++)
                         {
-                            if (vectorContainer.Vectors[DimSensorNr].Values[i] > 0) await Console.Out.WriteLineAsync("write  | " + vectorContainer.Vectors[DimSensorNr].Values[i] + " in  " + vectorContainer.Vectors[DimSensorNr].Series + " at TS: " + roundedDate.AddMilliseconds(i * Config.GetDatalayertsScaleMilliseconds()).ToString());
+                            int vectorIndex = sensorId * dataDims + j;
+
+
+                            if (vectorContainer.Vectors[vectorIndex].Values == null)
+                            {
+                                vectorContainer.Vectors[vectorIndex].Directory = GetDirectoryName();
+                                vectorContainer.Vectors[vectorIndex].Series = "sensor_id_" + sensorId + "_dim_" + j;
+                                vectorContainer.Vectors[vectorIndex].Values = new double[anzahlTimestepsPerDimSensor];
+                            }
+
+                            vectorContainer.Vectors[vectorIndex].Values[timestepIndex] = record.ValuesArray[j];
                         }
-                    // }
+                    }
+;
+
+                    //                     VectorContainer<double> vectorContainer;
+                    //                     //TODO to config
+                    //                     string pth = "./DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_batchsize" + batch.Size + ".bin";
+                    //                     if (File.Exists(pth) & false)//Debug TTODO
+                    //                     {
+
+                    //                         using (Stream stream = File.Open(pth, FileMode.Open))
+                    //                         {
+                    //                             vectorContainer = await MemoryPackSerializer.DeserializeAsync<VectorContainer<double>>(stream);
+                    //                         }
+                    //                     }
+                    //                     else
+                    //                     {
+
+                    //                         int scale = Config.GetDatalayertsScaleMilliseconds();
+                    //                         DateTime roundedDate = new DateTime(Config.GetStartTime().Year, Config.GetStartTime().Month, Config.GetStartTime().Day, Config.GetStartTime().Hour, Config.GetStartTime().Minute, Config.GetStartTime().Second, Config.GetStartTime().Millisecond, DateTimeKind.Utc);
+                    //                         Dictionary<int, List<double>> DictOfDimXSensorIDsToListsFromValueArrays = new Dictionary<int, List<double>>();
+                    //                         Dictionary<int, int[]> IndexOfSensorIDsDimensions = new Dictionary<int, int[]>();  
+
+                    // // man kann in Dicts groesse beim erstellen angeben (sind arrays) (mindestgroese mit init), Statt dicts und listen lieber arrays . Linq ist oft langsamer
+                    // // 
+                    //                         foreach (var item in batch.Records)
+                    //                         {
+
+
+                    //                             for (int d = 0; d < Config.GetDataDimensionsNr(); d++)
+                    //                             {
+
+
+                    //                                 if (!DictOfDimXSensorIDsToListsFromValueArrays.ContainsKey(item.SensorID * Config.GetDataDimensionsNr() + d))
+                    //                                 {
+                    //                                     DictOfDimXSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d] = new List<double>();
+                    //                                 }
+
+                    //                                 IndexOfSensorIDsDimensions[item.SensorID * Config.GetDataDimensionsNr() + d] = new int[2] { item.SensorID, d };
+                    //                                 DictOfDimXSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d].Add(item.ValuesArray[d]);
+
+                    //                             }
+
+                    //                         }
+
+                    //                         Dictionary<int, List<double>>.ValueCollection val_col = DictOfDimXSensorIDsToListsFromValueArrays.Values;
+
+                    //                         string[] series = new int[Config.GetSensorNumber()].Select(i => "sensor_id_" + i.ToString()).ToArray();
+
+                    //                         vectorContainer = new VectorContainer<double>()
+                    //                         {
+                    //                             FirstTimestamp = roundedDate,
+                    //                             IntervalTicks = 10000 * scale, // second = 10mil
+                    //                             LastTimestamp = roundedDate.AddMilliseconds((val_col.First().Count - 1) * scale)
+                    //                         };
+                    //                         vectorContainer.Vectors = new TimeSeriesVector<double>[val_col.Count()].Select(a => new TimeSeriesVector<double>()).ToArray();
+
+                    //                         foreach (var DimSensorNr in DictOfDimXSensorIDsToListsFromValueArrays.Keys)
+                    //                         {
+                    //                             vectorContainer.Vectors[DimSensorNr].Directory = GetDirectoryName();
+                    //                             vectorContainer.Vectors[DimSensorNr].Series = GetSeriesNames(IndexOfSensorIDsDimensions[DimSensorNr][0], IndexOfSensorIDsDimensions[DimSensorNr][1]);
+
+                    //                             // vectorContainer.Vectors[DimSensorNr].Values = new double[val_col.First().Count]; 
+
+                    //                             vectorContainer.Vectors[DimSensorNr].Values = val_col.Select(a => a.ToArray()).ToArray()[DimSensorNr];
+
+                    //                             if (Config.GetPrintModeEnabled() == true) // Todo remove
+                    //                                 for (int i = 0; i < vectorContainer.Vectors[DimSensorNr].Values.GetLength(0); i++)
+                    //                                 {
+                    //                                     if (vectorContainer.Vectors[DimSensorNr].Values[i] > 0) await Console.Out.WriteLineAsync("write  | " + vectorContainer.Vectors[DimSensorNr].Values[i] + " in  " + vectorContainer.Vectors[DimSensorNr].Series + " at TS: " + roundedDate.AddMilliseconds(i * Config.GetDatalayertsScaleMilliseconds()).ToString());
+                    //                                 }
+                    //                             // }
+                    //                         }
+
+
+                    //                         // TODO to config
+                    //                         // string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
+
+                    //                         using (Stream stream = File.Open(pth, FileMode.Create))}
+                    //                         {
+                    //                             var bin = MemoryPackSerializer.Serialize(vectorContainer);
+                    //                             var writer = new BinaryWriter(stream);
+                    //                             writer.Write(bin);
+                    //                         }
+                    //                         // }
                 }
-
-
-                // TODO to config
-                string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
-
-                using (Stream stream = File.Open(pth, FileMode.Create))
-                {
-                    var bin = MemoryPackSerializer.Serialize(vectorContainer);
-                    var writer = new BinaryWriter(stream);
-                    writer.Write(bin);
-                }
-                // }
-
                 Stopwatch sw = Stopwatch.StartNew();
                 await _client.IngestVectorsAsync<double>(vectorContainer, OverwriteMode.older, TimeSeriesCreationTimestampStorageType.NONE, default);
                 sw.Stop();
 
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
+
             }
             catch (Exception ex)
             {

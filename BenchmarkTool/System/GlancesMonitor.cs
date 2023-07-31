@@ -60,8 +60,7 @@ namespace BenchmarkTool.System
             var request = new RestRequest($"/api/3/processlist/pid/{pid}");
             return _client.GetAsync<DatabaseProcess>(request, _cancellationTokenSource.Token);
         }
-
-        public async Task<AllMetrics> GetAllAsync(int pid, string nic, string disk)
+         public async Task<AllMetrics> GetAllAsync(int pid, string nic, string disk)
         {
             var cpuAsync = GetCpuAsync();
             var processAsync = GetDatabaseProcessAsync(pid);

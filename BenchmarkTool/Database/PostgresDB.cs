@@ -50,10 +50,10 @@ namespace BenchmarkTool.Database
                 Log.Error(String.Format("Failed to close. Exception: {0}", ex.ToString()));
             }
         }
-        float debugdummy(IRecord x, int i) { Console.WriteLine(i); return x.ValuesArray[i]; }
-
+        static bool _TableCreated = false;
         public void Init()
         {
+
             try
             {
                 _connection = new NpgsqlConnection(_connectionConfig);
@@ -62,12 +62,17 @@ namespace BenchmarkTool.Database
                 if (Config.GetMultiDimensionStorageType() == "column")
                 {
                     // create table
-                    var command = _connection.CreateCommand();
-                    int c = 0; StringBuilder builder = new StringBuilder("");
-                    while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_" + c + " double precision"); c++; }
-                    command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + Config.GetPolyDimTableName() + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE;  ");
-                    command.ExecuteNonQuery();
 
+
+                    if (_TableCreated == false)
+                    {
+                        var command = _connection.CreateCommand();
+                        int c = 0; StringBuilder builder = new StringBuilder("");
+                        while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_" + c + " double precision"); c++; }
+                        command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + Config.GetPolyDimTableName() + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE;  ");
+                        _TableCreated = true;
+                        command.ExecuteNonQuery();
+                    }
 
 
                     _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
