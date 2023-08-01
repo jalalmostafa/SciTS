@@ -64,15 +64,16 @@ namespace BenchmarkTool.Database
                     DateTime roundedDate = new DateTime(Config.GetStartTime().Year, Config.GetStartTime().Month, Config.GetStartTime().Day, Config.GetStartTime().Hour, Config.GetStartTime().Minute, Config.GetStartTime().Second, Config.GetStartTime().Millisecond, DateTimeKind.Utc);
                     int dataDims = Config.GetDataDimensionsNr();
                     int timestepIndex = -1;
-                    int anzahlSensorenInBatch = 0;
-                    int i = 0; bool f = true;
+                    int anzahlSensorenInBatch = 1;
+                    int i = 0; bool f = true; Dictionary<int,int> sensIDperClientDict= new Dictionary<int,int>();
+                    sensIDperClientDict.Add(batch.Records.First().SensorID,0);
                     while (f)
                     {
                         var alt = batch.Records.ElementAt(i).SensorID;
                         i++;
                         var neu = batch.Records.ElementAt(i).SensorID;
-                        if (neu > alt)
-                            anzahlSensorenInBatch++;
+                        if (neu > alt){
+                            anzahlSensorenInBatch++; sensIDperClientDict.Add(neu,anzahlSensorenInBatch-1);}
                         if (alt > neu || batch.Records.ElementAt(i) == batch.Records.Last()) { f = false; }
                     }
                     int anzahlTimestepsPerDimSensor = batch.Records.Count() / anzahlSensorenInBatch;
@@ -84,26 +85,28 @@ namespace BenchmarkTool.Database
                         IntervalTicks = 10000 * Config.GetDatalayertsScaleMilliseconds(), // second = 10mil
                         LastTimestamp = roundedDate.AddMilliseconds(anzahlTimestepsPerDimSensor * Config.GetDatalayertsScaleMilliseconds())
                     };
-                    vectorContainer.Vectors = new TimeSeriesVector<double>[Config.GetSensorNumber() * Config.GetDataDimensionsNr()].Select(a => new TimeSeriesVector<double>()).ToArray();
+                    vectorContainer.Vectors = new TimeSeriesVector<double>[anzahlSensorenInBatch* dataDims].Select(a => new TimeSeriesVector<double>()).ToArray();
+
+
 
                     foreach (var record in batch.Records)
                     {
                         int sensorId = record.SensorID;
-                        int indexOfFirstDimensionOfSensor = sensorId * dataDims;
-
-                        if (sensorId == 0) //runs through all sensor IDs of the same time, then steps to the sensors of the next timeslot
+                       
+                        int IndexOfSensorID = sensIDperClientDict[sensorId];
+                         if (IndexOfSensorID == 0) //runs through all sensor IDs of the same time, then steps to the sensors of the next timeslot
                             timestepIndex++;
 
                         for (int j = 0; j < dataDims; j++)
                         {
-                            int vectorIndex = sensorId * dataDims + j;
+                            int vectorIndex = IndexOfSensorID * dataDims + j;
 
 
                             if (vectorContainer.Vectors[vectorIndex].Values == null)
                             {
                                 vectorContainer.Vectors[vectorIndex].Directory = GetDirectoryName();
                                 vectorContainer.Vectors[vectorIndex].Series = "sensor_id_" + sensorId + "_dim_" + j;
-                                vectorContainer.Vectors[vectorIndex].Values = new double[anzahlTimestepsPerDimSensor];
+                                vectorContainer.Vectors[vectorIndex].Values = new double[anzahlTimestepsPerDimSensor+1];
                             }
 
                             vectorContainer.Vectors[vectorIndex].Values[timestepIndex] = record.ValuesArray[j];
@@ -188,7 +191,7 @@ namespace BenchmarkTool.Database
                     //                         using (Stream stream = File.Open(pth, FileMode.Create))}
                     //                         {
                     //                             var bin = MemoryPackSerializer.Serialize(vectorContainer);
-                    //                             var writer = new BinaryWriter(stream);
+                    //                             var writoter = new BinaryWriter(stream);
                     //                             writer.Write(bin);
                     //                         }
                     //                         // }
