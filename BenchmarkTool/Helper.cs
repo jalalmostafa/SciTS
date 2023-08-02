@@ -100,7 +100,7 @@ namespace BenchmarkTool
         public static long GetMilliEpoch()
         {
            TimeSpan t = DateTime.Now - Epoch;
-            return t.Milliseconds;
+            return  (long) t.TotalMilliseconds;
         }
 
         public static long GetNanoEpoch()
