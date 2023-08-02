@@ -16,6 +16,7 @@ namespace BenchmarkTool
         static string Mode;
         static bool _WriteComplete = false;
         static bool _ReadComplete = false;
+        static bool _OnePass = false;
         public static int _currentReadClientsNR;
         static int _TestRetryWriteIteration;
         static int _TestRetryReadIteration;
@@ -75,9 +76,24 @@ namespace BenchmarkTool
                         await Batching(true);
                         await BenchmarkReadData();
                         break;
-                    case "mixed":
-                        Mode = "mixed_" + Config.GetIngestionType();
+                    case "mixed-AllQueries":
+                        Mode = "mixed-AllQueries_" + Config.GetIngestionType();
                         await Task.WhenAll(new Task[] { Batching(true), BenchmarkReadData() }.AsParallel());
+                        break;
+                    case "mixed-SameDataPointsNR":
+                        // Mode = "mixed-SameDataPointsNR_" + Config.GetIngestionType();
+                        // Console.Out.Print("Mixed Workloads, Reading and Writing the same amount of Datapoints will take the lowest, then the highest Batchsize of the Array in the Config.");
+                        // _OnePass = true;
+                        // int[] origBatchsize = Config.GetBatchSizeOptions();
+                        // Config.SetBatchsize(origBatchsize.First().ToArray());
+                        // Config.SetDuration((origBatchsize.First()/SensorNumber)/60);
+                        // Config.SetSensorFilter(Enumerable.Range(0, Config.GetSensorNumber()).ToArray());
+                        // await Task.WhenAll(new Task[] { Batching(true), BenchmarkReadData() }.AsParallel());
+                        // Config.SetBatchsize(origBatchsize.Last().ToArray());
+                        // Config.SetDuration((origBatchsize.Last()/SensorNumber)/60);
+                        // Config.SetSensorFilter(Enumerable.Range(0, Config.GetSensorNumber()).ToArray());
+                        // await Task.WhenAll(new Task[] { Batching(true), BenchmarkReadData() }.AsParallel());
+
                         break;
 
                     default:
@@ -110,12 +126,13 @@ namespace BenchmarkTool
             var client = new ClientWrite(1, 1, Config.GetSensorNumber(), Config.GetSensorNumber() * Config.GetDataDimensionsNr() * 86400 * (1000 / Config.GetDatalayertsScaleMilliseconds()), Config.GetStartTime());
             Task.FromResult(client.RunIngestion(1));
         }
+        
         private async static Task Batching(bool log)
         {
 
             int TestRetryWriteIteration = 0;
             {
-                while (!(_WriteComplete && _ReadComplete) || TestRetryWriteIteration < Config.GetTestRetries())
+                while ( !((_WriteComplete && _ReadComplete) || _OnePass) | TestRetryWriteIteration < Config.GetTestRetries())
                 {
                     TestRetryWriteIteration++;
 
@@ -186,7 +203,7 @@ namespace BenchmarkTool
 
             int TestRetryReadIteration = 0;
             {
-                while (!(_WriteComplete && _ReadComplete) || TestRetryReadIteration < Config.GetTestRetries())
+                while (!((_WriteComplete && _ReadComplete) || _OnePass) | TestRetryReadIteration < Config.GetTestRetries())
                 {
                     TestRetryReadIteration++;
                     _TestRetryReadIteration = TestRetryReadIteration;
