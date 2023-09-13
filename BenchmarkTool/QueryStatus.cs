@@ -10,7 +10,7 @@ namespace BenchmarkTool
 
         public bool Succeeded { get; }
         public int DataPoints { get; }
-        public int Iteration { get; set; }
+        public int Iteration { get; set; }        
         public T PerformanceMetric { get; }
         public long Timestamp { get; }
 

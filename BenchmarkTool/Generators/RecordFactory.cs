@@ -11,7 +11,7 @@ namespace BenchmarkTool.Generators
             database = Config.GetTargetDatabase();
         }
 
-        public IRecord Create(int sensorId, DateTime timestamp, float value)
+        public IRecord Create(int sensorId, DateTime timestamp, double value)
         {
             return database switch
             {
@@ -26,7 +26,7 @@ namespace BenchmarkTool.Generators
                 _ => throw new NotImplementedException(),
             };
         }
-        public IRecord Create(int sensorId, DateTime timestamp, float[] values)
+        public IRecord Create(int sensorId, DateTime timestamp, double[] values)
         {
             return database switch
             {

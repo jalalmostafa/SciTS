@@ -77,10 +77,10 @@ namespace BenchmarkTool.Generators
 
             return batch;
         }
-        private float[] GetInput(int dimensions)
+        private double[] GetInput(int dimensions)
         {
 
-            List<float> inputList = new List<float>();
+            List<double> inputList = new List<double>();
             for (int c = 1; c <= dimensions; c++)
             {
                 inputList.Add(new Random().Next());

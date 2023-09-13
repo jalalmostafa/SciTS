@@ -20,6 +20,15 @@ namespace BenchmarkTool.Database.Queries
             Selection = new Dictionary<string, string[]>(),
         };
 
+                public ContainerRequest RangeRawLimited => new ContainerRequest()
+        {
+            Selection = new Dictionary<string, string[]>(),
+        };
+                public ContainerRequest RangeRawAllDimsLimited => new ContainerRequest()
+        {
+            Selection = new Dictionary<string, string[]>(),
+        };
+
         public ContainerRequest RangeAgg => new ContainerRequest()
         {
             Selection = new Dictionary<string, string[]>(),

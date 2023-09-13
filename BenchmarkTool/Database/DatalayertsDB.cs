@@ -47,33 +47,66 @@ namespace BenchmarkTool.Database
         public async Task<QueryStatusWrite> WriteBatch(Batch batch)
         {
 
-            // TODO
-
-
-
-
-
             try
             {
                 VectorContainer<double> vectorContainer;
+                TimeSeriesPoint<double> timeSeriesPoint;
+                IEnumerable<TimeSeriesPoint<double>> pointContainer;
 
                 if (Config.GetIngestionType() == "irregular")
-                    throw new NotImplementedException();
-                else
+                {
+
+                    pointContainer = new List<TimeSeriesPoint<double>>();
+
+                    foreach (var record in batch.Records)
+                    {
+
+                        for (var dim = 0; dim < record.ValuesArray.Length; dim++)
+                        {
+                            timeSeriesPoint = new TimeSeriesPoint<double>()
+                            {
+                                Directory = GetDirectoryName(),
+                                Series = "sensor_id_" + record.SensorID + "_dim_" + dim,
+                                Value = record.ValuesArray[dim],
+                                Timestamp = new DateTime(record.Time.Year, 
+                                record.Time.Month, 
+                                record.Time.Day, 
+                                record.Time.Hour, 
+                                record.Time.Minute, 
+                                record.Time.Second, 
+                                record.Time.Millisecond, 
+                                DateTimeKind.Utc  )
+                                 
+                            };
+                            pointContainer = pointContainer.Append<TimeSeriesPoint<double>>(timeSeriesPoint);
+                        }
+                    }
+
+                    Stopwatch sw1 = Stopwatch.StartNew();
+                    await _client.IngestPointsAsync<double>(pointContainer, OverwriteMode.older, 10000, TimeSeriesCreationTimestampStorageType.NONE, default);
+
+                    sw1.Stop();
+
+                    return new QueryStatusWrite(true, new PerformanceMetricWrite(sw1.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
+
+                }
+                else //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 {
                     DateTime roundedDate = new DateTime(Config.GetStartTime().Year, Config.GetStartTime().Month, Config.GetStartTime().Day, Config.GetStartTime().Hour, Config.GetStartTime().Minute, Config.GetStartTime().Second, Config.GetStartTime().Millisecond, DateTimeKind.Utc);
                     int dataDims = Config.GetDataDimensionsNr();
                     int timestepIndex = -1;
                     int anzahlSensorenInBatch = 1;
-                    int i = 0; bool f = true; Dictionary<int,int> sensIDperClientDict= new Dictionary<int,int>();
-                    sensIDperClientDict.Add(batch.Records.First().SensorID,0);
+                    int i = 0; bool f = true; Dictionary<int, int> sensIDperClientDict = new Dictionary<int, int>();
+                    sensIDperClientDict.Add(batch.Records.First().SensorID, 0);
                     while (f)
                     {
                         var alt = batch.Records.ElementAt(i).SensorID;
                         i++;
                         var neu = batch.Records.ElementAt(i).SensorID;
-                        if (neu > alt){
-                            anzahlSensorenInBatch++; sensIDperClientDict.Add(neu,anzahlSensorenInBatch-1);}
+                        if (neu > alt)
+                        {
+                            anzahlSensorenInBatch++; sensIDperClientDict.Add(neu, anzahlSensorenInBatch - 1);
+                        }
                         if (alt > neu || batch.Records.ElementAt(i) == batch.Records.Last()) { f = false; }
                     }
                     int anzahlTimestepsPerDimSensor = batch.Records.Count() / anzahlSensorenInBatch;
@@ -85,16 +118,16 @@ namespace BenchmarkTool.Database
                         IntervalTicks = 10000 * Config.GetDatalayertsScaleMilliseconds(), // second = 10mil
                         LastTimestamp = roundedDate.AddMilliseconds(anzahlTimestepsPerDimSensor * Config.GetDatalayertsScaleMilliseconds())
                     };
-                    vectorContainer.Vectors = new TimeSeriesVector<double>[anzahlSensorenInBatch* dataDims].Select(a => new TimeSeriesVector<double>()).ToArray();
+                    vectorContainer.Vectors = new TimeSeriesVector<double>[anzahlSensorenInBatch * dataDims].Select(a => new TimeSeriesVector<double>()).ToArray();
 
 
 
                     foreach (var record in batch.Records)
                     {
                         int sensorId = record.SensorID;
-                       
+
                         int IndexOfSensorID = sensIDperClientDict[sensorId];
-                         if (IndexOfSensorID == 0) //runs through all sensor IDs of the same time, then steps to the sensors of the next timeslot
+                        if (IndexOfSensorID == 0) //runs through all sensor IDs of the same time, then steps to the sensors of the next timeslot
                             timestepIndex++;
 
                         for (int j = 0; j < dataDims; j++)
@@ -106,7 +139,7 @@ namespace BenchmarkTool.Database
                             {
                                 vectorContainer.Vectors[vectorIndex].Directory = GetDirectoryName();
                                 vectorContainer.Vectors[vectorIndex].Series = "sensor_id_" + sensorId + "_dim_" + j;
-                                vectorContainer.Vectors[vectorIndex].Values = new double[anzahlTimestepsPerDimSensor+1];
+                                vectorContainer.Vectors[vectorIndex].Values = new double[anzahlTimestepsPerDimSensor + 1];
                             }
 
                             vectorContainer.Vectors[vectorIndex].Values[timestepIndex] = record.ValuesArray[j];
@@ -196,11 +229,11 @@ namespace BenchmarkTool.Database
                     //                         }
                     //                         // }
                 }
-                Stopwatch sw = Stopwatch.StartNew();
+                Stopwatch sw2 = Stopwatch.StartNew();
                 await _client.IngestVectorsAsync<double>(vectorContainer, OverwriteMode.older, TimeSeriesCreationTimestampStorageType.NONE, default);
-                sw.Stop();
+                sw2.Stop();
 
-                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
+                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw2.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
 
             }
             catch (Exception ex)
@@ -222,9 +255,12 @@ namespace BenchmarkTool.Database
         {
             try
             {
+
                 var DltsQuery = _iquery.RangeRaw;
 
                 DltsQuery.FirstTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc);
+
+
                 DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.EndDate, DateTimeKind.Utc);
 
                 string dir = GetDirectoryName();
@@ -254,7 +290,83 @@ namespace BenchmarkTool.Database
                 var DltsQuery = _iquery.RangeRawAllDims;
 
                 DltsQuery.FirstTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc);
+
+
+
                 DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.EndDate, DateTimeKind.Utc);
+
+
+
+
+
+                string dir = GetDirectoryName();
+                string[] series = GetSeriesNames(query.SensorIDs);
+                DltsQuery.Selection.Add(dir, series);
+
+                Stopwatch sw = Stopwatch.StartNew();
+                var readResult = await _client.RetrieveVectorsAsync<double>(DltsQuery, true, true).ConfigureAwait(false);
+                var points = 0;
+                points = readResult.Vectors.Length;
+                _aggInterval = 0;
+                sw.Stop();
+                await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
+
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute Range Query Raw Data. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData), ex, ex.ToString());
+            }
+        }
+        public async Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery query, int limit)
+        {
+            try
+            {
+
+                var DltsQuery = _iquery.RangeRawLimited;
+
+                DltsQuery.FirstTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc);
+
+
+
+                DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc).AddMilliseconds(Config.GetDatalayertsScaleMilliseconds() * limit);
+
+                string dir = GetDirectoryName();
+                string[] series = GetSeriesNames(query.SensorIDs, new int[1] { 0 });
+                DltsQuery.Selection.Add(dir, series);
+
+                Stopwatch sw = Stopwatch.StartNew();
+                var readResult = await _client.RetrieveVectorsAsync<double>(DltsQuery, true, true).ConfigureAwait(false);
+                var points = 0;
+                points = readResult.Vectors.Length;
+                _aggInterval = 0;
+                sw.Stop();
+                await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
+
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute Range Query Raw Data. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData), ex, ex.ToString());
+            }
+        }
+        public async Task<QueryStatusRead> RangeQueryRawAllDimsLimited(RangeQuery query, int limit)
+        {
+            try
+            {
+                var DltsQuery = _iquery.RangeRawAllDimsLimited;
+
+                DltsQuery.FirstTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc);
+
+
+
+                DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc).AddMilliseconds(Config.GetDatalayertsScaleMilliseconds() * limit);
+
+
+
+
 
                 string dir = GetDirectoryName();
                 string[] series = GetSeriesNames(query.SensorIDs);
@@ -427,8 +539,10 @@ namespace BenchmarkTool.Database
 
         private string GetDirectoryName()
         {
-
-            return Config.GetPolyDimTableName() + "_in_" + Config.GetDatalayertsScaleMilliseconds().ToString() + "_ms_steps";
+            if (Config.GetIngestionType().Contains("irregular"))
+                return Config.GetPolyDimTableName() + "_irregular";
+            else
+                return Config.GetPolyDimTableName() + "_in_" + Config.GetDatalayertsScaleMilliseconds().ToString() + "_ms_steps";
 
         }
 

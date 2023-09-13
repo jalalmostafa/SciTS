@@ -11,6 +11,8 @@ namespace BenchmarkTool
         Population,
         RangeQueryRawData,
         RangeQueryRawAllDimsData,
+                RangeQueryRawLimitedData,
+        RangeQueryRawAllDimsLimitedData,
         RangeQueryAggData,
         OutOfRangeQuery,
         DifferenceAggQuery,

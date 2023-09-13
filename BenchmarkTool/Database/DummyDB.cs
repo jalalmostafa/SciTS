@@ -41,10 +41,7 @@ namespace BenchmarkTool.Database
             throw new NotImplementedException();
         }
 
-        public Task<QueryStatusRead> RangeQueryRaw(RangeQuery rangeQuery)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public Task<QueryStatusRead> StandardDevQuery(SpecificQuery query)
         {
@@ -108,8 +105,21 @@ namespace BenchmarkTool.Database
                 return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString());
             }
         }
+                public Task<QueryStatusRead> RangeQueryRaw(RangeQuery rangeQuery )
+        {
+            throw new NotImplementedException();
+        }
 
-        Task<QueryStatusRead> IDatabase.RangeQueryRawAllDims(RangeQuery rangeQuery)
+        public Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery rangeQuery )
+        {
+            throw new NotImplementedException();
+        }
+                        public Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery rangeQuery, int limit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<QueryStatusRead> RangeQueryRawAllDimsLimited(RangeQuery rangeQuery, int limit)
         {
             throw new NotImplementedException();
         }

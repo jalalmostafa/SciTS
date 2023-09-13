@@ -11,6 +11,8 @@ using System.Diagnostics;
 using BenchmarkTool.Database.Queries;
 using System.Collections.Generic;
 using BenchmarkTool;
+using System.Text;
+
 
 namespace BenchmarkTool.Database
 {
@@ -71,7 +73,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public  async Task<QueryStatusRead>  OutOfRangeQuery(OORangeQuery query)
+           public async Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
         {
             try
             {
@@ -93,7 +95,7 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to execute Out of Range Query on VictoriametricsDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to execute Out of Range Query on InfluxDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 1, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery), ex, ex.ToString());
             }
         }
@@ -120,12 +122,12 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to execute Range Query Aggregated Data on VictoriametricsDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to execute Range Query Aggregated Data on InfluxDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData), ex, ex.ToString());
             }
         }
 
-        public async Task<QueryStatusRead> RangeQueryRaw(RangeQuery query)
+        public async Task<QueryStatusRead> RangeQueryRaw(RangeQuery query )
         {
             try
             {
@@ -135,6 +137,9 @@ namespace BenchmarkTool.Database
                 var ids = String.Concat("/", String.Join("|", sensorIds), "/");
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
+
+                    
+               
 
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -146,13 +151,13 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to execute Range Query Raw Data on VictoriametricsDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to execute Range Query Raw Data on InfluxDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0,
                                            query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawData), ex, ex.ToString());
             }
         }
 
-          public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
+        public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query )
         {
             try
             {
@@ -162,6 +167,8 @@ namespace BenchmarkTool.Database
                 var ids = String.Concat("/", String.Join("|", sensorIds), "/");
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
+
+      
 
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -178,6 +185,68 @@ namespace BenchmarkTool.Database
                                            query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawAllDimsData), ex, ex.ToString());
             }
         }
+
+
+        public async Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery query, int limit)
+        {
+            try
+            {
+                var flux = _influxQueries.RangeRawLimited.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
+                flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
+                var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
+                var ids = String.Concat("/", String.Join("|", sensorIds), "/");
+                flux = flux.Replace(QueryParams.SensorIDsParam, ids);
+                Log.Information("Flux query: " + flux);
+
+   
+                    flux = flux.Replace(QueryParams.Limit, limit.ToString());
+
+                var queryApi = _client.GetQueryApi();
+                Stopwatch sw = Stopwatch.StartNew();
+                var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
+                sw.Stop();
+                int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
+                Log.Information("Number of points: " + count.ToString());
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute Range Query Raw Data on InfluxDB. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0,
+                                           query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawData), ex, ex.ToString());
+            }
+        }
+
+        public async Task<QueryStatusRead> RangeQueryRawAllDimsLimited(RangeQuery query, int limit)
+        {
+            try
+            {
+                var flux = _influxQueries.RangeRawAllDimsLimited.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
+                flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
+                var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
+                var ids = String.Concat("/", String.Join("|", sensorIds), "/");
+                flux = flux.Replace(QueryParams.SensorIDsParam, ids);
+                Log.Information("Flux query: " + flux);
+
+    
+                    flux = flux.Replace(QueryParams.Limit,limit.ToString());
+
+                var queryApi = _client.GetQueryApi();
+                Stopwatch sw = Stopwatch.StartNew();
+                var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
+                sw.Stop();
+                int count = results != null && results.Count > 0 ? results[0].Records.Count : 0; // TODO understand better
+                Log.Information("Number of points: " + count.ToString());
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute Range Query Raw Data on InfluxDB. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0,
+                                           query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawAllDimsData), ex, ex.ToString());
+            }
+        }
+
 
         public async Task<QueryStatusRead> AggregatedDifferenceQuery(ComparisonQuery query)
         {
@@ -213,17 +282,25 @@ namespace BenchmarkTool.Database
                 {
                     var timeSpan = item.Time.Subtract(EpochStart);
                     var time = TimeSpanToBigInteger(timeSpan, WritePrecision.Ns);
-                    lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} value={item.ValuesArray} {time}");
+
+                    if (Config.GetMultiDimensionStorageType() == "column")
+                    {
+                        int c = 1; StringBuilder builder = new StringBuilder("");
+                        while (c < Config.GetDataDimensionsNr()) { builder.Append("value={" + item.ValuesArray[(c)] + "}"); c++; }
+                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} value={item.ValuesArray[0]} " + builder + "{time}");
+                    }
+                    else
+                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} value={item.ValuesArray} {time}");
                 }
 
                 Stopwatch sw = Stopwatch.StartNew();
-                await _writeApi.WriteRecordsAsync( lineData,  WritePrecision.Ns );
+                await _writeApi.WriteRecordsAsync(lineData, WritePrecision.Ns);
                 sw.Stop();
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to insert batch into VictoriametricsDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to insert batch into InfluxDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString());
             }
         }
@@ -232,19 +309,19 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                 var lineData = new List<string>();
+                var lineData = new List<string>();
                 var timeSpan = record.Time.Subtract(EpochStart);
                 var time = TimeSpanToBigInteger(timeSpan, WritePrecision.Ns);
-                  lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={record.SensorID} value={record.ValuesArray} {time}");
+                lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={record.SensorID} value={record.ValuesArray} {time}");
 
                 Stopwatch sw = Stopwatch.StartNew();
-                await _writeApi.WriteRecordsAsync( lineData, WritePrecision.Ns );
+                await _writeApi.WriteRecordsAsync(lineData, WritePrecision.Ns);
                 sw.Stop();
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, 1, 0, Operation.StreamIngestion));
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to insert batch into VictoriametricsDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to insert batch into InfluxDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, 1, Operation.StreamIngestion), ex, ex.ToString());
             }
         }
@@ -269,7 +346,7 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to execute STD Dev query on VictoriametricsDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to execute STD Dev query on Influxdb. Exception: {0}", ex.ToString()));
                 return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.STDDevQuery), ex, ex.ToString());
             }
         }

@@ -18,9 +18,10 @@ namespace BenchmarkTool
         public int _chosenClientIndex { get; private set; }
         public int _totalClientsNumber { get; private set; }
         public int _SensorsNumber { get; private set; }
-        public int _BatchSize { get; private set; }
+        public int _BatchSize { get; private set; }        
+         public int _DimNb { get; private set; }
 
-        public ClientWrite(int chosenClientIndex, int totalClientsNumber, int sensorNumber, int batchSize, DateTime date)
+        public ClientWrite(int chosenClientIndex, int totalClientsNumber, int sensorNumber, int batchSize, int dimNb, DateTime date)
         {
             try
             {
@@ -33,6 +34,7 @@ namespace BenchmarkTool
                 var dbFactory = new DatabaseFactory();
                 _targetDb = dbFactory.Create();
                 _targetDb.Init();
+                _DimNb = dimNb;
             }
             catch (Exception ex)
             {
@@ -41,10 +43,10 @@ namespace BenchmarkTool
         }
         public async Task<List<QueryStatusWrite>> RunIngestion(int TestRetryWriteIteration)
         {
-                    return await RunIngestion(new EnhancedDataGenerator(), TestRetryWriteIteration);
+                    return await RunIngestion(new ExtendedDataGenerator(), TestRetryWriteIteration);
         }
 
-        public async Task<List<QueryStatusWrite>> RunIngestion(EnhancedDataGenerator dataGenerator,int TestRetryWriteIteration)  
+        public async Task<List<QueryStatusWrite>> RunIngestion(ExtendedDataGenerator dataGenerator,int TestRetryWriteIteration)  
         {
 
             // new logic: modulo
@@ -62,10 +64,10 @@ namespace BenchmarkTool
 
             {
                 var batchStartdate = _date;
-                Batch batch = dataGenerator.GenerateBatch(_BatchSize, sensorIdsForThisClientList, batchStartdate, Config.GetDataDimensionsNr());
+                Batch batch = dataGenerator.GenerateBatch(_BatchSize, sensorIdsForThisClientList, batchStartdate, _DimNb);
 
                 var status = await _targetDb.WriteBatch(batch);
-                Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] [Clients Number {_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber} with Dimensions:{Config.GetDataDimensionsNr()}] Latency:{status.PerformanceMetric.Latency}");
+                Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] [Clients Number {_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber} with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
                 status.Iteration = TestRetryWriteIteration;
                 status.Client = _chosenClientIndex;
                 statuses.Add(status);

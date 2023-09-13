@@ -8,24 +8,24 @@ namespace BenchmarkTool.Generators
         public int SensorID { get; set; }
         // public bool polyDim { get; }
 
-        // public float Value { get; set; }
-        public float[] ValuesArray { get; set; }
+        // public double Value { get; set; }
+        public double[] ValuesArray { get; set; }
          public DateTime Time { get; set; }
-        float getFirstValue()
+        double getFirstValue()
         {
             return ValuesArray[0];
         }
-        public RecordVictoriametrics(int sensorId, DateTime timestamp, float value)
+        public RecordVictoriametrics(int sensorId, DateTime timestamp, double value)
         {
             SensorID = sensorId;
             Time = TimeZoneInfo.ConvertTimeToUtc(timestamp);
             // Value = value;
-                        ValuesArray = new float[1];
+                        ValuesArray = new double[1];
 
                         ValuesArray[0] = value;
 
         }
-        public RecordVictoriametrics(int sensorId, DateTime timestamp, float[] values)
+        public RecordVictoriametrics(int sensorId, DateTime timestamp, double[] values)
         {
             SensorID = sensorId;
             Time = TimeZoneInfo.ConvertTimeToUtc(timestamp);

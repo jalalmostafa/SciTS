@@ -49,10 +49,16 @@ namespace BenchmarkTool.System
             return _client.GetAsync<Swap>(request, _cancellationTokenSource.Token);
         }
 
-        public Task<List<Network>> GetNetworkAsync() // TODO returns empty list without names
+        public Task<List<Network>> GetNetworkAsync() 
         {
             var request = new RestRequest("/api/3/network");
             return _client.GetAsync<List<Network>>(request, _cancellationTokenSource.Token);
+        }
+        
+        public Task<List<FS>> GetFSAsync()  
+        {
+            var request = new RestRequest("/api/3/fs");
+            return _client.GetAsync<List<FS>>(request, _cancellationTokenSource.Token);
         }
 
         public Task<DatabaseProcess> GetDatabaseProcessAsync(int pid)
@@ -60,7 +66,7 @@ namespace BenchmarkTool.System
             var request = new RestRequest($"/api/3/processlist/pid/{pid}");
             return _client.GetAsync<DatabaseProcess>(request, _cancellationTokenSource.Token);
         }
-         public async Task<AllMetrics> GetAllAsync(int pid, string nic, string disk)
+         public async Task<AllMetrics> GetAllAsync(int pid, string nic, string disk, string fs)
         {
             var cpuAsync = GetCpuAsync();
             var processAsync = GetDatabaseProcessAsync(pid);
@@ -68,14 +74,16 @@ namespace BenchmarkTool.System
             var memoryAsync = GetMemoryAsync();
             var networkAsync = GetNetworkAsync();
             var swapAsync = GetSwapAsync();
+            var fsAsync = GetFSAsync();
 
             var metrics = new AllMetrics()
-            { // TODO bugfix
+            {  
                 Cpu = await cpuAsync,
                 DatabaseProcess = await processAsync,
                 DiskIO = (await diskIOAsync).Find(d => d.DiskName == disk),
                 Memory = await memoryAsync,
                 Network = (await networkAsync).Find(n => n.InterfaceName == nic),
+                FS = (await fsAsync).Find(f => f.DeviceName == "/dev/"+ disk && f.Mnt_Point == fs), 
                 Swap = await swapAsync,
             };
 

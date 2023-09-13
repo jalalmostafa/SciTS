@@ -4,13 +4,16 @@ namespace BenchmarkTool.Database.Queries
 {
     public class TimescaleQuery : IQuery<String>
     {
-        private static string _rangeAgg = @"SELECT time_bucket('{0}h', {1}) AS time_agg, sensor_id, avg({2}) FROM {3}
-                                            where {1} >= {4} and {1} <= {5} and {6} = ANY({7}) group by time_agg, sensor_id";
-
-
         private static string _rangeRaw = @"SELECT {6} FROM {0} where {1} >= {2} and {1} <= {3} and {4} = ANY({5})";
 
         private static string _rangeRawAllDims = @"SELECT * FROM {0} where {1} >= {2} and {1} <= {3} and {4} = ANY({5})";
+        private static string _rangeRawLimited = @"SELECT {6} FROM {0} where {1} >= {2} and {1} <= {3} and {4} = ANY({5}) LIMIT {7}";
+
+        private static string _rangeRawAllDimsLimited = @"SELECT * FROM {0} where {1} >= {2} and {1} <= {3} and {4} = ANY({5}) LIMIT {6}";
+
+        private static string _rangeAgg = @"SELECT time_bucket('{0}h', {1}) AS time_agg, sensor_id, avg({2}) FROM {3}
+                                            where {1} >= {4} and {1} <= {5} and {6} = ANY({7}) group by time_agg, sensor_id";
+
 
 
         private static string _outOfRange = @"SELECT time_bucket('{0}h', {1}) AS time_agg, max({2}), min({2}) FROM {3}
@@ -26,10 +29,15 @@ namespace BenchmarkTool.Database.Queries
                                                     (SELECT time_bucket('{0}h', {1}) AS time_agg , avg({2}) as val FROM {3}
                                                         where {1} >={4} and {1} <= {5} and {6} = {8} group by time_agg)A2
                                                 On A1.time_agg = A2.time_agg";
+
+        public String RangeRawAllDims => String.Format(_rangeRawAllDims, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
+        public String RangeRaw => String.Format(_rangeRaw, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam,Constants.Value+"_0");
+
+        public String RangeRawAllDimsLimited   => String.Format(_rangeRawAllDimsLimited, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam, QueryParams.Limit);
+        public String RangeRawLimited => String.Format(_rangeRawLimited, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam, Constants.Value + "_0", QueryParams.Limit);
+
         public String RangeAgg => String.Format(_rangeAgg, Config.GetAggregationInterval(), Constants.Time, Constants.Value, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
 
-        public String RangeRawAllDims => String.Format(_rangeRaw, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
-        public String RangeRaw => String.Format(_rangeRaw, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam,Constants.Value+"_1");
 
         public String OutOfRange => String.Format(_outOfRange, Config.GetAggregationInterval(), Constants.Time, Constants.Value, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDParam, QueryParams.MinValParam, QueryParams.MaxValParam);
 

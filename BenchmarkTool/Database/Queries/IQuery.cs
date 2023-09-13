@@ -7,8 +7,10 @@ namespace BenchmarkTool.Database.Queries
         T RangeAgg { get; }
 
         T RangeRaw { get; }
+         T RangeRawLimited { get; }
 
         T RangeRawAllDims { get; }
+        T RangeRawAllDimsLimited { get; }
 
         T OutOfRange { get; }
 

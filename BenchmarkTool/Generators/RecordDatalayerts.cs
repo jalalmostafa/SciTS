@@ -5,26 +5,26 @@ namespace BenchmarkTool.Generators
 {
     public class RecordDatalayerts : IRecord, IEnumerable
     {
-        public RecordDatalayerts(int sensorId, DateTime timestamp, float value)
+        public RecordDatalayerts(int sensorId, DateTime timestamp, double value)
         {
             SensorID = sensorId;
             Time = timestamp;
             // Value = value;
-            ValuesArray = new float[1];
+            ValuesArray = new double[1];
             ValuesArray[0] = value;
         }
-        public RecordDatalayerts(int sensorId, DateTime timestamp, float[] values)
+        public RecordDatalayerts(int sensorId, DateTime timestamp, double[] values)
         {
             SensorID = sensorId;
             Time = timestamp;
             ValuesArray = values;
             // polyDim = true;
         }
-        float getFirstValue(){
+        double getFirstValue(){
             return ValuesArray[0];
         }
-         public float[] ValuesArray { get; set; }
-         public float Value { get; set; }
+         public double[] ValuesArray { get; set; }
+         public double Value { get; set; }
         //  public bool polyDim { get;  }
 
         public int SensorID { get; set; }

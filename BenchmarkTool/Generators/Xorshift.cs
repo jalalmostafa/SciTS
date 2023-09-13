@@ -99,7 +99,7 @@ public sealed class XorShiftRng: Random
     {
         return NextUlong() / (ulong.MaxValue + 1.0);
     }
-         public  float NextFloat()
+         public  double Nextdouble()
     {
         return NextInt() / 1000000;
     }

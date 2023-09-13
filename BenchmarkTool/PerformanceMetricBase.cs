@@ -10,17 +10,19 @@ namespace BenchmarkTool
             SucceededDataPoints = succeededDataPoints;
             FailedDataPoints = failedDataPoints;
             PerformedOperation = operation;
-           
+            DimensionsNb = Config._actualDataDimensionsNr;
+
         }
-public string Mode {get;}
+        public string Mode { get; }
         public double Latency { get; }
 
         public long SucceededDataPoints { get; }
 
         public long FailedDataPoints { get; }
+        public int DimensionsNb {get;}
 
         public Operation PerformedOperation { get; }
 
-        public abstract T ToLogRecord(string mode, long timestamp, int batchSize, int clientsNb, int sensorNb, int client, int iteration);
+        public abstract T ToLogRecord(string mode, long timestamp, int batchSize, int clientsNb, int sensorNb, int client, int iteration, int dimNb);
     }
 }

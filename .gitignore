@@ -393,6 +393,7 @@ FodyWeavers.xsd
 
 # This Project
 *.csv
+*.pdf
 BenchmarkTool/App.config
 Results/
 history.md

@@ -11,11 +11,11 @@ namespace BenchmarkTool
 
         public override LogRecordWrite ToLogRecord(string mode, long timestamp, int batchSize,
                                                     int clientsNb, int sensorNb,
-                                                    int client, int iteration)
+                                                    int client, int iteration, int dimNb)
         {
             return new LogRecordWrite(Latency, SucceededDataPoints, timestamp,
                                     FailedDataPoints, PerformedOperation,mode, clientsNb,
-                                    batchSize, sensorNb, client, iteration);
+                                    batchSize, sensorNb, client, iteration, dimNb);
         }
     }
 }

@@ -22,7 +22,7 @@ namespace BenchmarkTool
 
         public LogRecordWrite(double latency, double succeededPoints, long epoch,
                                 double failedPoints, Operation operation,string mode, int clientsNb,
-                                int batchSize, int sensorsNb, int client, int iteration)
+                                int batchSize, int sensorsNb, int client, int iteration, int dimNb)
         {
             Latency = latency;
             SucceededDataPoints = succeededPoints;
@@ -38,6 +38,7 @@ namespace BenchmarkTool
             Loop = Config.GetTestRetries();
             Client = client;
             Iteration = iteration;
+            Dimensions = dimNb;
             
         }
     }

@@ -173,6 +173,13 @@ namespace BenchmarkTool.Database
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorFilter);
                 Log.Information(sql);
+
+
+                 
+                
+                
+
+
                 var cmd = _write_connection.CreateCommand();
                 cmd.CommandText = sql;
 
@@ -196,7 +203,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-         public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
+         public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query )
         {
             int points = 0;
             try
@@ -206,6 +213,91 @@ namespace BenchmarkTool.Database
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorFilter);
                 Log.Information(sql);
+
+
+              
+                
+                
+
+
+                var cmd = _write_connection.CreateCommand();
+                cmd.CommandText = sql;
+
+                Stopwatch sw = Stopwatch.StartNew();
+                // var reader = await cmd.ExecuteReaderAsync();       TODO delete if delete read_conn        
+                // while (reader.Read())
+                // {
+                //     points++;
+                // }
+                var reader =  cmd.ExecuteReader();
+                reader.ReadAll(rowReader => { points++; });
+
+                sw.Stop();
+
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawAllDimsData));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute Range Query Raw Data on ClickhouseDB. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, points, query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawAllDimsData), ex, ex.ToString());
+            }
+        }
+
+          public async Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery query, int limit)
+        {
+            int points = 0;
+            try
+            {
+                string sql = _query.RangeRawLimited;
+                sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorFilter);
+                Log.Information(sql);
+
+
+      
+                sql = sql.Replace(QueryParams.Limit, limit.ToString());
+
+
+                var cmd = _write_connection.CreateCommand();
+                cmd.CommandText = sql;
+
+                Stopwatch sw = Stopwatch.StartNew();
+                // var reader = await cmd.ExecuteReaderAsync();       TODO delete if delete read_conn        
+                // while (reader.Read())
+                // {
+                //     points++;
+                // }
+                var reader =  cmd.ExecuteReader();
+                reader.ReadAll(rowReader => { points++; });
+
+                sw.Stop();
+
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawData));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute Range Query Raw Data on ClickhouseDB. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, points, query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawData), ex, ex.ToString());
+            }
+        }
+
+         public async Task<QueryStatusRead> RangeQueryRawAllDimsLimited(RangeQuery query, int limit)
+        {
+            int points = 0;
+            try
+            {
+                string sql = _query.RangeRawAllDimsLimited;
+                sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorFilter);
+                Log.Information(sql);
+
+
+ 
+                sql = sql.Replace(QueryParams.Limit, limit.ToString());
+
+
                 var cmd = _write_connection.CreateCommand();
                 cmd.CommandText = sql;
 

@@ -5,25 +5,25 @@ namespace BenchmarkTool.Generators
     public class RecordTimescaleDB : IRecord
     {
         public int SensorID { get; set; }
-        // public float Value { get; set; }
-                public float[] ValuesArray { get; set; }
+        // public double Value { get; set; }
+                public double[] ValuesArray { get; set; }
 // public bool polyDim { get;  }
         public DateTime Time { get; set; }
-        float getFirstValue(){
+        double getFirstValue(){
             return ValuesArray[0];
         }
         
-        public RecordTimescaleDB(int sensorId, DateTime timestamp, float value)
+        public RecordTimescaleDB(int sensorId, DateTime timestamp, double value)
         {
             SensorID = sensorId;
             Time = timestamp;
             // Value = value;  
-                        ValuesArray = new float[1];
+                        ValuesArray = new double[1];
 
                       ValuesArray[0] = value;
 
         }
-        public RecordTimescaleDB(int sensorId, DateTime timestamp, float[] values)
+        public RecordTimescaleDB(int sensorId, DateTime timestamp, double[] values)
         {
             SensorID = sensorId;
             Time = timestamp;

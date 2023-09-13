@@ -14,6 +14,7 @@ namespace BenchmarkTool.System
         private int _databasePid;
         private int _period;
         private string _nic;
+                private string _fs;
         private string _disk;
         private string _path;
         private GlancesMonitor _monitor;
@@ -36,6 +37,7 @@ namespace BenchmarkTool.System
             _clientsNb = clientsNb;
             _batchSize = batchSize;
             _sensorsNb = sensorsNb;
+            _fs = Config.GetGlancesStorageFileSystem();
 
             _thread = new Task(Monitor, TaskCreationOptions.LongRunning);
             _monitor = new GlancesMonitor(_baseUrl);
@@ -47,7 +49,7 @@ namespace BenchmarkTool.System
             {
                 try
                 {
-                    var metrics = await _monitor.GetAllAsync(_databasePid, _nic, _disk);
+                    var metrics = await _monitor.GetAllAsync(_databasePid, _nic, _disk, _fs);
                     _mutex.WaitOne();
                     _metrics.Add(metrics);
                     _mutex.ReleaseMutex();

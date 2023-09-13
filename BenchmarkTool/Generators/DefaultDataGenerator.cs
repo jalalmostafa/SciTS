@@ -56,7 +56,7 @@ namespace BenchmarkTool.Generators
             Random rndval = new Random();  
             Batch batch = new Batch(batchSize);
             
-             List<float>inputList = new List<float>();
+             List<double>inputList = new List<double>();
                 for (int c = 1; c <= dimensions; c++)
                 {
                    inputList.Add(rndval.Next() );

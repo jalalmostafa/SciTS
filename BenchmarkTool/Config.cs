@@ -1,10 +1,18 @@
 ﻿using System;
 using System.Configuration;
+using System.Linq;
 
 namespace BenchmarkTool
 {
     public class Config
     {
+        public static string GetGlancesStorageFileSystem()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.GlancesStorageFileSystem];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.GlancesStorageFileSystem));
+            return val;
+        }
         public static bool GetPrintModeEnabled()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.PrintModeEnabled];
@@ -30,14 +38,23 @@ namespace BenchmarkTool
             int.TryParse(val, out int sensors);
             return sensors;
         }
+
+        public static int _actualDataDimensionsNr;
         public static int GetDataDimensionsNr()
         {
-            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DataDimensionsNr];
+            var val = _actualDataDimensionsNr;
+            if (val.Equals(null))
+                val = GetDataDimensionsNrOptions().First<int>();
+             return val;
+        }
+        public static int[] GetDataDimensionsNrOptions()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DataDimensionsNrOptions];
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DataDimensionsNr));
-            int.TryParse(val, out int sensors);
-            return sensors;
+             return Array.ConvertAll(val.Split(","), s => int.TryParse(s, out var x) ? x : -1);
         }
+     
         public static string GetPolyDimTableName()
         {
             var val = Constants.TableName + "_dim_" + Config.GetDataDimensionsNr();
@@ -52,11 +69,12 @@ namespace BenchmarkTool
             int.TryParse(val, out int loop);
             return loop;
         }
-private static string _DbSetting = "null";
+        private static string _DbSetting = "null";
         public static string GetTargetDatabase()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.TargetDatabase];
-            if(_DbSetting.Contains("DB")){
+            if (_DbSetting.Contains("DB"))
+            {
                 val = _DbSetting;
             }
             if (String.IsNullOrEmpty(val))
@@ -225,28 +243,29 @@ private static string _DbSetting = "null";
             return val;
         }
 
-        public static string QueryTypeOnRunTime = "All";
+        public static string QueryTypeOnRunTime;
 
         public static string GetQueryType()
         {
 
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.QueryType];
-            if (val == "All")
+            if (val == "All" | !String.IsNullOrEmpty(QueryTypeOnRunTime))
                 val = QueryTypeOnRunTime;
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.QueryType));
             return val;
         }
+
         private static string _ingType = "null";
-                internal static void SetIngestionType(string ingType)
+        internal static void SetIngestionType(string ingType)
         {
             _ingType = ingType;
         }
         public static string GetIngestionType()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.IngestionType];
-            if(_ingType.Contains("reg"))
-            val = _ingType;
+            if (_ingType.Contains("reg"))
+                val = _ingType;
             if (String.IsNullOrEmpty(val) | (val != "regular" & val != "irregular"))
                 throw new Exception(String.Format("Invalid or Null or empty app settings val for key={0}", ConfigurationKeys.IngestionType));
             return val;
@@ -277,10 +296,12 @@ private static string _DbSetting = "null";
             long.TryParse(val, out long duration);
             return duration;
         }
-
+        public static bool _sensorFilterAll = false;
         public static string GetSensorsFilterString()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.SensorsFilter];
+            if (val == "All")
+                _sensorFilterAll = true;
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.SensorsFilter));
             return val;
@@ -291,7 +312,18 @@ private static string _DbSetting = "null";
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.SensorsFilter];
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.SensorsFilter));
-            return Array.ConvertAll(val.Split(","), s => int.TryParse(s, out var x) ? x : -1);
+            int[] aa;
+            if (_sensorFilterAll == true)
+            {
+                aa = new int[Config.GetSensorNumber()];
+                for (var i = 0; i < aa.Length; i += 1)
+                {
+                    aa[i] = i;
+                }
+                return aa;
+            }
+            else
+                return Array.ConvertAll(val.Split(","), s => int.TryParse(s, out var x) ? x : -1);
         }
 
 
@@ -339,6 +371,7 @@ private static string _DbSetting = "null";
             int.TryParse(val, out int sensorId);
             return sensorId;
         }
+
 
         public static int[] GetClientNumberOptions()
         {

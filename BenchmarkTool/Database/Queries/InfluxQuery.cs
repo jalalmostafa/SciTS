@@ -4,7 +4,8 @@ namespace BenchmarkTool.Database.Queries
 {
     public class InfluxQuery : IQuery<String>
     {
-        private static string _rangeRawAllDims = @"from(bucket: ""{0}"")   
+
+                private static string _rangeRawAllDims = @"from(bucket: ""{0}"")   
                                                         |> range(start: {1}, stop: {2})   
                                                         |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
                                                         |> filter(fn: (r) => r[""{4}""] =~ {5}) ";
@@ -12,7 +13,19 @@ namespace BenchmarkTool.Database.Queries
                                                         |> keep(columns: [""{4}"", ""{6}"",""{7}""]) 
                                                         |> range(start: {1}, stop: {2})   
                                                         |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
-                                                        |> filter(fn: (r) => r[""{4}""] =~ {5}) ";
+                                                        |> filter(fn: (r) => r[""{4}""] =~ {5})";
+
+        private static string _rangeRawAllDimsLimited = @"from(bucket: ""{0}"")   
+                                                        |> range(start: {1}, stop: {2})   
+                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
+                                                        |> filter(fn: (r) => r[""{4}""] =~ {5}) 
+                                                        |> limit(n:{6})";
+        private static string _rangeRawLimited = @"from(bucket: ""{0}"") 
+                                                        |> keep(columns: [""{4}"", ""{6}"",""{7}""]) 
+                                                        |> range(start: {1}, stop: {2})   
+                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
+                                                        |> filter(fn: (r) => r[""{4}""] =~ {5})
+                                                        |> limit(n:{8})"; 
 
         private static string _outOfRange = @"data = from(bucket: ""{0}"")  
                                                         |> range(start: {1}, stop: {2})     
@@ -51,11 +64,9 @@ namespace BenchmarkTool.Database.Queries
                                                         |> filter(fn: (r) => r[""{4}""] =~ {5})   
                                                         |> aggregateWindow(every: {6}h, fn: mean, createEmpty: false)  
                                                         |> yield(name: ""mean"")";
-        public String RangeAgg =>
-            String.Format(_rangeAgg, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDsParam,
-            Config.GetAggregationInterval());
+        
+
+
 
         public String RangeRaw =>
             String.Format(_rangeRaw, Config.GetInfluxBucket(),
@@ -65,6 +76,20 @@ namespace BenchmarkTool.Database.Queries
             String.Format(_rangeRaw, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam);
+        public String RangeRawLimited =>
+            String.Format(_rangeRaw, Config.GetInfluxBucket(),
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
+            Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_1", QueryParams.Limit);
+        public String RangeRawAllDimsLimited =>
+            String.Format(_rangeRaw, Config.GetInfluxBucket(),
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
+            Constants.SensorID, QueryParams.SensorIDsParam, QueryParams.Limit);
+
+        public String RangeAgg =>
+            String.Format(_rangeAgg, Config.GetInfluxBucket(),
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
+            Constants.SensorID, QueryParams.SensorIDsParam,
+            Config.GetAggregationInterval());
 
         public String OutOfRange =>
             String.Format(_outOfRange, Config.GetInfluxBucket(),

@@ -26,11 +26,11 @@ namespace BenchmarkTool
 
         public override LogRecordRead ToLogRecord(string mode, long timestamp, int batchSize,
                                                 int clientsNb, int sensorNb,
-                                                int client, int iteration)
+                                                int client, int iteration, int dimNb)
         {
             return new LogRecordRead(Latency, SucceededDataPoints, timestamp,
                                     FailedDataPoints, PerformedOperation, mode,
-                                    StartDate, Duration, Aggregation,iteration);
+                                    StartDate, Duration, Aggregation,iteration ,dimNb);
         }
     }
 }

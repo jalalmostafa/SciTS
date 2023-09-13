@@ -9,21 +9,33 @@ namespace BenchmarkTool
 {
     public class CsvLogger<T> : IDisposable
     {
+        
         private StreamWriter _stream;
         private CsvWriter _writer;
+        bool exists;
+        
 
-        public CsvLogger()
+        public CsvLogger(string operation)
         {
             try
-            {
-                var path = Config.GetMetricsCSVPath();
-                bool exists = File.Exists(path);
-                _stream = new StreamWriter(path, true, new UTF8Encoding(true));
-                _writer = new CsvWriter(_stream, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.CurrentCulture));
+            { 
+                if( operation == "read"){
+                    var path = Config.GetMetricsCSVPath()+"Read.csv";
+                    bool exists = File.Exists(path);
+                    _stream = new StreamWriter(path, true, new UTF8Encoding(true));
+                    _writer = new CsvWriter(_stream, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.CurrentCulture));
+                }else{
+                    var path = Config.GetMetricsCSVPath()+"Write.csv";
+                    bool exists = File.Exists(path);
+                    _stream = new StreamWriter(path, true, new UTF8Encoding(true));
+                    _writer = new CsvWriter(_stream, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.CurrentCulture));
+                 
+                }
+
 
                 if (!exists)
                 {
-                    _writer.WriteHeader<T>();
+                    // _writer.WriteHeader<T>(); TODO
                     _writer.NextRecord();
                 }
             }

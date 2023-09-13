@@ -55,11 +55,19 @@ namespace BenchmarkTool.Database
             throw new NotImplementedException();
         }
 
-        public  Task<QueryStatusRead> RangeQueryRaw(RangeQuery rangeQuery)
+        public  Task<QueryStatusRead> RangeQueryRaw(RangeQuery rangeQuery )
         {
             throw new NotImplementedException();
         }
-        public  Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery rangeQuery)
+        public  Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery rangeQuery )
+        {
+            throw new NotImplementedException();
+        }
+                public  Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery rangeQuery, int limit)
+        {
+            throw new NotImplementedException();
+        }
+        public  Task<QueryStatusRead> RangeQueryRawAllDimsLimited(RangeQuery rangeQuery, int limti)
         {
             throw new NotImplementedException();
         }
