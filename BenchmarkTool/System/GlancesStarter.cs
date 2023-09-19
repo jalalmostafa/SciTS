@@ -55,7 +55,7 @@ namespace BenchmarkTool.System
                     _mutex.ReleaseMutex();
                     await Task.Delay(_period * 1000);
                 }
-                catch (Exception e)
+                catch (Exception e) 
                 {
                     Log.Error(e.ToString());
                 }

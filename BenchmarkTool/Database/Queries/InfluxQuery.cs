@@ -77,11 +77,11 @@ namespace BenchmarkTool.Database.Queries
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam);
         public String RangeRawLimited =>
-            String.Format(_rangeRaw, Config.GetInfluxBucket(),
+            String.Format(_rangeRawLimited, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_1", QueryParams.Limit);
         public String RangeRawAllDimsLimited =>
-            String.Format(_rangeRaw, Config.GetInfluxBucket(),
+            String.Format(_rangeRawAllDimsLimited, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam, QueryParams.Limit);
 

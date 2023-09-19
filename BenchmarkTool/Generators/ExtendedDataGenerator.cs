@@ -9,7 +9,7 @@ namespace BenchmarkTool.Generators
         private Random _rnd = new Random();
         private XorShiftRng _rndX = new XorShiftRng();
         private int timeindex;
-        static int _scaleMilliseconds = Config.GetDatalayertsScaleMilliseconds();
+        static int _scaleMilliseconds = Config.GetRegularTsScaleMilliseconds();
         private bool InTypeReg;
 
         public Batch GenerateBatch(int batchSize, int sensorStartId, decimal sensorsPerClient, int offset, int clientOffset, DateTime date) // date is here relative to the number of batches which have been written before and th eTestretries
@@ -98,7 +98,7 @@ namespace BenchmarkTool.Generators
         }
 
 
-        private DateTime GetRecordTimestamp(DateTime baseTime, int timeindex) // possibly deprecated TODO
+        private DateTime GetRecordTimestamp(DateTime baseTime, int timeindex) // possibly deprecated TODO delete
         {
             var on = 0;
             if (timeindex > 0) on = 1;

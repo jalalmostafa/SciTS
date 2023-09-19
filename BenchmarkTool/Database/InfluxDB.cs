@@ -5,13 +5,15 @@ using System;
 using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Numerics;
+using System.Threading;
+ using System.Numerics;
 using BenchmarkTool.Queries;
 using BenchmarkTool.Generators;
 using System.Diagnostics;
 using BenchmarkTool.Database.Queries;
 using System.Collections.Generic;
 using BenchmarkTool;
+using System.Globalization;
 
 namespace BenchmarkTool.Database
 {
@@ -51,6 +53,8 @@ namespace BenchmarkTool.Database
         {
             try
             {
+                Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+
                 var t = new TimeSpan(0, 0, 10, 0);
                 _options = new InfluxDBClientOptions.Builder()
                     .Url(Config.GetInfluxHost())
@@ -126,7 +130,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public async Task<QueryStatusRead> RangeQueryRaw(RangeQuery query )
+        public async Task<QueryStatusRead> RangeQueryRaw(RangeQuery query)
         {
             try
             {
@@ -137,8 +141,8 @@ namespace BenchmarkTool.Database
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
 
-                    
-               
+
+
 
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -156,7 +160,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query )
+        public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
         {
             try
             {
@@ -167,7 +171,7 @@ namespace BenchmarkTool.Database
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
 
-      
+
 
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -197,8 +201,8 @@ namespace BenchmarkTool.Database
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
 
-   
-                    flux = flux.Replace(QueryParams.Limit, limit.ToString());
+
+                flux = flux.Replace(QueryParams.Limit, limit.ToString());
 
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -227,8 +231,8 @@ namespace BenchmarkTool.Database
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
 
-    
-                    flux = flux.Replace(QueryParams.Limit,limit.ToString());
+
+                flux = flux.Replace(QueryParams.Limit, limit.ToString());
 
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -282,14 +286,14 @@ namespace BenchmarkTool.Database
                     var timeSpan = item.Time.Subtract(EpochStart);
                     var time = TimeSpanToBigInteger(timeSpan, WritePrecision.Ns);
 
-                    if (Config.GetMultiDimensionStorageType() == "column")
+                    if (Config.GetMultiDimensionStorageType() == "column") // measurement,tag1=foo,tag2=bar value_a=1,value_b=2 timestamp //  (item.Time - new DateTime(1970, 1, 1)).TotalMilliseconds
                     {
                         int c = 1; StringBuilder builder = new StringBuilder("");
-                        while (c < Config.GetDataDimensionsNr()) { builder.Append("value={" + item.ValuesArray[(c)] + "}"); c++; }
-                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} value={item.ValuesArray[0]} " + builder + "{time}");
+                        while (c < Config.GetDataDimensionsNr()) { builder.Append($",dim_{c}={item.ValuesArray[c]}"); c++; }
+                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} dim_{0}={item.ValuesArray[0]}{builder} {time}");
                     }
                     else
-                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} value={item.ValuesArray} {time}");
+                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} values={item.ValuesArray} {time}");
                 }
 
                 Stopwatch sw = Stopwatch.StartNew();

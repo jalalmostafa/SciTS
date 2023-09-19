@@ -89,7 +89,7 @@ namespace BenchmarkTool.Generators
         }
         private DateTime GetRecordTimestamp(DateTime baseTime, int timeindex)
         {
-            return baseTime.AddMilliseconds(Config.GetDatalayertsScaleMilliseconds() * timeindex);
+            return baseTime.AddMilliseconds(Config.GetRegularTsScaleMilliseconds() * timeindex);
         }
     }
 }

@@ -54,7 +54,7 @@ namespace BenchmarkTool
             if (_totalClientsNumber > _SensorsNumber) throw new ArgumentException("clientsnr  must be lower then sensornumber for reg.TS ingestion");
 
             List<int> sensorIdsForThisClientList = new List<int>();
-            for (int chosenSensor = 1; chosenSensor <= _SensorsNumber; chosenSensor++)
+            for (int chosenSensor = 1; chosenSensor <= _SensorsNumber; chosenSensor++) // insoired by tilted time frame
             {
                 if (chosenSensor % _totalClientsNumber == _chosenClientIndex - 1)
                     sensorIdsForThisClientList.Add(chosenSensor);
@@ -67,7 +67,7 @@ namespace BenchmarkTool
                 Batch batch = dataGenerator.GenerateBatch(_BatchSize, sensorIdsForThisClientList, batchStartdate, _DimNb);
 
                 var status = await _targetDb.WriteBatch(batch);
-                Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] [Clients Number {_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber} with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber} with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
                 status.Iteration = TestRetryWriteIteration;
                 status.Client = _chosenClientIndex;
                 statuses.Add(status);
@@ -100,7 +100,7 @@ namespace BenchmarkTool
                     Batch batch;
                     batch = dataGenerator.GenerateBatch(_BatchSize, startId, sensorsPerClient, i, _chosenClientIndex, batchStartdate);
                     var status = await _targetDb.WriteBatch(batch);
-                    Console.WriteLine($"[ClientID{_chosenClientIndex}-Iteration:{i}-{batchStartdate}] [Clients Number {_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber}] {status.PerformanceMetric.Latency}");
+                    Console.WriteLine($"[ClientID{_chosenClientIndex}-Iteration:{i}-{batchStartdate}] [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber}  - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber}] {status.PerformanceMetric.Latency}");
                     status.Iteration = i;
                     status.Client = _chosenClientIndex;
                     statuses.Add(status);

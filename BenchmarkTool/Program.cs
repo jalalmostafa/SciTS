@@ -138,7 +138,7 @@ namespace BenchmarkTool
 
         private static void PopulateOneDayRegularData(bool log)
         {
-            int batchSize = Config.GetSensorNumber() * Config.GetDataDimensionsNr() * 60 * (1000 / Config.GetDatalayertsScaleMilliseconds());
+            int batchSize = Config.GetSensorNumber() * Config.GetDataDimensionsNr() * 60 * (1000 / Config.GetRegularTsScaleMilliseconds());
             int minute = 0;
             int totalClientsNb = Config.GetClientNumberOptions().Last();
             while (minute < 24 * 60)
@@ -187,6 +187,9 @@ namespace BenchmarkTool
                     foreach (var totalClientsNb in clientNumberArray)
                     {
                         _currentClientsNR = totalClientsNb;
+                        _currentReadClientsNR = totalClientsNb;
+                        _currentWriteClientsNR = totalClientsNb;
+
 
                         foreach (var dimNb in dimNbArray)
                         {
@@ -203,7 +206,7 @@ namespace BenchmarkTool
                                 var clients = new List<ClientWrite>();
                                 for (var chosenClientIndex = 1; chosenClientIndex <= totalClientsNb; chosenClientIndex++)
                                 {
-                                    clients.Add(new ClientWrite(chosenClientIndex, totalClientsNb, sensorsNb, batchSize,dimNb, date));
+                                    clients.Add(new ClientWrite(chosenClientIndex, totalClientsNb, sensorsNb, batchSize, dimNb, date));
                                 }
                                 var glancesW = new GlancesStarter(Operation.BatchIngestion, totalClientsNb, batchSize, sensorsNb);
                                 glancesW.BeginMonitor();
@@ -300,6 +303,7 @@ namespace BenchmarkTool
                         var totalClientsNb = ClientsNb;
                         _currentWriteClientsNR = totalClientsNb;
 
+
                         foreach (var dimNb in dimNbArray)
                         {
                             _currentdimNb = dimNb;
@@ -317,7 +321,7 @@ namespace BenchmarkTool
                                 var clients = new List<ClientWrite>();
                                 for (var chosenClientIndex = 1; chosenClientIndex <= totalClientsNb; chosenClientIndex++)
                                 {
-                                    clients.Add(new ClientWrite(chosenClientIndex, totalClientsNb, sensorsNb, batchSize,dimNb, date));
+                                    clients.Add(new ClientWrite(chosenClientIndex, totalClientsNb, sensorsNb, batchSize, dimNb, date));
                                 }
                                 var glances = new GlancesStarter(Operation.BatchIngestion, totalClientsNb, batchSize, sensorsNb);
                                 glances.BeginMonitor();
@@ -355,7 +359,7 @@ namespace BenchmarkTool
                 _QueryArray = new string[] { Config.GetQueryType() };
 
             int[] clientNumberArray = Config.GetClientNumberOptions();
-                    int[] dimNbArray = Config.GetDataDimensionsNrOptions();
+            int[] dimNbArray = Config.GetDataDimensionsNrOptions();
 
 
             int TestRetryReadIteration = 0;

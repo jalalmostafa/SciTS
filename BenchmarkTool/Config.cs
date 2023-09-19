@@ -39,11 +39,11 @@ namespace BenchmarkTool
             return sensors;
         }
 
-        public static int _actualDataDimensionsNr;
+        public static int _actualDataDimensionsNr=0;
         public static int GetDataDimensionsNr()
         {
             var val = _actualDataDimensionsNr;
-            if (val.Equals(null))
+            if (val == 0)
                 val = GetDataDimensionsNrOptions().First<int>();
              return val;
         }
@@ -115,9 +115,9 @@ namespace BenchmarkTool
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DatalayertsPassword));
             return val;
         }
-        public static int GetDatalayertsScaleMilliseconds()
+        public static int GetRegularTsScaleMilliseconds()
         {
-            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DatalayertsScaleMilliseconds];
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.RegularTsScaleMilliseconds];
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DatalayertsPassword));
             int.TryParse(val, out int intVal);

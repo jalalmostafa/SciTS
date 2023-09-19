@@ -12,7 +12,7 @@ namespace BenchmarkTool
         public const string DatalayertsConnection = "DatalayertsConnection";
         public const string DatalayertsUser = "DatalayertsUser";
         public const string DatalayertsPassword = "DatalayertsPassword";
-        public const string DatalayertsScaleMilliseconds = "DatalayertsScaleMilliseconds";
+        public const string RegularTsScaleMilliseconds = "RegularTsScaleMilliseconds";
         public const string TimescaleConnection = "TimescaleConnection";
         public const string MySQLConnection = "MySQLConnection";
 

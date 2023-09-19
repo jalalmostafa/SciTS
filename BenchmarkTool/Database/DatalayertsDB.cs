@@ -66,7 +66,7 @@ namespace BenchmarkTool.Database
                             timeSeriesPoint = new TimeSeriesPoint<double>()
                             {
                                 Directory = GetDirectoryName(),
-                                Series = "sensor_id_" + record.SensorID + "_dim_" + dim,
+                                Series = GetSeriesNames(record.SensorID,dim),
                                 Value = record.ValuesArray[dim],
                                 Timestamp = new DateTime(record.Time.Year, 
                                 record.Time.Month, 
@@ -115,8 +115,8 @@ namespace BenchmarkTool.Database
                     vectorContainer = new VectorContainer<double>()
                     {
                         FirstTimestamp = roundedDate,
-                        IntervalTicks = 10000 * Config.GetDatalayertsScaleMilliseconds(), // second = 10mil
-                        LastTimestamp = roundedDate.AddMilliseconds(anzahlTimestepsPerDimSensor * Config.GetDatalayertsScaleMilliseconds())
+                        IntervalTicks = 10000 * Config.GetRegularTsScaleMilliseconds(), // second = 10mil
+                        LastTimestamp = roundedDate.AddMilliseconds(anzahlTimestepsPerDimSensor * Config.GetRegularTsScaleMilliseconds())
                     };
                     vectorContainer.Vectors = new TimeSeriesVector<double>[anzahlSensorenInBatch * dataDims].Select(a => new TimeSeriesVector<double>()).ToArray();
 
@@ -149,7 +149,7 @@ namespace BenchmarkTool.Database
 
                     //                     VectorContainer<double> vectorContainer;
                     //                     //TODO to config
-                    //                     string pth = "./DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_batchsize" + batch.Size + ".bin";
+                    //                     string pth = "./DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetRegularTsScaleMilliseconds() + "_batchsize" + batch.Size + ".bin";
                     //                     if (File.Exists(pth) & false)//Debug TTODO
                     //                     {
 
@@ -161,7 +161,7 @@ namespace BenchmarkTool.Database
                     //                     else
                     //                     {
 
-                    //                         int scale = Config.GetDatalayertsScaleMilliseconds();
+                    //                         int scale = Config.GetRegularTsScaleMilliseconds();
                     //                         DateTime roundedDate = new DateTime(Config.GetStartTime().Year, Config.GetStartTime().Month, Config.GetStartTime().Day, Config.GetStartTime().Hour, Config.GetStartTime().Minute, Config.GetStartTime().Second, Config.GetStartTime().Millisecond, DateTimeKind.Utc);
                     //                         Dictionary<int, List<double>> DictOfDimXSensorIDsToListsFromValueArrays = new Dictionary<int, List<double>>();
                     //                         Dictionary<int, int[]> IndexOfSensorIDsDimensions = new Dictionary<int, int[]>();  
@@ -212,14 +212,14 @@ namespace BenchmarkTool.Database
                     //                             if (Config.GetPrintModeEnabled() == true) // Todo remove
                     //                                 for (int i = 0; i < vectorContainer.Vectors[DimSensorNr].Values.GetLength(0); i++)
                     //                                 {
-                    //                                     if (vectorContainer.Vectors[DimSensorNr].Values[i] > 0) await Console.Out.WriteLineAsync("write  | " + vectorContainer.Vectors[DimSensorNr].Values[i] + " in  " + vectorContainer.Vectors[DimSensorNr].Series + " at TS: " + roundedDate.AddMilliseconds(i * Config.GetDatalayertsScaleMilliseconds()).ToString());
+                    //                                     if (vectorContainer.Vectors[DimSensorNr].Values[i] > 0) await Console.Out.WriteLineAsync("write  | " + vectorContainer.Vectors[DimSensorNr].Values[i] + " in  " + vectorContainer.Vectors[DimSensorNr].Series + " at TS: " + roundedDate.AddMilliseconds(i * Config.GetRegularTsScaleMilliseconds()).ToString());
                     //                                 }
                     //                             // }
                     //                         }
 
 
                     //                         // TODO to config
-                    //                         // string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetDatalayertsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
+                    //                         // string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetRegularTsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
 
                     //                         using (Stream stream = File.Open(pth, FileMode.Create))}
                     //                         {
@@ -330,7 +330,7 @@ namespace BenchmarkTool.Database
 
 
 
-                DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc).AddMilliseconds(Config.GetDatalayertsScaleMilliseconds() * limit);
+                DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc).AddMilliseconds(Config.GetRegularTsScaleMilliseconds() * limit);
 
                 string dir = GetDirectoryName();
                 string[] series = GetSeriesNames(query.SensorIDs, new int[1] { 0 });
@@ -362,7 +362,7 @@ namespace BenchmarkTool.Database
 
 
 
-                DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc).AddMilliseconds(Config.GetDatalayertsScaleMilliseconds() * limit);
+                DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc).AddMilliseconds(Config.GetRegularTsScaleMilliseconds() * limit);
 
 
 
@@ -542,7 +542,7 @@ namespace BenchmarkTool.Database
             if (Config.GetIngestionType().Contains("irregular"))
                 return Config.GetPolyDimTableName() + "_irregular";
             else
-                return Config.GetPolyDimTableName() + "_in_" + Config.GetDatalayertsScaleMilliseconds().ToString() + "_ms_steps";
+                return Config.GetPolyDimTableName() + "_in_" + Config.GetRegularTsScaleMilliseconds().ToString() + "_ms_steps";
 
         }
 
