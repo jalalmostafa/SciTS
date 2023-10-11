@@ -36,19 +36,19 @@ namespace BenchmarkTool.Database.Queries
                                         where {2} >= toDateTime('{3}') and {2} <= toDateTime('{4}') and {5} = {6}";
         public String RangeRawAllDims => String.Format(_rangeRawAllDims, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
 
-        public String RangeRaw => String.Format(_rangeRaw, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam, Constants.Value + "_1");
-        public String RangeRawAllDimsLimited => String.Format(_rangeRawAllDims, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam, QueryParams.Limit);
+        public String RangeRaw => String.Format(_rangeRaw, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam, Constants.Value + "_0");
+        public String RangeRawAllDimsLimited => String.Format(_rangeRawAllDimsLimited, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam, QueryParams.Limit);
 
-        public String RangeRawLimited => String.Format(_rangeRaw, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam, Constants.Value + "_1", QueryParams.Limit);
+        public String RangeRawLimited => String.Format(_rangeRawLimited, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam, Constants.Value + "_0", QueryParams.Limit);
 
 
-        public String RangeAgg => String.Format(_rangeAgg, Constants.Time, Config.GetAggregationInterval(), Constants.Value + "_1", Constants.SensorID, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDsParam, QueryParams.Limit);
+        public String RangeAgg => String.Format(_rangeAgg, Constants.Time, Config.GetAggregationInterval(), Constants.Value + "_0", Constants.SensorID, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDsParam, QueryParams.Limit);
 
-        public String OutOfRange => String.Format(_outOfRange, Constants.Time, Config.GetAggregationInterval(), Constants.Value + "_1", Constants.SensorID, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDParam, QueryParams.MinValParam, QueryParams.MaxValParam);
+        public String OutOfRange => String.Format(_outOfRange, Constants.Time, Config.GetAggregationInterval(), Constants.Value + "_0", Constants.SensorID, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDParam, QueryParams.MinValParam, QueryParams.MaxValParam);
 
-        public String StdDev => String.Format(_stdDev, Constants.Value + "_1", Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDParam);
+        public String StdDev => String.Format(_stdDev, Constants.Value + "_0", Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDParam);
 
-        public String AggDifference => String.Format(_aggDifference, Constants.Time, Config.GetAggregationInterval(), Constants.Value + "_1",
+        public String AggDifference => String.Format(_aggDifference, Constants.Time, Config.GetAggregationInterval(), Constants.Value + "_0",
             Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.FirstSensorIDParam, QueryParams.SecondSensorIDParam);
     }
 }

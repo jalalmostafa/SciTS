@@ -30,6 +30,11 @@ namespace BenchmarkTool.Database
         {
 
         }
+        public void CheckOrCreateTable()
+        {
+    
+        }
+
 
         public Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
         {
@@ -69,20 +74,23 @@ namespace BenchmarkTool.Database
                 {
                     int c = 1; StringBuilder builder = new StringBuilder("");
                     while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_dim" + (c + 1)); c++; }
-                    sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value_dim1`" + builder + ") VALUES "  );
+                    sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value_dim1`" + builder + ") VALUES ");
 
                     foreach (var record in batch.Records)
-                        {
-                            Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, string.Join(",", record.ValuesArray.Select(x => x.ToString(CultureInfo.InvariantCulture)).ToArray())));
-                        }   sCommand.AppendLine(string.Join(",", Rows));
+                    {
+                        Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, string.Join(",", record.ValuesArray.Select(x => x.ToString(CultureInfo.InvariantCulture)).ToArray())));
+                    }
+                    sCommand.AppendLine(string.Join(",", Rows));
                 }
-                else{
-                    sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value`) VALUES "  );
+                else
+                {
+                    sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value`) VALUES ");
                     foreach (var record in batch.Records)
-                        {
-                            Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, "{"+string.Join(",", record.ValuesArray.Select(x => x.ToString(CultureInfo.InvariantCulture)).ToArray()) +"}"));
-                        }  sCommand.AppendLine(string.Join(",", Rows));
-                }     
+                    {
+                        Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, "{" + string.Join(",", record.ValuesArray.Select(x => x.ToString(CultureInfo.InvariantCulture)).ToArray()) + "}"));
+                    }
+                    sCommand.AppendLine(string.Join(",", Rows));
+                }
 
                 sCommand.Append(";");
 
@@ -92,7 +100,7 @@ namespace BenchmarkTool.Database
 
                 sw.Start();
                 // await File.AppendAllTextAsync("/tmp/dummy_" + DateTime.Now.Day.ToString() + ".txt", sCommand.ToString());
-                await File.AppendAllTextAsync("/tmp/dummy_empty_" + DateTime.Now.Day.ToString() + ".txt", " ") ;
+                await File.AppendAllTextAsync("/tmp/dummy_empty_" + DateTime.Now.Day.ToString() + ".txt", " ");
 
                 sw.Stop();
 
@@ -105,16 +113,16 @@ namespace BenchmarkTool.Database
                 return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString());
             }
         }
-                public Task<QueryStatusRead> RangeQueryRaw(RangeQuery rangeQuery )
+        public Task<QueryStatusRead> RangeQueryRaw(RangeQuery rangeQuery)
         {
             throw new NotImplementedException();
         }
 
-        public Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery rangeQuery )
+        public Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery rangeQuery)
         {
             throw new NotImplementedException();
         }
-                        public Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery rangeQuery, int limit)
+        public Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery rangeQuery, int limit)
         {
             throw new NotImplementedException();
         }

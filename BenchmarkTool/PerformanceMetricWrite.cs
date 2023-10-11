@@ -1,4 +1,5 @@
-﻿using BenchmarkTool;
+﻿using System;
+using BenchmarkTool;
 namespace BenchmarkTool
 {
     public class PerformanceMetricWrite : PerformanceMetricBase<LogRecordWrite>
@@ -9,12 +10,12 @@ namespace BenchmarkTool
         {
         }
 
-        public override LogRecordWrite ToLogRecord(string mode, long timestamp, int batchSize,
+        public override LogRecordWrite ToLogRecord(string mode, int percentage, long timestamp, DateTime startDate, int batchSize,
                                                     int clientsNb, int sensorNb,
                                                     int client, int iteration, int dimNb)
         {
-            return new LogRecordWrite(Latency, SucceededDataPoints, timestamp,
-                                    FailedDataPoints, PerformedOperation,mode, clientsNb,
+            return new LogRecordWrite(Latency, SucceededDataPoints, timestamp, startDate,
+                                    FailedDataPoints, PerformedOperation,mode,   percentage, clientsNb,
                                     batchSize, sensorNb, client, iteration, dimNb);
         }
     }

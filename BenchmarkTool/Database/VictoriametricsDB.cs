@@ -33,6 +33,10 @@ namespace BenchmarkTool.Database
             // _client.GetBucketsApi().CreateBucketAsync(Config.GetInfluxBucket(), orgId).GetAwaiter().GetResult();
         }
 
+public void CheckOrCreateTable()
+        {
+           
+        }
         public void Close()
         {
             try

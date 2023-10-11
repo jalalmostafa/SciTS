@@ -47,10 +47,10 @@ namespace BenchmarkTool.System
         {
             while (!_monitor.CancellationToken.IsCancellationRequested)
             {
-                try
+                try 
                 {
                     var metrics = await _monitor.GetAllAsync(_databasePid, _nic, _disk, _fs);
-                    _mutex.WaitOne();
+                    _mutex.WaitOne(); // TODO understand why handly geclosed wird
                     _metrics.Add(metrics);
                     _mutex.ReleaseMutex();
                     await Task.Delay(_period * 1000);

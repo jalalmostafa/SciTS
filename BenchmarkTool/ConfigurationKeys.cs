@@ -6,7 +6,8 @@ namespace BenchmarkTool
 {
     static class ConfigurationKeys
     {
-        public const string GlancesStorageFileSystem = "GlancesStorageFileSystem";
+        public const string MixedWLPercentageOptions = "MixedWLPercentageOptions";
+         public const string GlancesStorageFileSystem = "GlancesStorageFileSystem";
         public const string PrintModeEnabled = "PrintModeEnabled";
         public const string PostgresConnection = "PostgresConnection";
         public const string DatalayertsConnection = "DatalayertsConnection";

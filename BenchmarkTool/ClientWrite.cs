@@ -18,8 +18,8 @@ namespace BenchmarkTool
         public int _chosenClientIndex { get; private set; }
         public int _totalClientsNumber { get; private set; }
         public int _SensorsNumber { get; private set; }
-        public int _BatchSize { get; private set; }        
-         public int _DimNb { get; private set; }
+        public int _BatchSize { get; private set; }
+        public int _DimNb { get; private set; }
 
         public ClientWrite(int chosenClientIndex, int totalClientsNumber, int sensorNumber, int batchSize, int dimNb, DateTime date)
         {
@@ -35,6 +35,9 @@ namespace BenchmarkTool
                 _targetDb = dbFactory.Create();
                 _targetDb.Init();
                 _DimNb = dimNb;
+                _targetDb.CheckOrCreateTable();
+
+
             }
             catch (Exception ex)
             {
@@ -43,10 +46,10 @@ namespace BenchmarkTool
         }
         public async Task<List<QueryStatusWrite>> RunIngestion(int TestRetryWriteIteration)
         {
-                    return await RunIngestion(new ExtendedDataGenerator(), TestRetryWriteIteration);
+            return await RunIngestion(new ExtendedDataGenerator(), TestRetryWriteIteration);
         }
 
-        public async Task<List<QueryStatusWrite>> RunIngestion(ExtendedDataGenerator dataGenerator,int TestRetryWriteIteration)  
+        public async Task<List<QueryStatusWrite>> RunIngestion(ExtendedDataGenerator dataGenerator, int TestRetryWriteIteration)
         {
 
             // new logic: modulo
@@ -54,7 +57,7 @@ namespace BenchmarkTool
             if (_totalClientsNumber > _SensorsNumber) throw new ArgumentException("clientsnr  must be lower then sensornumber for reg.TS ingestion");
 
             List<int> sensorIdsForThisClientList = new List<int>();
-            for (int chosenSensor = 1; chosenSensor <= _SensorsNumber; chosenSensor++) // insoired by tilted time frame
+            for (int chosenSensor = 1; chosenSensor <= _SensorsNumber; chosenSensor++) // inspired by tilted time frame algorithm
             {
                 if (chosenSensor % _totalClientsNumber == _chosenClientIndex - 1)
                     sensorIdsForThisClientList.Add(chosenSensor);
@@ -67,9 +70,10 @@ namespace BenchmarkTool
                 Batch batch = dataGenerator.GenerateBatch(_BatchSize, sensorIdsForThisClientList, batchStartdate, _DimNb);
 
                 var status = await _targetDb.WriteBatch(batch);
-                Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber} with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber} with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
                 status.Iteration = TestRetryWriteIteration;
                 status.Client = _chosenClientIndex;
+                status.StartDate=batchStartdate;
                 statuses.Add(status);
             }
 
@@ -79,7 +83,7 @@ namespace BenchmarkTool
             return statuses;
         }
 
-        public async Task<List<QueryStatusWrite>> RunIngestion(SimpleDataGenerator dataGenerator)
+        public async Task<List<QueryStatusWrite>> RunIngestion(SimpleDataGenerator dataGenerator) // deprecated
         {
             var operation = Config.GetQueryType();
             int loop = Config.GetTestRetries();
@@ -90,7 +94,7 @@ namespace BenchmarkTool
 
             var statuses = new List<QueryStatusWrite>();
             var period = 24.0 / loop;
-            for (var day = 0; day < _daySpan; day++)   
+            for (var day = 0; day < _daySpan; day++)
             {
                 var batchStartdate = _date.AddDays(day);
                 for (var i = 0; i < loop; i++)
@@ -100,7 +104,7 @@ namespace BenchmarkTool
                     Batch batch;
                     batch = dataGenerator.GenerateBatch(_BatchSize, startId, sensorsPerClient, i, _chosenClientIndex, batchStartdate);
                     var status = await _targetDb.WriteBatch(batch);
-                    Console.WriteLine($"[ClientID{_chosenClientIndex}-Iteration:{i}-{batchStartdate}] [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber}  - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber}] {status.PerformanceMetric.Latency}");
+                    Console.WriteLine($"[ClientID{_chosenClientIndex}-Iteration:{i}-{batchStartdate}] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber}  - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber}] {status.PerformanceMetric.Latency}");
                     status.Iteration = i;
                     status.Client = _chosenClientIndex;
                     statuses.Add(status);

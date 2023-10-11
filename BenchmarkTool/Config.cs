@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 
@@ -39,25 +40,36 @@ namespace BenchmarkTool
             return sensors;
         }
 
-        public static int _actualDataDimensionsNr=0;
+        public static int _actualDataDimensionsNr = 0;
         public static int GetDataDimensionsNr()
         {
             var val = _actualDataDimensionsNr;
             if (val == 0)
                 val = GetDataDimensionsNrOptions().First<int>();
-             return val;
+            return val;
         }
         public static int[] GetDataDimensionsNrOptions()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.DataDimensionsNrOptions];
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DataDimensionsNr));
-             return Array.ConvertAll(val.Split(","), s => int.TryParse(s, out var x) ? x : -1);
+            return Array.ConvertAll(val.Split(","), s => int.TryParse(s, out var x) ? x : -1);
         }
-     
+
         public static string GetPolyDimTableName()
         {
-            var val = Constants.TableName + "_dim_" + Config.GetDataDimensionsNr();
+            var val = Constants.TableName + "_dim_" + Config.GetDataDimensionsNr() + "_" + Config.GetIngestionType();
+
+            return val;
+        }
+        public static string[] GetAllPolyDimTableNames()
+        {
+            var list = new List<string>();
+            foreach (var dim in GetDataDimensionsNrOptions())
+            {
+                list.Add(Constants.TableName + "_dim_" + dim + "_" + Config.GetIngestionType());
+            }
+            var val = list.ToArray<string>();
 
             return val;
         }
@@ -245,14 +257,36 @@ namespace BenchmarkTool
 
         public static string QueryTypeOnRunTime;
 
+
+
+        public static string[] _QueryArray;
+
         public static string GetQueryType()
         {
 
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.QueryType];
-            if (val == "All" | !String.IsNullOrEmpty(QueryTypeOnRunTime))
-                val = QueryTypeOnRunTime;
-            if (String.IsNullOrEmpty(val))
-                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.QueryType));
+            if (String.IsNullOrEmpty(QueryTypeOnRunTime)) //INIT
+            {
+                if (val == "All") //TODO move logic to Config.GetQueryOptions
+                    Config._QueryArray = new string[] { "RangeQueryRawData", "RangeQueryRawAllDimsData", "RangeQueryAggData", "OutOfRangeQuery", "DifferenceAggQuery", "STDDevQuery" };
+                else if (val == "Agg" | Program.Mode.Contains("Agg"))
+                    Config._QueryArray = new string[] { "RangeQueryAggData", "DifferenceAggQuery", "STDDevQuery" };
+                else
+                {   
+                    List<string> valA = val.Split(',').ToList();
+                    foreach( var x in valA){
+                      x.ToEnum<Operation>();
+                    } 
+                    // TODO insert check method assert correct parsing
+                    
+                    Config._QueryArray = valA.ToArray();
+                }
+
+                QueryTypeOnRunTime = _QueryArray.First();
+            }
+
+            val = QueryTypeOnRunTime;
+
             return val;
         }
 
@@ -449,5 +483,13 @@ namespace BenchmarkTool
         }
 
 
+        public static int _actualMixedWLPercentage;
+        public static int[] GetMixedWLPercentageOptions()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.MixedWLPercentageOptions];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.MixedWLPercentageOptions));
+            return Array.ConvertAll(val.Split(","), s => int.TryParse(s, out var x) ? x : -1); ;
+        }
     }
 }

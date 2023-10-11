@@ -21,21 +21,21 @@ namespace BenchmarkTool
             { 
                 if( operation == "read"){
                     var path = Config.GetMetricsCSVPath()+"Read.csv";
-                    bool exists = File.Exists(path);
+                     exists = File.Exists(path);
                     _stream = new StreamWriter(path, true, new UTF8Encoding(true));
-                    _writer = new CsvWriter(_stream, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.CurrentCulture));
+                    _writer = new CsvWriter(_stream, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture));
                 }else{
                     var path = Config.GetMetricsCSVPath()+"Write.csv";
-                    bool exists = File.Exists(path);
+                     exists = File.Exists(path);
                     _stream = new StreamWriter(path, true, new UTF8Encoding(true));
-                    _writer = new CsvWriter(_stream, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.CurrentCulture));
+                    _writer = new CsvWriter(_stream, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture));
                  
                 }
 
 
                 if (!exists)
                 {
-                    // _writer.WriteHeader<T>(); TODO
+                     _writer.WriteHeader<T>(); 
                     _writer.NextRecord();
                 }
             }
@@ -47,7 +47,7 @@ namespace BenchmarkTool
 
         public void WriteRecord(T record)
         {
-            _writer.WriteRecord<T>(record);
+                         _writer.WriteRecord<T>(record);
             _writer.NextRecord();
         }
 

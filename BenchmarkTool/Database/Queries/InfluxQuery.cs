@@ -71,15 +71,15 @@ namespace BenchmarkTool.Database.Queries
         public String RangeRaw =>
             String.Format(_rangeRaw, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_1");
+            Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_0");
         public String RangeRawAllDims =>
-            String.Format(_rangeRaw, Config.GetInfluxBucket(),
+            String.Format(_rangeRawAllDims, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam);
         public String RangeRawLimited =>
             String.Format(_rangeRawLimited, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_1", QueryParams.Limit);
+            Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_0", QueryParams.Limit);
         public String RangeRawAllDimsLimited =>
             String.Format(_rangeRawAllDimsLimited, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
@@ -94,7 +94,7 @@ namespace BenchmarkTool.Database.Queries
         public String OutOfRange =>
             String.Format(_outOfRange, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDParam, Constants.Value + "_1",
+            Constants.SensorID, QueryParams.SensorIDParam, Constants.Value + "_0",
             Config.GetAggregationInterval(), Constants.SensorID,
             QueryParams.MinValParam, QueryParams.MaxValParam);
 
@@ -107,7 +107,7 @@ namespace BenchmarkTool.Database.Queries
             String.Format(_aggDifference, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.FirstSensorIDParam,
-            QueryParams.SecondSensorIDParam, Constants.Value + "_1",
+            QueryParams.SecondSensorIDParam, Constants.Value + "_0",
             Config.GetAggregationInterval());
     }
 }

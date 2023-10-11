@@ -35,7 +35,7 @@ namespace BenchmarkTool.System.Metrics
                 bool exists = File.Exists(path);
                 using (StreamWriter sw = new StreamWriter(path, true, new UTF8Encoding(true)))
                 {
-                    using (CsvWriter cw = new CsvWriter(sw, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.CurrentCulture)))
+                    using (CsvWriter cw = new CsvWriter(sw, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)))
                     {
                         if (!exists)
                         {
@@ -68,6 +68,7 @@ namespace BenchmarkTool.System.Metrics
                 SensorsNumber = sensorsNb,
                 Mode = BenchmarkTool.Program.Mode,
                 Dimensions = _dimensions,
+                Percentage = Config._actualMixedWLPercentage, // TODO it this performative?
 
                 // Cpu
                 CpuTotal = this.Cpu.Total,
@@ -144,6 +145,7 @@ namespace BenchmarkTool.System.Metrics
             public int ClientsNumber { get; set; }
             public int BatchSize { get; set; }
                   public int Dimensions { get; set; }
+                   public int Percentage { get; set; }
             public int SensorsNumber { get; set; }
 
             public string Mode {get;set; }

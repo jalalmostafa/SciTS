@@ -6,7 +6,7 @@ using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
- using System.Numerics;
+using System.Numerics;
 using BenchmarkTool.Queries;
 using BenchmarkTool.Generators;
 using System.Diagnostics;
@@ -53,7 +53,7 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+                Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
                 var t = new TimeSpan(0, 0, 10, 0);
                 _options = new InfluxDBClientOptions.Builder()
@@ -75,6 +75,11 @@ namespace BenchmarkTool.Database
                 Log.Error(String.Format("Failed to initialize InfluxDB. Exception: {0}", ex.ToString()));
             }
         }
+        public void CheckOrCreateTable()
+        {
+         // not needed, columns are influx-flags.
+        }
+
 
         public async Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
         {
@@ -288,7 +293,7 @@ namespace BenchmarkTool.Database
 
                     if (Config.GetMultiDimensionStorageType() == "column") // measurement,tag1=foo,tag2=bar value_a=1,value_b=2 timestamp //  (item.Time - new DateTime(1970, 1, 1)).TotalMilliseconds
                     {
-                        int c = 1; StringBuilder builder = new StringBuilder("");
+                        int c = 0; StringBuilder builder = new StringBuilder("");
                         while (c < Config.GetDataDimensionsNr()) { builder.Append($",dim_{c}={item.ValuesArray[c]}"); c++; }
                         lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} dim_{0}={item.ValuesArray[0]}{builder} {time}");
                     }

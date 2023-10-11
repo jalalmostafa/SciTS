@@ -24,6 +24,8 @@ namespace BenchmarkTool.Database
 
         private IQuery<String> _query;
         private int _aggInterval;
+        private static bool _TableCreated;
+
 
         public void Cleanup()
         {
@@ -56,7 +58,7 @@ namespace BenchmarkTool.Database
 
 
 
-                _read_connection = new ClickHouse.Client.ADO.ClickHouseConnection("Host=" + Config.GetClickhouseHost() + ";Protocol=https;Port=" + Config.GetClickhousePort() + ";Username=" + Config.GetClickhouseUser()); 
+                _read_connection = new ClickHouse.Client.ADO.ClickHouseConnection("Host=" + Config.GetClickhouseHost() + ";Protocol=https;Port=" + Config.GetClickhousePort() + ";Username=" + Config.GetClickhouseUser());
                 _read_connection.ChangeDatabase(Config.GetClickhouseDatabase());
                 _read_connection.OpenAsync();
 
@@ -77,14 +79,48 @@ namespace BenchmarkTool.Database
                 _query = new ClickhouseQuery();
                 _aggInterval = Config.GetAggregationInterval();
 
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to initialize Clickhouse. Exception: {0}", ex.ToString()));
+            }
+        }
 
 
-                // create table
-                var command = _write_connection.CreateCommand();
-                int c = 0; StringBuilder builder = new StringBuilder("");
-                while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_" + c + " Float64"); c++; }
-                command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + Config.GetPolyDimTableName() + " ( time DateTime64(9) , sensor_id Int32 " + builder + ") ENGINE = MergeTree() PARTITION BY toYYYYMMDD(time) ORDER BY (sensor_id, time);");
-                command.ExecuteNonQuery();
+
+        public void CheckOrCreateTable()
+        {
+            try
+            {
+                var dimNb = 0;
+                if (_TableCreated != true)
+                {
+                    if (Config.GetMultiDimensionStorageType() == "column")
+                    {
+                        foreach (var tableName in Config.GetAllPolyDimTableNames())
+                        {
+                            var actualDim = Config.GetDataDimensionsNrOptions()[dimNb];
+
+
+                            // create table
+                            var command = _write_connection.CreateCommand();
+                            int c = 0; StringBuilder builder = new StringBuilder("");
+
+                            while (c < actualDim) { builder.Append(", value_" + c + " Float64"); c++; }
+
+                            command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + tableName + " ( time DateTime64(9) , sensor_id Int32 " + builder + ") ENGINE = MergeTree() PARTITION BY toYYYYMMDD(time) ORDER BY (sensor_id, time);");
+
+                            command.ExecuteNonQuery();
+                            _TableCreated = true;
+                            dimNb++;
+                        }
+                    }
+                    else
+                        throw new NotImplementedException();
+
+
+
+                }
 
 
 
@@ -113,12 +149,12 @@ namespace BenchmarkTool.Database
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader =  cmd.ExecuteReader();
+                var reader = cmd.ExecuteReader();
                 // while (reader.Read())
                 // {
                 //     points++;
                 // }
-                   reader.ReadAll(rowReader => { points++; });
+                reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
@@ -145,12 +181,12 @@ namespace BenchmarkTool.Database
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader =  cmd.ExecuteReader();
+                var reader = cmd.ExecuteReader();
                 // while (reader.Read())
                 // {
                 //     points++;
                 // }
-                                reader.ReadAll(rowReader => { points++; });
+                reader.ReadAll(rowReader => { points++; });
 
                 sw.Stop();
 
@@ -175,9 +211,9 @@ namespace BenchmarkTool.Database
                 Log.Information(sql);
 
 
-                 
-                
-                
+
+
+
 
 
                 var cmd = _write_connection.CreateCommand();
@@ -189,7 +225,7 @@ namespace BenchmarkTool.Database
                 // {
                 //     points++;
                 // }
-                var reader =  cmd.ExecuteReader();
+                var reader = cmd.ExecuteReader();
                 reader.ReadAll(rowReader => { points++; });
 
                 sw.Stop();
@@ -203,7 +239,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-         public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query )
+        public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
         {
             int points = 0;
             try
@@ -215,9 +251,9 @@ namespace BenchmarkTool.Database
                 Log.Information(sql);
 
 
-              
-                
-                
+
+
+
 
 
                 var cmd = _write_connection.CreateCommand();
@@ -229,7 +265,7 @@ namespace BenchmarkTool.Database
                 // {
                 //     points++;
                 // }
-                var reader =  cmd.ExecuteReader();
+                var reader = cmd.ExecuteReader();
                 reader.ReadAll(rowReader => { points++; });
 
                 sw.Stop();
@@ -243,7 +279,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-          public async Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery query, int limit)
+        public async Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery query, int limit)
         {
             int points = 0;
             try
@@ -255,7 +291,7 @@ namespace BenchmarkTool.Database
                 Log.Information(sql);
 
 
-      
+
                 sql = sql.Replace(QueryParams.Limit, limit.ToString());
 
 
@@ -268,7 +304,7 @@ namespace BenchmarkTool.Database
                 // {
                 //     points++;
                 // }
-                var reader =  cmd.ExecuteReader();
+                var reader = cmd.ExecuteReader();
                 reader.ReadAll(rowReader => { points++; });
 
                 sw.Stop();
@@ -282,7 +318,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-         public async Task<QueryStatusRead> RangeQueryRawAllDimsLimited(RangeQuery query, int limit)
+        public async Task<QueryStatusRead> RangeQueryRawAllDimsLimited(RangeQuery query, int limit)
         {
             int points = 0;
             try
@@ -294,7 +330,7 @@ namespace BenchmarkTool.Database
                 Log.Information(sql);
 
 
- 
+
                 sql = sql.Replace(QueryParams.Limit, limit.ToString());
 
 
@@ -307,7 +343,7 @@ namespace BenchmarkTool.Database
                 // {
                 //     points++;
                 // }
-                var reader =  cmd.ExecuteReader();
+                var reader = cmd.ExecuteReader();
                 reader.ReadAll(rowReader => { points++; });
 
                 sw.Stop();
@@ -337,12 +373,12 @@ namespace BenchmarkTool.Database
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader =  cmd.ExecuteReader();
+                var reader = cmd.ExecuteReader();
                 // while (reader.Read())
                 // {
                 //     points++;
                 // }
-                   reader.ReadAll(rowReader => { points++; });
+                reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.DifferenceAggQuery));
             }
@@ -367,12 +403,12 @@ namespace BenchmarkTool.Database
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var reader =  cmd.ExecuteReader();
+                var reader = cmd.ExecuteReader();
                 // while (reader.Read())
                 // {
                 //     points++;
                 // }
-                 reader.ReadAll(rowReader => { points++; });
+                reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
             }
@@ -388,7 +424,7 @@ namespace BenchmarkTool.Database
             try
             {
                 var command = _write_connection.CreateCommand();
-                int c = 0; StringBuilder builderKey = new StringBuilder(""); 
+                int c = 0; StringBuilder builderKey = new StringBuilder("");
                 List<object> builderVal = new List<object>(); builderVal.Add(Config.GetPolyDimTableName()); builderVal.Add(Constants.Time); builderVal.Add(Constants.SensorID);
                 while (c < Config.GetDataDimensionsNr()) { builderKey.Append(", {" + (3 + c) + "} "); builderVal.Add(Constants.Value + "_" + c); c++; }
 

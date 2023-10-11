@@ -20,6 +20,8 @@ namespace BenchmarkTool.Database
         private string _connectionConfig;
         private int _aggInterval;
 
+        private static bool _TableCreated;
+
         protected PostgresDB(IQuery<String> query, string connectionConfig)
         {
             _query = query;
@@ -50,7 +52,53 @@ namespace BenchmarkTool.Database
                 Log.Error(String.Format("Failed to close. Exception: {0}", ex.ToString()));
             }
         }
-        static bool _TableCreated = false;
+        public void CheckOrCreateTable()
+        {
+            try
+            {
+                var dimNb = 0;
+                if (_TableCreated != true)
+                {
+                    if (Config.GetMultiDimensionStorageType() == "column")
+                    {
+                        foreach (var tableName in Config.GetAllPolyDimTableNames())
+                        {
+                            var actualDim = Config.GetDataDimensionsNrOptions()[dimNb];
+
+
+
+                            int c = 0; StringBuilder builder = new StringBuilder("");
+
+
+                            while (c < actualDim) { builder.Append(", value_" + c + " double precision"); c++; }
+
+
+                            NpgsqlCommand m_createtbl_cmd = new NpgsqlCommand(
+                              String.Format("CREATE TABLE IF NOT EXISTS " + tableName + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE;  ")
+                               , _connection);
+
+
+
+                            m_createtbl_cmd.ExecuteNonQuery();
+                            _TableCreated = true;
+
+                            dimNb++;
+                        }
+                    }
+                    else
+                        throw new NotImplementedException();
+
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to close. Exception: {0}", ex.ToString()));
+            }
+        }
+
         public void Init()
         {
 
@@ -61,18 +109,7 @@ namespace BenchmarkTool.Database
 
                 if (Config.GetMultiDimensionStorageType() == "column")
                 {
-                    // create table
 
-
-                    if (_TableCreated == false)
-                    {
-                        var command = _connection.CreateCommand();
-                        int c = 0; StringBuilder builder = new StringBuilder("");
-                        while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_" + c + " double precision"); c++; }
-                        command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + Config.GetPolyDimTableName() + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE;  ");
-                        _TableCreated = true;
-                        command.ExecuteNonQuery();
-                    }
 
 
                     _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())

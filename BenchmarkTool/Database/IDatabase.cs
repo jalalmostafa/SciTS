@@ -7,6 +7,8 @@ namespace BenchmarkTool.Database
     public interface IDatabase
     {
         void Init();
+        static bool _TableCreated;
+        void CheckOrCreateTable();
 
         void Cleanup();
 

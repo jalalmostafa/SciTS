@@ -25,46 +25,46 @@ namespace BenchmarkTool.System
 
         }
 
-        public Task<Cpu> GetCpuAsync()
+        public async Task<Cpu> GetCpuAsync()
         {
             var request = new RestRequest("/api/3/cpu");
-            return _client.GetAsync<Cpu>(request, _cancellationTokenSource.Token);
+            return await _client.GetAsync<Cpu>(request,  _cancellationTokenSource.Token);
         }
 
-        public Task<List<DiskIO>> GetDiskIOAsync() // TODO returns empty list without names
+        public async Task<List<DiskIO>> GetDiskIOAsync() // TODO returns empty list without names
         {
             var request = new RestRequest("/api/3/diskio");
-            return _client.GetAsync<List<DiskIO>>(request, _cancellationTokenSource.Token); 
+            return await _client.GetAsync<List<DiskIO>>(request, _cancellationTokenSource.Token); 
         } 
 
-        public Task<Memory> GetMemoryAsync()
+        public async Task<Memory> GetMemoryAsync()
         {
             var request = new RestRequest("/api/3/mem");
-            return _client.GetAsync<Memory>(request, _cancellationTokenSource.Token);
+            return await _client.GetAsync<Memory>(request, _cancellationTokenSource.Token);
         }
 
-        public Task<Swap> GetSwapAsync()
+        public async Task<Swap> GetSwapAsync()
         {
             var request = new RestRequest("/api/3/memswap");
-            return _client.GetAsync<Swap>(request, _cancellationTokenSource.Token);
+            return await _client.GetAsync<Swap>(request, _cancellationTokenSource.Token);
         }
 
-        public Task<List<Network>> GetNetworkAsync() 
+        public async Task<List<Network>> GetNetworkAsync() 
         {
             var request = new RestRequest("/api/3/network");
-            return _client.GetAsync<List<Network>>(request, _cancellationTokenSource.Token);
+            return await _client.GetAsync<List<Network>>(request, _cancellationTokenSource.Token);
         }
         
-        public Task<List<FS>> GetFSAsync()  
+        public async Task<List<FS>> GetFSAsync()  
         {
             var request = new RestRequest("/api/3/fs");
-            return _client.GetAsync<List<FS>>(request, _cancellationTokenSource.Token);
+            return await _client.GetAsync<List<FS>>(request, _cancellationTokenSource.Token);
         }
 
-        public Task<DatabaseProcess> GetDatabaseProcessAsync(int pid)
+        public async Task<DatabaseProcess> GetDatabaseProcessAsync(int pid)
         {
             var request = new RestRequest($"/api/3/processlist/pid/{pid}");
-            return _client.GetAsync<DatabaseProcess>(request, _cancellationTokenSource.Token);
+            return await _client.GetAsync<DatabaseProcess>(request, _cancellationTokenSource.Token);
         }
          public async Task<AllMetrics> GetAllAsync(int pid, string nic, string disk, string fs)
         {
@@ -76,7 +76,7 @@ namespace BenchmarkTool.System
             var swapAsync = GetSwapAsync();
             var fsAsync = GetFSAsync();
 
-            var metrics = new AllMetrics()
+            var metrics = new AllMetrics() //TODO How can i continue executing the task although some tasks are cancelled?
             {  
                 Cpu = await cpuAsync,
                 DatabaseProcess = await processAsync,

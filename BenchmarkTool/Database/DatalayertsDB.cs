@@ -36,6 +36,11 @@ namespace BenchmarkTool.Database
             _iquery = new DatalayertsQuery();
             _aggInterval = Config.GetAggregationInterval();
         }
+        public void CheckOrCreateTable()
+        {
+           //not needed, DLTS creates automaticly.
+        }
+
 
 
         public void Cleanup() { }
@@ -66,17 +71,17 @@ namespace BenchmarkTool.Database
                             timeSeriesPoint = new TimeSeriesPoint<double>()
                             {
                                 Directory = GetDirectoryName(),
-                                Series = GetSeriesNames(record.SensorID,dim),
+                                Series = GetSeriesNames(record.SensorID, dim),
                                 Value = record.ValuesArray[dim],
-                                Timestamp = new DateTime(record.Time.Year, 
-                                record.Time.Month, 
-                                record.Time.Day, 
-                                record.Time.Hour, 
-                                record.Time.Minute, 
-                                record.Time.Second, 
-                                record.Time.Millisecond, 
-                                DateTimeKind.Utc  )
-                                 
+                                Timestamp = new DateTime(record.Time.Year,
+                                record.Time.Month,
+                                record.Time.Day,
+                                record.Time.Hour,
+                                record.Time.Minute,
+                                record.Time.Second,
+                                record.Time.Millisecond,
+                                DateTimeKind.Utc)
+
                             };
                             pointContainer = pointContainer.Append<TimeSeriesPoint<double>>(timeSeriesPoint);
                         }
@@ -469,7 +474,7 @@ namespace BenchmarkTool.Database
                 DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.EndDate, DateTimeKind.Utc);
 
                 string dir = GetDirectoryName();
-                string[] series = new string[] { GetSeriesNames(query.FirstSensorID)[1], GetSeriesNames(query.SecondSensorID)[1] };
+                string[] series = new string[] { GetSeriesNames(query.FirstSensorID)[0], GetSeriesNames(query.SecondSensorID)[0] };
                 DltsQuery.Selection.Add(dir, series);
 
                 Stopwatch sw = Stopwatch.StartNew();
@@ -540,7 +545,7 @@ namespace BenchmarkTool.Database
         private string GetDirectoryName()
         {
             if (Config.GetIngestionType().Contains("irregular"))
-                return Config.GetPolyDimTableName() + "_irregular";
+                return Config.GetPolyDimTableName();
             else
                 return Config.GetPolyDimTableName() + "_in_" + Config.GetRegularTsScaleMilliseconds().ToString() + "_ms_steps";
 
