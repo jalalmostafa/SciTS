@@ -162,8 +162,9 @@ namespace BenchmarkTool
 
                     for (var chosenClientIndex = 1; chosenClientIndex <= totalClientsNb; chosenClientIndex++)
                     {
+                        if(minute < 24 * 60){
                         clients.Add(new ClientWrite(chosenClientIndex, totalClientsNb, Config.GetSensorNumber(), batchSize, dimNb, Config.GetStartTime().AddDays(dayAfterStartdate).AddMinutes(minute)));
-                        minute++;
+                         minute++; }
                     }
                     var glancesW = new GlancesStarter(Operation.BatchIngestion, totalClientsNb, batchSize, Config.GetSensorNumber());
                     glancesW.BeginMonitor();
