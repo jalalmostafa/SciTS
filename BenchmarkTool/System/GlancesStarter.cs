@@ -14,7 +14,7 @@ namespace BenchmarkTool.System
         private int _databasePid;
         private int _period;
         private string _nic;
-                private string _fs;
+        private string _fs;
         private string _disk;
         private string _path;
         private GlancesMonitor _monitor;
@@ -45,11 +45,14 @@ namespace BenchmarkTool.System
 
         private async void Monitor()
         {
-            while (!_monitor.CancellationToken.IsCancellationRequested)
+            while (!_monitor.CancellationToken.IsCancellationRequested && !_mutex.SafeWaitHandle.IsClosed )
             {
                 try 
-                {
+                { 
+
                     var metrics = await _monitor.GetAllAsync(_databasePid, _nic, _disk, _fs);
+
+ 
                     _mutex.WaitOne(); // TODO understand why handly geclosed wird
                     _metrics.Add(metrics);
                     _mutex.ReleaseMutex();
@@ -81,9 +84,13 @@ namespace BenchmarkTool.System
         public void EndMonitor()
         {
             Commit();
-            _monitor.Cancel();
+            
             _thread.Wait();
+            _monitor.Cancel();
+            
             _mutex.Close();
+
+            
         }
     }
 }

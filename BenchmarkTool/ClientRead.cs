@@ -1,6 +1,8 @@
 ﻿using Serilog;
 using System;
 using System.Threading.Tasks;
+using System.Threading;
+using System.Globalization;
 using BenchmarkTool.Queries;
 using BenchmarkTool.Database;
 using System.Collections.Generic;
@@ -24,6 +26,8 @@ namespace BenchmarkTool
         {
             try
             {
+
+                Thread.CurrentThread.CurrentCulture =  CultureInfo.InvariantCulture;
                 
                 _date = Config.GetStartTime();
                 _daySpan = Config.GetDaySpan();

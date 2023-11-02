@@ -52,13 +52,16 @@ namespace BenchmarkTool.Database
                 Log.Error(String.Format("Failed to close. Exception: {0}", ex.ToString()));
             }
         }
-        public void CheckOrCreateTable()
+        public   void CheckOrCreateTable()
         {
             try
             {
                 var dimNb = 0;
                 if (_TableCreated != true)
                 {
+
+
+
                     if (Config.GetMultiDimensionStorageType() == "column")
                     {
                         foreach (var tableName in Config.GetAllPolyDimTableNames())

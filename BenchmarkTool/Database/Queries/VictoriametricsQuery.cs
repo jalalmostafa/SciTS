@@ -4,16 +4,15 @@ namespace BenchmarkTool.Database.Queries
 {
     public class VictoriametricsQuery : IQuery<String>
     {
-   
-                private static string _rangeRawAllDims = @"from(bucket: ""{0}"")   
-                                                        |> range(start: {1}, stop: {2})   
-                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
-                                                        |> filter(fn: (r) => r[""{4}""] =~ {5}) ";
-        private static string _rangeRaw = @"from(bucket: ""{0}"") 
-                                                        |> keep(columns: [""{4}"", ""{6}"",""{7}""]) 
-                                                        |> range(start: {1}, stop: {2})   
-                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
-                                                        |> filter(fn: (r) => r[""{4}""] =~ {5})";
+//    https://prometheus.io/docs/prometheus/latest/querying/basics/
+        // private static string _rangeRawAllDims = @"{2} @{0} {{{3}=~{4}}} @{1}";
+                
+                
+// https://docs.victoriametrics.com/keyConcepts.html#range-query                
+        private static string _rangeRawAllDims = @"query={2}{3}{{{4}=~'{5}'}}&start={0}&end={1}&step={6}";
+
+                 
+        private static string _rangeRaw = @"{3} @{1} {{4}={5},{7}} @{2}";
 
         private static string _rangeRawAllDimsLimited = @"from(bucket: ""{0}"")   
                                                         |> range(start: {1}, stop: {2})   
@@ -58,12 +57,7 @@ namespace BenchmarkTool.Database.Queries
                                                                 _time: r._time,
                                                                 _value: r._{7}_sen2 - r._{7}_sen1 }}))";
 
-        private static string _rangeAgg = @"from(bucket: ""{0}"")   
-                                                        |> range(start: {1}, stop: {2})   
-                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
-                                                        |> filter(fn: (r) => r[""{4}""] =~ {5})   
-                                                        |> aggregateWindow(every: {6}h, fn: mean, createEmpty: false)  
-                                                        |> yield(name: ""mean"")";
+        private static string _rangeAgg = @" @{1} rate({3}[6]{{4}={5}} @{2}";
         
 
 
@@ -73,15 +67,15 @@ namespace BenchmarkTool.Database.Queries
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_1");
         public String RangeRawAllDims =>
-            String.Format(_rangeRaw, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDsParam);
+            String.Format(_rangeRawAllDims, 
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(), "_dim_*",
+            Constants.SensorID, QueryParams.SensorIDsParam, QueryParams.AggWindow);
         public String RangeRawLimited =>
-            String.Format(_rangeRaw, Config.GetInfluxBucket(),
+            String.Format(_rangeRawLimited, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_1", QueryParams.Limit);
         public String RangeRawAllDimsLimited =>
-            String.Format(_rangeRaw, Config.GetInfluxBucket(),
+            String.Format(_rangeRawAllDimsLimited, Config.GetInfluxBucket(),
             QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam, QueryParams.Limit);
 

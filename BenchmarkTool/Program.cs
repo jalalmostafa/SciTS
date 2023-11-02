@@ -22,15 +22,15 @@ namespace BenchmarkTool
         public static string Mode { get; private set; }
         static bool _WriteComplete = false;
         static bool _ReadComplete = false;
-        static bool _OnePass = false;
+        static bool _OnePass = false; //TODO may be deprecated
         public static int _currentReadClientsNR { get; private set; }
         public static int _currentClientsNR { get; private set; }
         public static int _currentWriteClientsNR { get; private set; }
         public static int _currentWriteBatchSize { get; private set; }
         static int _TestRetryWriteIteration;
         static int _TestRetryReadIteration;
-        static int _TestRetryIteration;
-        private static object _currentdimNb;
+        static int _TestRetryIteration; //TODO may be deprecated
+        private static object _currentdimNb;  //TODO may be deprecated
         public static int _currentlimit { get; private set; }
 
         static async Task Main(string[] args)
@@ -44,7 +44,7 @@ namespace BenchmarkTool
 
                 Console.WriteLine("Starting...");
                 Log.Information("Application started");
-                var init = Config.GetQueryType(); // Just for Init the Array
+
 
                 var action = args != null && args.Length > 0 ? args[0] : "read";
                 string setting; string ingType;
@@ -145,7 +145,8 @@ namespace BenchmarkTool
 
         private async static Task PopulateOneDayRegularData(int dayAfterStartdate)
         {
-            int batchSize = Config.GetSensorNumber() * Config.GetDataDimensionsNr() * 60 * (1000 / Config.GetRegularTsScaleMilliseconds());
+            var init = Config.GetQueryType(); // Just for Init the Array
+            int batchSize = Config.GetSensorNumber() * Config.GetDataDimensionsNr() * 60 * (1000 / Config.GetRegularTsScaleMilliseconds()); // one minute ingestion
             int minute = 0;
             int totalClientsNb = Config.GetClientNumberOptions().Last();
 
@@ -154,18 +155,18 @@ namespace BenchmarkTool
                 _currentdimNb = dimNb;
                 Config._actualDataDimensionsNr = dimNb;
 
-                var clients = new List<ClientWrite>();
-                while (minute < 24 * 60)
+
+                while (minute < 24 * 60) // if not all day ingested, continue
                 {
                     // var client = new ClientWrite(1, 1, Config.GetSensorNumber(), batchSize, dimNb, Config.GetStartTime().AddDays(dayAfterStartdate).AddMinutes(minute));
                     // Task.FromResult(client.RunIngestion(1));
-
+                    var clients = new List<ClientWrite>();
                     for (var chosenClientIndex = 1; chosenClientIndex <= totalClientsNb; chosenClientIndex++)
                     {
-                        if(minute < 24 * 60){
                         clients.Add(new ClientWrite(chosenClientIndex, totalClientsNb, Config.GetSensorNumber(), batchSize, dimNb, Config.GetStartTime().AddDays(dayAfterStartdate).AddMinutes(minute)));
-                         minute++; }
                     }
+                    minute++;
+                    
                     var glancesW = new GlancesStarter(Operation.BatchIngestion, totalClientsNb, batchSize, Config.GetSensorNumber());
                     glancesW.BeginMonitor();
                     var resultsW = await clients.ParallelForEachAsync(RunIngestionTask, totalClientsNb);
@@ -200,6 +201,7 @@ namespace BenchmarkTool
 
         private async static Task mixedWL(bool log)
         {
+            var init = Config.GetQueryType(); // Just for Init the Array
 
             int TestRetryIteration = 0;
             int[] clientNumberArray = Config.GetClientNumberOptions();
@@ -339,6 +341,7 @@ namespace BenchmarkTool
 
         private async static Task Batching(bool log)
         {
+            var init = Config.GetQueryType(); // Just for Init the Array
 
             int TestRetryWriteIteration = 0;
             {
@@ -414,6 +417,7 @@ namespace BenchmarkTool
 
         private static async Task BenchmarkReadData()
         {
+            var init = Config.GetQueryType(); // Just for Init the Array
 
 
 

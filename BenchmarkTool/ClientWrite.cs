@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Globalization;
 using BenchmarkTool.Generators;
 using System.Collections.Generic;
 using BenchmarkTool.Database;
@@ -16,7 +17,7 @@ namespace BenchmarkTool
         private int _daySpan;
 
         public int _chosenClientIndex { get; private set; }
-        public int _totalClientsNumber { get; private set; }
+        public int _totalClientsNumber { get;   set; }
         public int _SensorsNumber { get; private set; }
         public int _BatchSize { get; private set; }
         public int _DimNb { get; private set; }
@@ -25,6 +26,8 @@ namespace BenchmarkTool
         {
             try
             {
+ Thread.CurrentThread.CurrentCulture =  CultureInfo.InvariantCulture;
+
                 _chosenClientIndex = chosenClientIndex;
                 _totalClientsNumber = totalClientsNumber;
                 _SensorsNumber = sensorNumber;
@@ -70,7 +73,7 @@ namespace BenchmarkTool
                 Batch batch = dataGenerator.GenerateBatch(_BatchSize, sensorIdsForThisClientList, batchStartdate, _DimNb);
 
                 var status = await _targetDb.WriteBatch(batch);
-                Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber} with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Numbers {String.Join( ';' , sensorIdsForThisClientList)} of {_SensorsNumber} with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
                 status.Iteration = TestRetryWriteIteration;
                 status.Client = _chosenClientIndex;
                 status.StartDate=batchStartdate;

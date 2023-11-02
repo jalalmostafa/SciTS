@@ -95,6 +95,11 @@ namespace BenchmarkTool.Database
                 var dimNb = 0;
                 if (_TableCreated != true)
                 {
+
+                    var commandDB = _write_connection.CreateCommand();
+                    commandDB.CommandText = String.Format("CREATE DATABASE IF NOT EXISTS " + Config.GetClickhouseDatabase() + ";");
+                    commandDB.ExecuteNonQuery();
+
                     if (Config.GetMultiDimensionStorageType() == "column")
                     {
                         foreach (var tableName in Config.GetAllPolyDimTableNames())

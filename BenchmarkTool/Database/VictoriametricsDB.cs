@@ -4,6 +4,7 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Numerics;
 using BenchmarkTool.Queries;
 using BenchmarkTool.Generators;
@@ -12,6 +13,20 @@ using BenchmarkTool.Database.Queries;
 using System.Collections.Generic;
 using BenchmarkTool;
 using System.Text;
+using System.Text.Json;
+using PromQL;
+using PromQL.Vectors;
+using System.Net.Http;
+using System.Globalization;
+
+
+
+using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
+using InfluxDB.Client.Api.Client;
+
+
 
 
 namespace BenchmarkTool.Database
@@ -22,8 +37,10 @@ namespace BenchmarkTool.Database
         private InfluxDBClientOptions _options;
         private InfluxDBClient _client;
         private WriteApiAsync _writeApi;
-        private IQuery<String> _influxQueries;
+        private IQuery<String> _vmQueries;
         private int _aggInterval;
+
+        private static readonly HttpClient _httpclient = new HttpClient();
 
         public void Cleanup()
         {
@@ -31,11 +48,14 @@ namespace BenchmarkTool.Database
             // var orgId = _client.GetOrganizationsApi().FindOrganizationsAsync(org: org).GetAwaiter().GetResult().First().Id;
             // _client.GetBucketsApi().DeleteBucketAsync(Config.GetInfluxBucket()).GetAwaiter().GetResult();
             // _client.GetBucketsApi().CreateBucketAsync(Config.GetInfluxBucket(), orgId).GetAwaiter().GetResult();
+
+
+
         }
 
-public void CheckOrCreateTable()
+        public void CheckOrCreateTable()
         {
-           
+
         }
         public void Close()
         {
@@ -56,6 +76,10 @@ public void CheckOrCreateTable()
         {
             try
             {
+
+                Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
+
                 var t = new TimeSpan(0, 0, 10, 0);
                 _options = new InfluxDBClientOptions.Builder()
                     .Url(Config.GetVictoriametricsHost())
@@ -68,7 +92,7 @@ public void CheckOrCreateTable()
 
                 _writeApi = _client.GetWriteApiAsync();
 
-                _influxQueries = new InfluxQuery();
+                _vmQueries = new VictoriametricsQuery();
                 _aggInterval = Config.GetAggregationInterval();
             }
             catch (Exception ex)
@@ -77,24 +101,46 @@ public void CheckOrCreateTable()
             }
         }
 
-           public async Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
+        public async Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
         {
             try
             {
-                var flux = _influxQueries.OutOfRange;
-                flux = flux.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
-                flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
-                flux = flux.Replace(QueryParams.SensorIDParam, query.SensorID.ToString());
-                flux = flux.Replace(QueryParams.MaxValParam, query.MaxValue.ToString());
-                flux = flux.Replace(QueryParams.MinValParam, query.MinValue.ToString());
-                // Log.Information(String.Format("Flux query: {0}", flux));
-
-                var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
-                var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
+                //         var flux = _vmQueries.OutOfRange;
+                //         flux = flux.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
+                //         flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
+                //         flux = flux.Replace(QueryParams.SensorIDParam, query.SensorID.ToString());
+                //         flux = flux.Replace(QueryParams.MaxValParam, query.MaxValue.ToString());
+                //         flux = flux.Replace(QueryParams.MinValParam, query.MinValue.ToString());
+                //         // Log.Information(String.Format("Flux query: {0}", flux));
+
+                //         var queryApi = _client.GetQueryApi();
+                //         Stopwatch sw = Stopwatch.StartNew();
+                //         var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
+                //         sw.Stop();
+                //         Log.Information(String.Format("Number of point: {0}", results[0].Records.Count.ToString()));
+                HttpClient client = new();
+
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
+
+                await ProcessRepositoriesAsync(client);
+                int countt;
+                async Task ProcessRepositoriesAsync(HttpClient client)
+                {
+                    var json = await client.GetStringAsync(
+         "https://api.github.com/orgs/dotnet/repos");
+
+                    Console.Write(json); countt = json.Length;
+                }
                 sw.Stop();
-                Log.Information(String.Format("Number of point: {0}", results[0].Records.Count.ToString()));
-                int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
+
+                // int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
+
+                int count = 0;
+
                 return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
             }
             catch (Exception ex)
@@ -108,7 +154,7 @@ public void CheckOrCreateTable()
         {
             try
             {
-                var flux = _influxQueries.RangeAgg;
+                var flux = _vmQueries.RangeAgg;
                 flux = flux.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
                 flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
                 var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
@@ -131,19 +177,19 @@ public void CheckOrCreateTable()
             }
         }
 
-        public async Task<QueryStatusRead> RangeQueryRaw(RangeQuery query )
+        public async Task<QueryStatusRead> RangeQueryRaw(RangeQuery query)
         {
             try
             {
-                var flux = _influxQueries.RangeRaw.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
+                var flux = _vmQueries.RangeRaw.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
                 flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
                 var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
                 var ids = String.Concat("/", String.Join("|", sensorIds), "/");
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
 
-                    
-               
+
+
 
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -161,25 +207,85 @@ public void CheckOrCreateTable()
             }
         }
 
-        public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query )
+        public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
         {
             try
             {
-                var flux = _influxQueries.RangeRawAllDims.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
-                flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
-                var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
-                var ids = String.Concat("/", String.Join("|", sensorIds), "/");
-                flux = flux.Replace(QueryParams.SensorIDsParam, ids);
-                Log.Information("Flux query: " + flux);
+                // var flux = _vmQueries.RangeRawAllDims.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
+                // flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
+                // var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
+                // var ids = String.Concat("/", String.Join("|", sensorIds), "/");
+                // flux = flux.Replace(QueryParams.SensorIDsParam, ids);
+                // Log.Information("Flux query: " + flux);
 
-      
 
-                var queryApi = _client.GetQueryApi();
+
+                // var queryApi = _client.GetQueryApi();
+                // Stopwatch sw = Stopwatch.StartNew();
+                // var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
+                // sw.Stop();
+                // int count = results != null && results.Count > 0 ? results[0].Records.Count : 0; // TODO understand better
+                // Log.Information("Number of points: " + count.ToString());
+
+                var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var endEP = (query.EndDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var vmquery = _vmQueries.RangeRawAllDims.Replace(QueryParams.StartParam, startEP.ToString())
+                                                        .Replace(QueryParams.EndParam, endEP.ToString()); ;
+
+
+                vmquery = vmquery.Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs));
+
+
+
+
+                //   vmquery = vmquery.Replace(Config.GetPolyDimTableName(),  String.Join( "|", GetSeriesNames() )  );
+
+                // query=...&start=...&end=...&step=...+
+
+
+                if (Config.GetPolyDimTableName().Contains("irreg"))
+                {
+                    vmquery = vmquery.Replace(QueryParams.AggWindow, "1ms");
+                }
+                else
+                {
+                    vmquery = vmquery.Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds() + "ms");
+                }
+
+                Log.Information("MetricsQL query: " + vmquery);
+                using HttpClient client = new();
+
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
+
+                await ProcessRepositoriesAsync(client);
+                int points = 0;
+
+
                 Stopwatch sw = Stopwatch.StartNew();
-                var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
+                async Task ProcessRepositoriesAsync(HttpClient client)
+                {
+
+                    var jresult = await client.GetStringAsync(@"http://localhost:8428" +
+                                     "/api/v1/query_range?" + vmquery);
+
+
+                    Result answer = JsonSerializer.Deserialize<Result>(jresult);
+
+                    points = answer.data.result.Count();
+                }
                 sw.Stop();
-                int count = results != null && results.Count > 0 ? results[0].Records.Count : 0; // TODO understand better
-                Log.Information("Number of points: " + count.ToString());
+
+                // int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
+
+                int count = points;
+
+
+
                 return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
             }
             catch (Exception ex)
@@ -195,15 +301,15 @@ public void CheckOrCreateTable()
         {
             try
             {
-                var flux = _influxQueries.RangeRawLimited.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
+                var flux = _vmQueries.RangeRawLimited.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
                 flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
                 var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
                 var ids = String.Concat("/", String.Join("|", sensorIds), "/");
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
 
-   
-                    flux = flux.Replace(QueryParams.Limit, limit.ToString());
+
+                flux = flux.Replace(QueryParams.Limit, limit.ToString());
 
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -225,15 +331,15 @@ public void CheckOrCreateTable()
         {
             try
             {
-                var flux = _influxQueries.RangeRawAllDimsLimited.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
+                var flux = _vmQueries.RangeRawAllDimsLimited.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
                 flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
                 var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
                 var ids = String.Concat("/", String.Join("|", sensorIds), "/");
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
 
-    
-                    flux = flux.Replace(QueryParams.Limit,limit.ToString());
+
+                flux = flux.Replace(QueryParams.Limit, limit.ToString());
 
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -256,7 +362,7 @@ public void CheckOrCreateTable()
         {
             try
             {
-                var flux = _influxQueries.AggDifference.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
+                var flux = _vmQueries.AggDifference.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
                 flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
                 flux = flux.Replace(QueryParams.FirstSensorIDParam, query.FirstSensorID.ToString());
                 flux = flux.Replace(QueryParams.SecondSensorIDParam, query.SecondSensorID.ToString());
@@ -281,30 +387,35 @@ public void CheckOrCreateTable()
         {
             try
             {
+
+                Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
                 var lineData = new List<string>(batch.Size);
                 foreach (var item in batch.Records)
                 {
                     var timeSpan = item.Time.Subtract(EpochStart);
-                    var time = TimeSpanToBigInteger(timeSpan, WritePrecision.Ns);
+                    var time = TimeSpanToBigInteger(timeSpan, WritePrecision.Ms);
 
                     if (Config.GetMultiDimensionStorageType() == "column")
                     {
                         int c = 1; StringBuilder builder = new StringBuilder("");
-                        while (c < Config.GetDataDimensionsNr()) { builder.Append("value={" + item.ValuesArray[(c)] + "}"); c++; }
-                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} value={item.ValuesArray[0]} " + builder + "{time}");
+                        while (c < Config.GetDataDimensionsNr()) { builder.Append($",dim_{c}={item.ValuesArray[c]}"); c++; }
+                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} dim_{0}={item.ValuesArray[0]}{builder}");
                     }
                     else
                         lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} value={item.ValuesArray} {time}");
                 }
 
+
                 Stopwatch sw = Stopwatch.StartNew();
-                await _writeApi.WriteRecordsAsync(lineData, WritePrecision.Ns);
+
+                await _writeApi.WriteRecordsAsync(lineData, WritePrecision.Ms);
                 sw.Stop();
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
             }
             catch (Exception ex)
             {
-                Log.Error(String.Format("Failed to insert batch into InfluxDB. Exception: {0}", ex.ToString()));
+                Log.Error(String.Format("Failed to insert batch into VictoriamentrcsDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString());
             }
         }
@@ -334,7 +445,7 @@ public void CheckOrCreateTable()
         {
             try
             {
-                var flux = _influxQueries.StdDev.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
+                var flux = _vmQueries.StdDev.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
                 flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
                 flux = flux.Replace(QueryParams.SensorIDParam, query.SensorID.ToString());
                 Log.Information(String.Format("Flux query: {0}", flux));
@@ -378,7 +489,64 @@ public void CheckOrCreateTable()
 
             return time;
         }
+        private string[] GetSeriesNames()
+        {
+            int[] AllDim = new int[Config.GetDataDimensionsNr()];
+            AllDim = Enumerable.Range(0, Config.GetDataDimensionsNr()).ToArray();
+
+            return GetSeriesNames(AllDim);
+        }
+        private string[] GetSeriesNames(int[] dimensions)
+        {
+            string[] series;
+
+            series = new String[Config.GetDataDimensionsNr()];
+
+            foreach (int d in dimensions)
+                series[d] = Config.GetPolyDimTableName() + "_dim_" + d;
+
+
+            return series.Where(c => c != null).ToArray();
+        }
+        public class Result
+        {
+            public string status { get; set; }
+            public Data data { get; set; }
+            // public IList<Record>? data { get; set; }
+            public Stats stats { get; set; }
+        }
+        public class Record
+        {
+            public List<Metric> metric { get; set; }
+        }
+        public class Metric
+        {
+            public List<Name> __name__ { get; set; }
+            public List<Values> values { get; set; }
+        }
+        public class Name
+        {
+            public string __name__ { get; set; }
+        }
+        public class Values
+        {
+            public Dictionary<string, string> values { get; set; }
+        }
+        public class Data
+        {
+            public string resultType { get; set; }
+            public List<Record> result { get; set; }
+
+        }
+        public class Stats
+        {
+            public string seriesFetched { get; set; }
+
+        }
+
     }
+
+
 }
 
 

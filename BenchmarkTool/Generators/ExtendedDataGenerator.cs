@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using InfluxDB.Client.Api.Domain;
 
 namespace BenchmarkTool.Generators
@@ -58,30 +59,60 @@ namespace BenchmarkTool.Generators
             int step = 0;
 
 
+// TODO delete old, wrong
+            // // int timeindex = 0;
+            // for (int dataPointNr = 0; dataPointNr < batchSize; dataPointNr++)
+            // {
+            //     var chosenSensor = dataPointNr % sensorIdsForThisClientList.Count;
+            //     if (chosenSensor == 0 && dataPointNr != 0)
+            //     {
+            //         // timeindex++;
+            //         if (InTypeReg)
+            //         {
+            //             step = _scaleMilliseconds; _Timestamp = _Timestamp.AddMilliseconds(step);
+            //         }
+            //         else
+            //         {
+            //             step = _rnd.Next(_scaleMilliseconds * 2); // *2 so to have a Apprx median of scaleMs
+            //             _Timestamp = _Timestamp.AddMilliseconds(step);
+            //         }
+            //     }
 
-            // int timeindex = 0;
-            for (int dataPointNr = 0; dataPointNr < batchSize; dataPointNr++)
+            //     // GetRecordTimestamp(_Timestamp, timeindex, step);
+
+            //     batch.Records.Add(recordFactory.Create(chosenSensor, _Timestamp, GetInput(dimensions)));
+            // }
+
+            int dataPointNr = 0;
+            while (dataPointNr < batchSize)
             {
-                var chosenSensor = dataPointNr % sensorIdsForThisClientList.Count;
-                if (chosenSensor == 0 && dataPointNr != 0)
+                foreach (var chosenSensor in sensorIdsForThisClientList)
                 {
-                    // timeindex++;
-                    if (InTypeReg)
+
+                    if (chosenSensor == sensorIdsForThisClientList.First() && dataPointNr != 0)
                     {
-                        step = _scaleMilliseconds; _Timestamp = _Timestamp.AddMilliseconds(step);
+                        // timeindex++;
+                        if (InTypeReg)
+                        {
+                            step = _scaleMilliseconds; _Timestamp = _Timestamp.AddMilliseconds(step);
+                        }
+                        else
+                        {
+                            step = _rnd.Next(_scaleMilliseconds * 2); // *2 so to have a Apprx median of scaleMs
+                            _Timestamp = _Timestamp.AddMilliseconds(step);
+                        }
                     }
-                    else
-                    {
-                        step = _rnd.Next(_scaleMilliseconds*2); // *2 so to have a Apprx median of scaleMs
-                         _Timestamp = _Timestamp.AddMilliseconds(step);
-                    }
+
+
+                    batch.Records.Add(recordFactory.Create(chosenSensor, _Timestamp, GetInput(dimensions)));
+                    dataPointNr++;
                 }
-
-                // GetRecordTimestamp(_Timestamp, timeindex, step);
-
-
-                batch.Records.Add(recordFactory.Create(chosenSensor, _Timestamp, GetInput(dimensions)));
             }
+
+
+
+
+
             return batch;
         }
         private double[] GetInput(int dimensions)
