@@ -101,101 +101,60 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public async Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
-        {
-            try
-            {
-                Stopwatch sw = Stopwatch.StartNew();
-                //         var flux = _vmQueries.OutOfRange;
-                //         flux = flux.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
-                //         flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
-                //         flux = flux.Replace(QueryParams.SensorIDParam, query.SensorID.ToString());
-                //         flux = flux.Replace(QueryParams.MaxValParam, query.MaxValue.ToString());
-                //         flux = flux.Replace(QueryParams.MinValParam, query.MinValue.ToString());
-                //         // Log.Information(String.Format("Flux query: {0}", flux));
-
-                //         var queryApi = _client.GetQueryApi();
-                //         Stopwatch sw = Stopwatch.StartNew();
-                //         var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
-                //         sw.Stop();
-                //         Log.Information(String.Format("Number of point: {0}", results[0].Records.Count.ToString()));
-                HttpClient client = new();
-
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
-                client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
-
-                await ProcessRepositoriesAsync(client);
-                int countt;
-                async Task ProcessRepositoriesAsync(HttpClient client)
-                {
-                    var json = await client.GetStringAsync(
-         "https://api.github.com/orgs/dotnet/repos");
-
-                    Console.Write(json); countt = json.Length;
-                }
-                sw.Stop();
-
-                // int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
-
-                int count = 0;
-
-                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
-            }
-            catch (Exception ex)
-            {
-                Log.Error(String.Format("Failed to execute Out of Range Query on InfluxDB. Exception: {0}", ex.ToString()));
-                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 1, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery), ex, ex.ToString());
-            }
-        }
-
-        public async Task<QueryStatusRead> RangeQueryAgg(RangeQuery query)
-        {
-            try
-            {
-                var flux = _vmQueries.RangeAgg;
-                flux = flux.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
-                flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
-                var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
-                var ids = String.Concat("/", String.Join("|", sensorIds), "/");
-                flux = flux.Replace(QueryParams.SensorIDsParam, ids);
-                Log.Information(String.Format("Flux query: {0}", flux));
-
-                var queryApi = _client.GetQueryApi();
-                Stopwatch sw = Stopwatch.StartNew();
-                var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
-                sw.Stop();
-                Log.Information(String.Format("Number of point: {0}", results[0].Records.Count.ToString()));
-                int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
-                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
-            }
-            catch (Exception ex)
-            {
-                Log.Error(String.Format("Failed to execute Range Query Aggregated Data on InfluxDB. Exception: {0}", ex.ToString()));
-                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData), ex, ex.ToString());
-            }
-        }
 
         public async Task<QueryStatusRead> RangeQueryRaw(RangeQuery query)
         {
+
+
             try
             {
-                var flux = _vmQueries.RangeRaw.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
-                flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
-                var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
-                var ids = String.Concat("/", String.Join("|", sensorIds), "/");
-                flux = flux.Replace(QueryParams.SensorIDsParam, ids);
-                Log.Information("Flux query: " + flux);
+
+                var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var endEP = (query.EndDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var vmquery = _vmQueries.RangeRaw.Replace(QueryParams.StartParam, startEP.ToString())
+                                                        .Replace(QueryParams.EndParam, endEP.ToString())
+                                                        .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs))
+                                                        .Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds().ToString()+"ms"); // irreg = 1ms geht nicht, da VM eine querybechraenkung von 30K datapoints hat.
+
+
+                Log.Information("MetricsQL query: " + vmquery);
+                using HttpClient client = new();
+
+                {
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                    client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
 
 
 
+                    // Stopwatch sw = Stopwatch.StartNew();
+                    // async Task ProcessRepositoriesAsync(HttpClient client)
+                    // {
 
-                var queryApi = _client.GetQueryApi();
+                    //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
+                    //                      "/api/v1/query_range?" + vmquery);
+
+
+                    //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
+
+                    //     points = answer.data.result.Count();
+                    // }
+
+                }
+
                 Stopwatch sw = Stopwatch.StartNew();
-                var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
+                var jresult = await client.GetStringAsync(Config.GetVictoriametricsHost() +
+                                     "/api/v1/query_range?" + vmquery);
                 sw.Stop();
-                int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
+                Result answer = JsonSerializer.Deserialize<Result>(jresult);
+                var results = answer.data.result;
+                int count = results.Count;
+
+                // results  != null && results.Count > 0 ? results[0].metric.Count : 0;
+
                 Log.Information("Number of points: " + count.ToString());
                 return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
@@ -209,82 +168,60 @@ namespace BenchmarkTool.Database
 
         public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
         {
+
+    
             try
             {
-                // var flux = _vmQueries.RangeRawAllDims.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
-                // flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
-                // var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
-                // var ids = String.Concat("/", String.Join("|", sensorIds), "/");
-                // flux = flux.Replace(QueryParams.SensorIDsParam, ids);
-                // Log.Information("Flux query: " + flux);
-
-
-
-                // var queryApi = _client.GetQueryApi();
-                // Stopwatch sw = Stopwatch.StartNew();
-                // var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
-                // sw.Stop();
-                // int count = results != null && results.Count > 0 ? results[0].Records.Count : 0; // TODO understand better
-                // Log.Information("Number of points: " + count.ToString());
 
                 var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
 
                 var endEP = (query.EndDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
 
                 var vmquery = _vmQueries.RangeRawAllDims.Replace(QueryParams.StartParam, startEP.ToString())
-                                                        .Replace(QueryParams.EndParam, endEP.ToString()); ;
+                                                        .Replace(QueryParams.EndParam, endEP.ToString())
+                                                        .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs))
+                                                        .Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds().ToString()+"ms"); // irreg = 1ms geht nicht, da VM eine querybechraenkung von 30K datapoints hat.
 
-
-                vmquery = vmquery.Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs));
-
-
-
-
-                //   vmquery = vmquery.Replace(Config.GetPolyDimTableName(),  String.Join( "|", GetSeriesNames() )  );
-
-                // query=...&start=...&end=...&step=...+
-
-
-                if (Config.GetPolyDimTableName().Contains("irreg"))
-                {
-                    vmquery = vmquery.Replace(QueryParams.AggWindow, "1ms");
-                }
-                else
-                {
-                    vmquery = vmquery.Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds() + "ms");
-                }
 
                 Log.Information("MetricsQL query: " + vmquery);
                 using HttpClient client = new();
 
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
-                client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
+                {
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                    client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
 
-                await ProcessRepositoriesAsync(client);
-                int points = 0;
 
+
+                    // Stopwatch sw = Stopwatch.StartNew();
+                    // async Task ProcessRepositoriesAsync(HttpClient client)
+                    // {
+
+                    //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
+                    //                      "/api/v1/query_range?" + vmquery);
+
+
+                    //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
+
+                    //     points = answer.data.result.Count();
+                    // }
+
+                }
 
                 Stopwatch sw = Stopwatch.StartNew();
-                async Task ProcessRepositoriesAsync(HttpClient client)
-                {
-
-                    var jresult = await client.GetStringAsync(@"http://localhost:8428" +
+                var jresult = await client.GetStringAsync(Config.GetVictoriametricsHost() +
                                      "/api/v1/query_range?" + vmquery);
-
-
-                    Result answer = JsonSerializer.Deserialize<Result>(jresult);
-
-                    points = answer.data.result.Count();
-                }
                 sw.Stop();
+                Result answer = JsonSerializer.Deserialize<Result>(jresult);
+                var results = answer.data.result;
+                int count = results.Count;
 
-                // int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
-
-                int count = points;
+                // results  != null && results.Count > 0 ? results[0].metric.Count : 0;
 
 
+
+                Log.Information("Number of points: " + count.ToString());
 
                 return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
             }
@@ -296,26 +233,61 @@ namespace BenchmarkTool.Database
             }
         }
 
-
         public async Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery query, int limit)
         {
+
             try
             {
-                var flux = _vmQueries.RangeRawLimited.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
-                flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
-                var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
-                var ids = String.Concat("/", String.Join("|", sensorIds), "/");
-                flux = flux.Replace(QueryParams.SensorIDsParam, ids);
-                Log.Information("Flux query: " + flux);
 
 
-                flux = flux.Replace(QueryParams.Limit, limit.ToString());
 
-                var queryApi = _client.GetQueryApi();
+                var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var endEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var vmquery = _vmQueries.RangeRawLimited.Replace(QueryParams.StartParam, startEP.ToString())
+                .Replace(QueryParams.Limit, limit.ToString())
+                                                        .Replace(QueryParams.EndParam, endEP.ToString())
+                                                        .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs))
+                                                        .Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds().ToString()+"ms"); // irreg = 1ms geht nicht, da VM eine querybechraenkung von 30K datapoints hat.
+
+
+                Log.Information("MetricsQL query: " + vmquery);
+                using HttpClient client = new();
+
+                {
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                    client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
+
+
+
+                    // Stopwatch sw = Stopwatch.StartNew();
+                    // async Task ProcessRepositoriesAsync(HttpClient client)
+                    // {
+
+                    //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
+                    //                      "/api/v1/query_range?" + vmquery);
+
+
+                    //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
+
+                    //     points = answer.data.result.Count();
+                    // }
+
+                }
+
                 Stopwatch sw = Stopwatch.StartNew();
-                var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
+                var jresult = await client.GetStringAsync(Config.GetVictoriametricsHost() +
+                                     "/api/v1/query_range?" + vmquery);
                 sw.Stop();
-                int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
+                Result answer = JsonSerializer.Deserialize<Result>(jresult);
+                var results = answer.data.result;
+                int count = results.Count;
+
+                // results  != null && results.Count > 0 ? results[0].metric.Count : 0;
+
                 Log.Information("Number of points: " + count.ToString());
                 return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
@@ -329,23 +301,58 @@ namespace BenchmarkTool.Database
 
         public async Task<QueryStatusRead> RangeQueryRawAllDimsLimited(RangeQuery query, int limit)
         {
+
             try
             {
-                var flux = _vmQueries.RangeRawAllDimsLimited.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
-                flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
-                var sensorIds = query.SensorIDs.Select(x => String.Concat("^", x, "$")).ToList();
-                var ids = String.Concat("/", String.Join("|", sensorIds), "/");
-                flux = flux.Replace(QueryParams.SensorIDsParam, ids);
-                Log.Information("Flux query: " + flux);
+              
+
+                var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var endEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var vmquery = _vmQueries.RangeRawAllDimsLimited.Replace(QueryParams.StartParam, startEP.ToString())
+                .Replace(QueryParams.Limit, limit.ToString())
+                                                        .Replace(QueryParams.EndParam, endEP.ToString())
+                                                        .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs))
+                                                        .Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds().ToString()+"ms"); // irreg = 1ms geht nicht, da VM eine querybechraenkung von 30K datapoints hat.
 
 
-                flux = flux.Replace(QueryParams.Limit, limit.ToString());
+                Log.Information("MetricsQL query: " + vmquery);
+                using HttpClient client = new();
 
-                var queryApi = _client.GetQueryApi();
+                {
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                    client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
+
+
+
+                    // Stopwatch sw = Stopwatch.StartNew();
+                    // async Task ProcessRepositoriesAsync(HttpClient client)
+                    // {
+
+                    //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
+                    //                      "/api/v1/query_range?" + vmquery);
+
+
+                    //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
+
+                    //     points = answer.data.result.Count();
+                    // }
+
+                }
+
                 Stopwatch sw = Stopwatch.StartNew();
-                var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
+                var jresult = await client.GetStringAsync(Config.GetVictoriametricsHost() +
+                                     "/api/v1/query_range?" + vmquery);
                 sw.Stop();
-                int count = results != null && results.Count > 0 ? results[0].Records.Count : 0; // TODO understand better
+                Result answer = JsonSerializer.Deserialize<Result>(jresult);
+                var results = answer.data.result;
+                int count = results.Count;
+
+                // results  != null && results.Count > 0 ? results[0].metric.Count : 0;
+
                 Log.Information("Number of points: " + count.ToString());
                 return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
             }
@@ -357,23 +364,251 @@ namespace BenchmarkTool.Database
             }
         }
 
+        public async Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
+        {
+
+            try
+            {
+              
+
+                var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var endEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var vmquery = _vmQueries.OutOfRange.Replace(QueryParams.StartParam, startEP.ToString())
+                .Replace(QueryParams.MinValParam,  query.MinValue.ToString())
+                .Replace(QueryParams.MaxValParam,  query.MaxValue.ToString())
+                                                        .Replace(QueryParams.EndParam, endEP.ToString())
+                                                        .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorID.ToString()))
+                                                        .Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds().ToString()+"ms"); // irreg = 1ms geht nicht, da VM eine querybechraenkung von 30K datapoints hat.
+
+
+                Log.Information("MetricsQL query: " + vmquery);
+                using HttpClient client = new();
+
+                {
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                    client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
+
+
+
+                    // Stopwatch sw = Stopwatch.StartNew();
+                    // async Task ProcessRepositoriesAsync(HttpClient client)
+                    // {
+
+                    //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
+                    //                      "/api/v1/query_range?" + vmquery);
+
+
+                    //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
+
+                    //     points = answer.data.result.Count();
+                    // }
+
+                }
+
+                Stopwatch sw = Stopwatch.StartNew();
+                var jresult = await client.GetStringAsync(Config.GetVictoriametricsHost() +
+                                     "/api/v1/query_range?" + vmquery);
+                sw.Stop();
+                Result answer = JsonSerializer.Deserialize<Result>(jresult);
+                var results = answer.data.result;
+                int count = results.Count;
+
+                // results  != null && results.Count > 0 ? results[0].metric.Count : 0;
+
+                Log.Information("Number of points: " + count.ToString());
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute Out of Range Query on InfluxDB. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 1, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery), ex, ex.ToString());
+            }
+        }
+
+        public async Task<QueryStatusRead> RangeQueryAgg(RangeQuery query)
+        {
+
+            try
+            {
+                
+                var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var endEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var vmquery = _vmQueries.AggDifference.Replace(QueryParams.StartParam, startEP.ToString()) 
+                                                        .Replace(QueryParams.EndParam, endEP.ToString())
+                                                        .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs.ToString()))
+                                                        ;
+
+
+                Log.Information("MetricsQL query: " + vmquery);
+                using HttpClient client = new();
+
+                {
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                    client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
+
+
+
+                    // Stopwatch sw = Stopwatch.StartNew();
+                    // async Task ProcessRepositoriesAsync(HttpClient client)
+                    // {
+
+                    //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
+                    //                      "/api/v1/query_range?" + vmquery);
+
+
+                    //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
+
+                    //     points = answer.data.result.Count();
+                    // }
+
+                }
+
+                Stopwatch sw = Stopwatch.StartNew();
+                var jresult = await client.GetStringAsync(Config.GetVictoriametricsHost() +
+                                     "/api/v1/query_range?" + vmquery);
+                sw.Stop();
+                Result answer = JsonSerializer.Deserialize<Result>(jresult);
+                var results = answer.data.result;
+                int count = results.Count;
+
+                // results  != null && results.Count > 0 ? results[0].metric.Count : 0;
+
+                Log.Information("Number of points: " + count.ToString());
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute Range Query Aggregated Data on InfluxDB. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData), ex, ex.ToString());
+            }
+        }
+
+        public async Task<QueryStatusRead> StandardDevQuery(SpecificQuery query)
+        {
+
+            try
+            {
+              
+                var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var endEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var vmquery = _vmQueries.StdDev.Replace(QueryParams.StartParam, startEP.ToString()) 
+                                                        .Replace(QueryParams.EndParam, endEP.ToString())
+                                                        .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorID.ToString()))
+                                                        ; 
+
+
+                Log.Information("MetricsQL query: " + vmquery);
+                using HttpClient client = new();
+
+                {
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                    client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
+
+
+
+                    // Stopwatch sw = Stopwatch.StartNew();
+                    // async Task ProcessRepositoriesAsync(HttpClient client)
+                    // {
+
+                    //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
+                    //                      "/api/v1/query_range?" + vmquery);
+
+
+                    //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
+
+                    //     points = answer.data.result.Count();
+                    // }
+
+                }
+
+                Stopwatch sw = Stopwatch.StartNew();
+                var jresult = await client.GetStringAsync(Config.GetVictoriametricsHost() +
+                                     "/api/v1/query_range?" + vmquery);
+                sw.Stop();
+                Result answer = JsonSerializer.Deserialize<Result>(jresult);
+                var results = answer.data.result;
+                int count = results.Count;
+
+                // results  != null && results.Count > 0 ? results[0].metric.Count : 0;
+
+                Log.Information("Number of points: " + count.ToString());
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(String.Format("Failed to execute STD Dev query on Influxdb. Exception: {0}", ex.ToString()));
+                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.STDDevQuery), ex, ex.ToString());
+            }
+        }
 
         public async Task<QueryStatusRead> AggregatedDifferenceQuery(ComparisonQuery query)
         {
+
+
+
             try
             {
-                var flux = _vmQueries.AggDifference.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
-                flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
-                flux = flux.Replace(QueryParams.FirstSensorIDParam, query.FirstSensorID.ToString());
-                flux = flux.Replace(QueryParams.SecondSensorIDParam, query.SecondSensorID.ToString());
-                Log.Information(String.Format("Flux query: {0}", flux));
+              
+                var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
 
-                var queryApi = _client.GetQueryApi();
+                var endEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
+
+                var vmquery = _vmQueries.StdDev.Replace(QueryParams.StartParam, startEP.ToString()) 
+                                                        .Replace(QueryParams.EndParam, endEP.ToString())
+                                                        .Replace(QueryParams.SecondSensorIDParam,  query.FirstSensorID.ToString())
+                                                        .Replace(QueryParams.FirstSensorIDParam, query.SecondSensorID.ToString())
+                                                        ; 
+
+
+                Log.Information("MetricsQL query: " + vmquery);
+                using HttpClient client = new();
+
+                {
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                    client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
+
+
+
+                    // Stopwatch sw = Stopwatch.StartNew();
+                    // async Task ProcessRepositoriesAsync(HttpClient client)
+                    // {
+
+                    //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
+                    //                      "/api/v1/query_range?" + vmquery);
+
+
+                    //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
+
+                    //     points = answer.data.result.Count();
+                    // }
+
+                }
+
                 Stopwatch sw = Stopwatch.StartNew();
-                var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
+                var jresult = await client.GetStringAsync(Config.GetVictoriametricsHost() +
+                                     "/api/v1/query_range?" + vmquery);
                 sw.Stop();
-                Log.Information(String.Format("Number of point: {0}", results[0].Records.Count.ToString()));
-                int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
+                Result answer = JsonSerializer.Deserialize<Result>(jresult);
+                var results = answer.data.result;
+                int count = results.Count;
+
+                // results  != null && results.Count > 0 ? results[0].metric.Count : 0;
+
+                Log.Information("Number of points: " + count.ToString());
                 return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.DifferenceAggQuery));
             }
             catch (Exception ex)
@@ -399,8 +634,8 @@ namespace BenchmarkTool.Database
                     if (Config.GetMultiDimensionStorageType() == "column")
                     {
                         int c = 1; StringBuilder builder = new StringBuilder("");
-                        while (c < Config.GetDataDimensionsNr()) { builder.Append($",dim_{c}={item.ValuesArray[c]}"); c++; }
-                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} dim_{0}={item.ValuesArray[0]}{builder}");
+                        while (c < Config.GetDataDimensionsNr()) { builder.Append($",{Constants.Value}_{c}={item.ValuesArray[c]}"); c++; }
+                        lineData.Add($"{"test" + Config.GetPolyDimTableName()},sensor_id={item.SensorID} dim_{0}={item.ValuesArray[0]}{builder} {time}");
                     }
                     else
                         lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} value={item.ValuesArray} {time}");
@@ -438,31 +673,6 @@ namespace BenchmarkTool.Database
             {
                 Log.Error(String.Format("Failed to insert batch into InfluxDB. Exception: {0}", ex.ToString()));
                 return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, 1, Operation.StreamIngestion), ex, ex.ToString());
-            }
-        }
-
-        public async Task<QueryStatusRead> StandardDevQuery(SpecificQuery query)
-        {
-            try
-            {
-                var flux = _vmQueries.StdDev.Replace(QueryParams.StartParam, query.StartDate.ToUniversalTime().ToString("o"));
-                flux = flux.Replace(QueryParams.EndParam, query.EndDate.ToUniversalTime().ToString("o"));
-                flux = flux.Replace(QueryParams.SensorIDParam, query.SensorID.ToString());
-                Log.Information(String.Format("Flux query: {0}", flux));
-
-                var queryApi = _client.GetQueryApi();
-                Stopwatch sw = Stopwatch.StartNew();
-                var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
-                sw.Stop();
-
-                int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
-                Log.Information("Number of points: " + count.ToString());
-                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
-            }
-            catch (Exception ex)
-            {
-                Log.Error(String.Format("Failed to execute STD Dev query on Influxdb. Exception: {0}", ex.ToString()));
-                return new QueryStatusRead(false, 0, new PerformanceMetricRead(0, 0, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.STDDevQuery), ex, ex.ToString());
             }
         }
 

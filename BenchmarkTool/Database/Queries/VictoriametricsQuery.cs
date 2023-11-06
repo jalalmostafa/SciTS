@@ -11,97 +11,91 @@ namespace BenchmarkTool.Database.Queries
 // https://docs.victoriametrics.com/keyConcepts.html#range-query                
         private static string _rangeRawAllDims = @"query={2}{3}{{{4}=~'{5}'}}&start={0}&end={1}&step={6}";
 
-                 
-        private static string _rangeRaw = @"{3} @{1} {{4}={5},{7}} @{2}";
+       
+            // 1) Select all the raw values for the given sensor ids on the given time range: 
 
-        private static string _rangeRawAllDimsLimited = @"from(bucket: ""{0}"")   
-                                                        |> range(start: {1}, stop: {2})   
-                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
-                                                        |> filter(fn: (r) => r[""{4}""] =~ {5}) 
-                                                        |> limit(n:{6})";
-        private static string _rangeRawLimited = @"from(bucket: ""{0}"") 
-                                                        |> keep(columns: [""{4}"", ""{6}"",""{7}""]) 
-                                                        |> range(start: {1}, stop: {2})   
-                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
-                                                        |> filter(fn: (r) => r[""{4}""] =~ {5})
-                                                        |> limit(n:{8})"; 
+            // value{sensor_id=~"id1|...|idN"}
 
-        private static string _outOfRange = @"data = from(bucket: ""{0}"")  
-                                                        |> range(start: {1}, stop: {2})     
-                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
-                                                        |> filter(fn: (r) => r[""{4}""] == ""{5}"") 
-                                                        min = data   
-                                                            |> aggregateWindow( column: ""_{6}"", every: {7}h, fn: min   ) 
-                                                        max = data   
-                                                            |> aggregateWindow( column: ""_{6}"", every: {7}h, fn: max  ) 
-                                                        join(tables: {{min: min, max: max}}, on: [""_start"", ""_stop"", ""_time"", ""_field"", ""_measurement"", ""{8}""], method: ""inner"") 
-                                                            |> filter(fn: (r) => r[""_{6}_max""] > {9} or r[""_{6}_min""]  < {10})";
+            // This query must be passed to e.g. export API via `match[]` query arg alongside the time range via `start` and `end` query args - see these docs.
+         
+        private static string _rangeRaw = @"query={2}{3}{{{4}=~'{5}'}}&start={0}&end={1}&step={6}";
 
-        private static string _stdDev = @"from(bucket: ""{0}"")   
-                                                        |> range(start: {1}, stop: {2})   
-                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"" and r[""{4}""] == ""{5}"")   
-                                                        |> stddev()";
+        private static string _rangeRawAllDimsLimited = @"query={2}{3}{{{4}=~'{5}'}}&start={0}&end={1}&step={6}&limit={7}";
+        private static string _rangeRawLimited =@"query={2}{3}{{{4}=~'{5}'}}&start={0}&end={1}&step={6}&limit={7}";
 
-        private static string _aggDifference = @"data = from(bucket: ""{0}"")
-                                                        |> range(start: {1}, stop: {2})
-                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
-                                                        |> filter(fn: (r) => r[""{4}""] == ""{5}"" or r[""{4}""] == ""{6}"") 
-                                                        sen1 = data   
-                                                            |> filter(fn: (r) => r[""{4}""] == ""{5}"")
-                                                            |> aggregateWindow(column: ""_{7}"", every: {8}h, fn: mean , createEmpty: false  )
-                                                        sen2 = data   
-                                                            |> filter(fn: (r) => r[""{4}""] == ""{6}"")
-                                                            |> aggregateWindow(column: ""_{7}"", every: {8}h, fn: mean , createEmpty: false  )
-                                                        join(tables: {{ sen1: sen1, sen2: sen2}}, on: [""_start"", ""_stop"", ""_time"", ""_field"", ""_measurement""], method: ""inner"") 
-                                                            |> map(fn: (r) =>({{
-                                                                _time: r._time,
-                                                                _value: r._{7}_sen2 - r._{7}_sen1 }}))";
+        private static string _outOfRange =@"query=((min_over_time({2}{3}{{{4}=~'{5}'}}[6]))<{7}) or ((max_over_time({2}{3}{{{4}=~'{5}'}}[6]))>{8})&start={0}&end={1}";
+       // 2) Out of range query:
 
-        private static string _rangeAgg = @" @{1} rate({3}[6]{{4}={5}} @{2}";
+            // (min((min_over_time(value{sensor_id="id"})) < ?) or (max((max_over_time(value{sensor_id="id"})) > ?)
+
+            // This query must be passed to e.g. range query API via `query` query arg alongside the interval (aka `step`) and the time range via `start` and `end` query args - see these docs.
+
+        private static string _stdDev = @"query=stddev_over_time({2}{3}{{{4}=~'{5}'}}[{6}])&start={0}&end={1}";
+
+
+            // 4) Data down-sampling:
+
+            // aggr_over_time_func(value{sensor_id=~"id1|...|idN"}[{6}])
+
+            // See the supported `aggr_over_time_func()` options here. The query must be passed to e.g. range query API in the same way as the query 2 above.
+        private static string _aggDifference = @"query=sum(avg_over_time({2}{3}{{{4}=~'{7}'}}[{6}])),(avg_over_time({2}{3}{{{4}=~'{8}'}}[{6}]))&start={0}&end={1}";
+
+            // 5) Comparing two down-sampled values:
+
+            // aggr_func1(aggr_over_time_func1(value{sensor_id=~"id1|...|idN"}))
+            //   -
+            // aggr_func2(aggr_over_time_func2(value{sensor_id=~"id1|...|idN"}))
+
+            // The query must be sent to e.g. range query API in the same way as the query 2 above.
+
+        private static string _rangeAgg = @"query=avg_over_time({2}{3}{{{4}=~'{5}'}}[{6}])&start={0}&end={1}"    ;
         
+
+            // 3) Aggregate query:
+
+            // aggr_func(aggr_over_time_func(value{sensor_id=~"id1|...|idN"}[d]))
+
+            // See the supported `aggr_func()` and `aggr_over_time_func()` options here and here. The `d` must be set to the time selected time range duration. See supported values for d in these docs. The query must be passed to e.g. instant query API via `query` query arg alongside the end of the time range via `time` query arg. See these docs.
+
+
 
 
 
         public String RangeRaw =>
-            String.Format(_rangeRaw, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_1");
+            String.Format(_rangeRaw,  
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),Constants.Value + "_1",
+            Constants.SensorID, QueryParams.SensorIDsParam,  QueryParams.AggWindow);
         public String RangeRawAllDims =>
             String.Format(_rangeRawAllDims, 
-            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(), "_dim_*",
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(), Constants.Value + "_*",
             Constants.SensorID, QueryParams.SensorIDsParam, QueryParams.AggWindow);
         public String RangeRawLimited =>
-            String.Format(_rangeRawLimited, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_1", QueryParams.Limit);
+            String.Format(_rangeRawLimited,  
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),Constants.Value + "_0",
+            Constants.SensorID, QueryParams.SensorIDsParam,  QueryParams.AggWindow, QueryParams.Limit);
         public String RangeRawAllDimsLimited =>
-            String.Format(_rangeRawAllDimsLimited, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDsParam, QueryParams.Limit);
+            String.Format(_rangeRawAllDimsLimited,  
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(), Constants.Value + "_*",
+            Constants.SensorID, QueryParams.SensorIDsParam, QueryParams.AggWindow, QueryParams.Limit);
 
         public String RangeAgg =>
-            String.Format(_rangeAgg, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDsParam,
-            Config.GetAggregationInterval());
+            String.Format(_rangeAgg, 
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(), Constants.Value + "_0",
+            Constants.SensorID, QueryParams.SensorIDsParam, Config.GetAggregationInterval()+"h");
 
         public String OutOfRange =>
-            String.Format(_outOfRange, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDParam, Constants.Value + "_1",
-            Config.GetAggregationInterval(), Constants.SensorID,
-            QueryParams.MinValParam, QueryParams.MaxValParam);
+            String.Format(_outOfRange,  
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),Constants.Value + "_0",
+            Constants.SensorID, QueryParams.SensorIDsParam, Config.GetAggregationInterval()+"h", QueryParams.MinValParam, QueryParams.MaxValParam );
 
         public String StdDev =>
-            String.Format(_stdDev, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.SensorIDParam);
+            String.Format(_stdDev, 
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(), Constants.Value + "_0",
+            Constants.SensorID, QueryParams.SensorIDsParam, Config.GetAggregationInterval()+"h");
 
         public String AggDifference =>
-            String.Format(_aggDifference, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
-            Constants.SensorID, QueryParams.FirstSensorIDParam,
-            QueryParams.SecondSensorIDParam, Constants.Value + "_1",
-            Config.GetAggregationInterval());
+            String.Format(_aggDifference,  
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(), Constants.Value + "_0",
+            Constants.SensorID,"placeholder", Config.GetAggregationInterval()+"h" , QueryParams.FirstSensorIDParam, QueryParams.SecondSensorIDParam);
     }
 }
