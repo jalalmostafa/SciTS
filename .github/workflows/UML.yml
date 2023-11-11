@@ -1,7 +1,17 @@
-name: PlantUML Action
-  # You may pin to the exact commit or the version.
-  # uses: Timmy/plantuml-action@7f13564d11998fd03be650da0faaa310df37932c
-  uses: Timmy/plantuml-action@v1
-  with:
-    # PlantUML software version
-    version: # optional
+name: Draw diagrams
+on: push
+
+jobs:
+  diagrams:
+    name: Draw diagrams
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Process diagrams
+        uses: Timmy/plantuml-action@v1
+        with:
+          args: '-tutxt diagrams/*.txt'
+      - name: Display diagrams
+        run: cat diagrams/*.utxt
+
