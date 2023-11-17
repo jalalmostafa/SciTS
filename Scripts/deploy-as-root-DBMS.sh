@@ -1,9 +1,11 @@
-
+# docker run -it --cap-add SYS_ADMIN --cap-add=SYS_PTRACE -p 61209:61208 -p 8087:8086  -p 6432:5432 -p 5433:5432 -p 8124:8123 -p 9001:9000 -p 9010:9009    -p 8428:8428  ubuntu bash 
 
 ## NOT WORKING IN ROOT
 apt update -y
+apt install -y tzdata
 apt upgrade -y
-apt install -y wget curl gpg sudo htop tzdata 
+apt install -y wget curl gpg sudo htop vim pip git glances dotnet7 net-tools
+cd home
 
 
 curl -O https://dl.influxdata.com/influxdb/releases/influxdb2_2.7.3-1_amd64.deb
@@ -12,7 +14,8 @@ wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.7.3-linux-am
 tar xvzf influxdb2-client-2.7.3-linux-amd64.tar.gz
 cp ./influx /usr/local/bin/
 
-service influxdb start
+influxd > IF.log  2>&1 &  
+# service influxdb start
 
 influx setup \
   --org katrin \
@@ -44,22 +47,21 @@ apt-get -y install postgresql
 
 
 # # timescale
-# apt install -y gnupg postgresql postgresql-common apt-transport-https lsb-release wget
-# sh /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh  
+apt install -y gnupg postgresql postgresql-common apt-transport-https lsb-release wget
+sh /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh  
 
 
 # # echo "deb https://packagecloud.io/timescale/timescaledb/ubuntu/ $(lsb_release -c -s) main" | tee /etc/apt/sources.list.d/timescaledb.list  
 # # upper link substituted by:
-# curl -s https://packagecloud.io/install/repositories/timescale/timescaledb/script.deb.sh | bash
+curl -s https://packagecloud.io/install/repositories/timescale/timescaledb/script.deb.sh | bash
 
 
+wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor -o /etc/apt/trusted.gpg.d/timescaledb.gpg
+apt install -y timescaledb-2-postgresql-14
+apt-get install -y postgresql-client
 
-# wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor -o /etc/apt/trusted.gpg.d/timescaledb.gpg
-# apt install -y timescaledb-2-postgresql-14
-# apt-get install -y postgresql-client
-
-# timescaledb-tune
-# service postgresql restart
+timescaledb-tune
+service postgresql restart
 # sudo -u postgres psql
 # # TODO PG / TS TUNE
 
@@ -69,7 +71,15 @@ curl https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.94.
 tar -x victoria-metrics-darwin-amd64-v1.94.0.tar.gz
 victoria-metrics-prod  -retentionPeriod=9y > VM.log 2>&1 &
 
-apt install -y pip
-pip install --user 'glances[all]'
-apt-get install -y glances 
+ # pip install --user 'glances[all]'
 glances -w --disable-webui &
+
+ 
+git clone https://github.com/sandrosano/SciTS
+
+
+vim SciTS/BenchmarkTool/App.config 
+
+dotnet run --project SciTS/BenchmarkTool consecutive InfluxDB
+dotnet run --project SciTS/BenchmarkTool consecutive PostgresDB
+dotnet run --project SciTS/BenchmarkTool consecutive ClickhouseDB

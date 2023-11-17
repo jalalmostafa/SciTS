@@ -147,11 +147,12 @@ namespace BenchmarkTool
         {
             var init = Config.GetQueryType(); // Just for Init the Array
             int batchSize = Config.GetSensorNumber() * Config.GetDataDimensionsNr() * 60 * (1000 / Config.GetRegularTsScaleMilliseconds()); // one minute ingestion
-            int minute = 0;
+
             int totalClientsNb = Config.GetClientNumberOptions().Last();
 
             foreach (var dimNb in Config.GetDataDimensionsNrOptions())
             {
+                int minute = 0;
                 _currentdimNb = dimNb;
                 Config._actualDataDimensionsNr = dimNb;
 
@@ -166,7 +167,7 @@ namespace BenchmarkTool
                         clients.Add(new ClientWrite(chosenClientIndex, totalClientsNb, Config.GetSensorNumber(), batchSize, dimNb, Config.GetStartTime().AddDays(dayAfterStartdate).AddMinutes(minute)));
                     }
                     minute++;
-                    
+
                     var glancesW = new GlancesStarter(Operation.BatchIngestion, totalClientsNb, batchSize, Config.GetSensorNumber());
                     glancesW.BeginMonitor();
                     var resultsW = await clients.ParallelForEachAsync(RunIngestionTask, totalClientsNb);

@@ -121,7 +121,7 @@ namespace BenchmarkTool.Generators
             List<double> inputList = new List<double>();
             for (int c = 1; c <= dimensions; c++)
             {
-                inputList.Add(_rnd.NextSingle());
+                inputList.Add(_rnd.NextDouble());
             }
             return inputList.ToArray();
 

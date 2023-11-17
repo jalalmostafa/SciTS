@@ -1,3 +1,5 @@
+# if permission issues, run : docker run -it ubuntu bash --cap-add SYS_ADMIN --cap-add=SYS_PTRACE
+
 # unminimize
 useradd -m -s /usr/bin/bash user 
 usermod -aG sudo user
