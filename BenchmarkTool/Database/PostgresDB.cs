@@ -77,7 +77,7 @@ namespace BenchmarkTool.Database
 
 
                             NpgsqlCommand m_createtbl_cmd = new NpgsqlCommand(
-                              String.Format("CREATE TABLE IF NOT EXISTS " + tableName + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE;  ")
+                              String.Format("CREATE DATABASE IF NOT EXISTS "+_connection.Database+"; CREATE TABLE IF NOT EXISTS " + tableName + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE;  ")
                                , _connection);
 
 

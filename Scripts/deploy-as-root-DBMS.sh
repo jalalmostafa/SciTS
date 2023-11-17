@@ -1,4 +1,6 @@
 # docker run -it --cap-add SYS_ADMIN --cap-add=SYS_PTRACE -p 61209:61208 -p 8087:8086  -p 6432:5432 -p 5433:5432 -p 8124:8123 -p 9001:9000 -p 9010:9009    -p 8428:8428  ubuntu bash 
+# psql -U postgres -W   ( to check pw access)
+# set postgres conf: https://hassanannajjar.medium.com/how-to-fix-error-password-authentication-failed-for-the-user-in-postgresql-896e1fd880dc
 
 ## NOT WORKING IN ROOT
 apt update -y
@@ -77,7 +79,8 @@ glances -w --disable-webui &
  
 git clone https://github.com/sandrosano/SciTS
 
-
+passwd postgres
+vim  /etc/postgresql/14/main/pg_hba.conf
 vim SciTS/BenchmarkTool/App.config 
 
 dotnet run --project SciTS/BenchmarkTool consecutive InfluxDB

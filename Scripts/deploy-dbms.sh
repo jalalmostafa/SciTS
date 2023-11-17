@@ -20,10 +20,10 @@ sudo cp ./influx /usr/local/bin/
 service influxd start
 # oder influxdb
 influx setup \
-  --org katrin \
-  --bucket katrindb \
-  --username katrin \
-  --password InfluxPW \
+  --org scits \
+  --bucket scitsdb \
+  --username scits \
+  --password scitsPW \
   --host http://localhost:8086 \
   --token u7Ek4P5s0Nle61QQF1nNA3ywL1JYZky6rHRXxkPBX5bY4H3YFJ6T4KApWSRhaKNj_kHgx70ZLBowB6Di4t2YXg== \
  --force  
