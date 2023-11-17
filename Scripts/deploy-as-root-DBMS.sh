@@ -18,10 +18,10 @@ influxd > IF.log  2>&1 &
 # service influxdb start
 
 influx setup \
-  --org katrin \
-  --bucket katrindb \
-  --username katrin \
-  --password InfluxPW \
+  --org scits \
+  --bucket scitsdb \
+  --username scits \
+  --password scitsPW \
   --host http://localhost:8086 \
   --token u7Ek4P5s0Nle61QQF1nNA3ywL1JYZky6rHRXxkPBX5bY4H3YFJ6T4KApWSRhaKNj_kHgx70ZLBowB6Di4t2YXg== \
  --force  
