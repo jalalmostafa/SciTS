@@ -635,10 +635,10 @@ namespace BenchmarkTool.Database
                     {
                         int c = 1; StringBuilder builder = new StringBuilder("");
                         while (c < Config.GetDataDimensionsNr()) { builder.Append($",{Constants.Value}_{c}={item.ValuesArray[c]}"); c++; }
-                        lineData.Add($"{"test" + Config.GetPolyDimTableName()},sensor_id={item.SensorID} dim_{0}={item.ValuesArray[0]}{builder} {time}");
+                        lineData.Add($"{"test" + Config.GetPolyDimTableName()},sensor_id={item.SensorID} {Constants.Value}_{0}={item.ValuesArray[0]}{builder} {time}");
                     }
                     else
-                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} value={item.ValuesArray} {time}");
+                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} {Constants.Value}={item.ValuesArray} {time}");
                 }
 
 

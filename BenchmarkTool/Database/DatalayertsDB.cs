@@ -577,7 +577,7 @@ namespace BenchmarkTool.Database
             foreach (int c in SensorIDs)
             {
                 foreach (int d in dimensions)
-                    series[c * Config.GetDataDimensionsNr() + d] = "sensor_id_" + c + "_dim_" + d;
+                    series[c * Config.GetDataDimensionsNr() + d] = "sensor_id_" + c + $"_{Constants.Value}_" + d;
             }
 
             return series.Where(c => c != null).ToArray();

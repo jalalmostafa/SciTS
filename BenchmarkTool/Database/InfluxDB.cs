@@ -294,11 +294,11 @@ namespace BenchmarkTool.Database
                     if (Config.GetMultiDimensionStorageType() == "column") // measurement,tag1=foo,tag2=bar value_a=1,value_b=2 timestamp //  (item.Time - new DateTime(1970, 1, 1)).TotalMilliseconds
                     {
                         int c = 0; StringBuilder builder = new StringBuilder("");
-                        while (c < Config.GetDataDimensionsNr()) { builder.Append($",dim_{c}={item.ValuesArray[c]}"); c++; }
-                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} dim_{0}={item.ValuesArray[0]}{builder} {time}");
+                        while (c < Config.GetDataDimensionsNr()) { builder.Append($",{Constants.Value}_{c}={item.ValuesArray[c]}"); c++; }
+                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} {Constants.Value}_{0}={item.ValuesArray[0]}{builder} {time}");
                     }
                     else
-                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} values={item.ValuesArray} {time}");
+                        lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} {Constants.Value}={item.ValuesArray} {time}");
                 }
 
                 Stopwatch sw = Stopwatch.StartNew();
