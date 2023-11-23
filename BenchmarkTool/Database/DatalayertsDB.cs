@@ -143,7 +143,7 @@ namespace BenchmarkTool.Database
                             if (vectorContainer.Vectors[vectorIndex].Values == null)
                             {
                                 vectorContainer.Vectors[vectorIndex].Directory = GetDirectoryName();
-                                vectorContainer.Vectors[vectorIndex].Series = "sensor_id_" + sensorId + "_dim_" + j;
+                                vectorContainer.Vectors[vectorIndex].Series = "sensor_id_" + sensorId +  $"_{Constants.Value}_" + j;
                                 vectorContainer.Vectors[vectorIndex].Values = new double[anzahlTimestepsPerDimSensor + 1];
                             }
 

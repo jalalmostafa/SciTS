@@ -73,7 +73,7 @@ namespace BenchmarkTool
                 Batch batch = dataGenerator.GenerateBatch(_BatchSize, sensorIdsForThisClientList, batchStartdate, _DimNb);
 
                 var status = await _targetDb.WriteBatch(batch);
-                Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Numbers {String.Join( ';' , sensorIdsForThisClientList)} of {_SensorsNumber} with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Numbers {String.Join( ';' , sensorIdsForThisClientList)} of {_SensorsNumber} with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
                 status.Iteration = TestRetryWriteIteration;
                 status.Client = _chosenClientIndex;
                 status.StartDate=batchStartdate;
@@ -107,7 +107,7 @@ namespace BenchmarkTool
                     Batch batch;
                     batch = dataGenerator.GenerateBatch(_BatchSize, startId, sensorsPerClient, i, _chosenClientIndex, batchStartdate);
                     var status = await _targetDb.WriteBatch(batch);
-                    Console.WriteLine($"[ClientID{_chosenClientIndex}-Iteration:{i}-{batchStartdate}] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber}  - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber}] {status.PerformanceMetric.Latency}");
+                    Console.WriteLine($"[ClientID{_chosenClientIndex}-Iteration:{i}-{batchStartdate}] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber}  - Batch Size {_BatchSize} - Sensors Number {_SensorsNumber}] {status.PerformanceMetric.Latency}");
                     status.Iteration = i;
                     status.Client = _chosenClientIndex;
                     statuses.Add(status);

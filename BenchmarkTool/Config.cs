@@ -58,7 +58,7 @@ namespace BenchmarkTool
 
         public static string GetPolyDimTableName()
         {
-            var val = Constants.TableName + "_dim_" + Config.GetDataDimensionsNr() + "_" + Config.GetIngestionType();
+            var val = Constants.TableName + $"_{Constants.Value}_" + Config.GetDataDimensionsNr() + "_" + Config.GetIngestionType();
 
             return val;
         }
@@ -67,7 +67,7 @@ namespace BenchmarkTool
             var list = new List<string>();
             foreach (var dim in GetDataDimensionsNrOptions())
             {
-                list.Add(Constants.TableName + "_dim_" + dim + "_" + Config.GetIngestionType());
+                list.Add(Constants.TableName + $"_{Constants.Value}_" + dim + "_" + Config.GetIngestionType());
             }
             var val = list.ToArray<string>();
 

@@ -713,7 +713,7 @@ namespace BenchmarkTool.Database
             series = new String[Config.GetDataDimensionsNr()];
 
             foreach (int d in dimensions)
-                series[d] = Config.GetPolyDimTableName() + "_dim_" + d;
+                series[d] = Config.GetPolyDimTableName() +  $"_{Constants.Value}_" + d;
 
 
             return series.Where(c => c != null).ToArray();

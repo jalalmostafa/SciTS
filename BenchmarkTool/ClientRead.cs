@@ -71,7 +71,7 @@ namespace BenchmarkTool
                          status.Client = _chosenClientIndex;
                          status.StartDate=startDate;
                         statuses.Add(status);
-                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
                     break;
@@ -86,7 +86,7 @@ namespace BenchmarkTool
                          status.StartDate=startDate;
 
                         statuses.Add(status);
-                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
                     break;
@@ -102,7 +102,7 @@ namespace BenchmarkTool
                          status.StartDate=startDate;
 
                         statuses.Add(status);
-                        Console.WriteLine($"[Succeded:{status.DataPoints}-Out-of{limit}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Out-of{limit}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
                     break;
@@ -117,7 +117,7 @@ namespace BenchmarkTool
                          status.StartDate=startDate;
 
                         statuses.Add(status);
-                        Console.WriteLine($"[Succeded:{status.DataPoints}-Out-of{limit}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Out-of{limit}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
                     break;
@@ -132,7 +132,7 @@ namespace BenchmarkTool
                          status.StartDate=startDate;
 
                         statuses.Add(status);
-                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
                     break;
@@ -147,7 +147,7 @@ namespace BenchmarkTool
                          status.StartDate=startDate;
 
                         statuses.Add(status);
-                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
                     break;
@@ -162,7 +162,7 @@ namespace BenchmarkTool
                          status.StartDate=startDate;
 
                         statuses.Add(status);
-                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()}[ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
                     break;
@@ -176,7 +176,7 @@ namespace BenchmarkTool
                          status.StartDate=startDate;
 
                         statuses.Add(status);
-                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
+                        Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()}[ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
                     break;
