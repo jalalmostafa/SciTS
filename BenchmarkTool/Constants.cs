@@ -6,7 +6,7 @@
         public const string SchemaName = "public";
 
         public const string SensorID = "sensor_id";
-        public const string Value = "value";
+        public const string Value = "dim";
         public const string Time = "time";
         public const string VictoriametricsDBClass = "VictoriametricsDB";
 

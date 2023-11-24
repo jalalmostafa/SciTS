@@ -153,8 +153,7 @@ vim  /etc/postgresql/14/main/pg_hba.conf
 
 # iptables -A INPUT -s 85.215.210.247 -j ACCEPT
 #  iptables -A INPUT -s 10.7.222.11 -j ACCEPT
-iptables -I FORWARD -s 10.7.222.11 -d localhost -j ACCEPT
-
+ 
 # AmbientCapabilities=CAP_SYS_NICE CAP_NET_BIND_SERVICE
 #  vim /etc/systemd/system/influxd.service
 #  :w /etc/systemd/system/postgresql.service
