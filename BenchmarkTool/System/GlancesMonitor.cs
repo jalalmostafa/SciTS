@@ -10,19 +10,16 @@ namespace BenchmarkTool.System
 {
     public class GlancesMonitor
     {
-        private IRestClient _client;
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //TODO CHECK IF IT SOLVES 
-
-        public CancellationToken CancellationToken => _cancellationTokenSource.Token;
-
-
-        public GlancesMonitor(string baseUrl)
-        {
-            _client = new RestClient( new RestClientOptions( baseUrl) , configureSerialization: s => s.UseNewtonsoftJson()  );
+        private static IRestClient _client = new RestClient( new RestClientOptions( Config.GetGlancesUrl()) , configureSerialization: s => s.UseNewtonsoftJson()  );
             
             //  , new ConfigureSerialization(    s => s.UseSerializer(() =>  new UseNewtonsoftJson()    ) )   )  ;  // nwetonsoftJson? TODO
             //         //   .UseNewtonsoftJson();
 
+  
+
+        public GlancesMonitor(string baseUrl)
+        {
+            // Habe "new RestClient" als statische Var Dek
         }
 
         public async Task<Cpu> GetCpuAsync()
@@ -90,9 +87,6 @@ namespace BenchmarkTool.System
             return metrics;
         }
 
-        public void Cancel()
-        {
-            _cancellationTokenSource.Cancel();
-        }
+
     }
 }

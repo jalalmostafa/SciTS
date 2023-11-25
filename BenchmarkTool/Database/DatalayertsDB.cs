@@ -22,7 +22,7 @@ namespace BenchmarkTool.Database
     public class DatalayertsDB : IDatabase
     {
 
-        private ReusableClient _client;
+        private static ReusableClient _client = new ReusableClient(Config.GetDatalayertsConnection(), Config.GetDatalayertsUser(), Config.GetDatalayertsPassword());
 
         public IQuery<ContainerRequest> _iquery;
 
@@ -32,7 +32,7 @@ namespace BenchmarkTool.Database
 
         public void Init()
         {
-            _client = new ReusableClient(Config.GetDatalayertsConnection(), Config.GetDatalayertsUser(), Config.GetDatalayertsPassword());
+            // _client =  habe ich als statisch deklariert
             _iquery = new DatalayertsQuery();
             _aggInterval = Config.GetAggregationInterval();
         }
@@ -88,7 +88,7 @@ namespace BenchmarkTool.Database
                     }
 
                     Stopwatch sw1 = Stopwatch.StartNew();
-                    await _client.IngestPointsAsync<double>(pointContainer, OverwriteMode.older, 10000, TimeSeriesCreationTimestampStorageType.NONE, default);
+                    await _client.IngestPointsAsync<double>(pointContainer, OverwriteMode.older, 10000, TimeSeriesCreationTimestampStorageType.NONE, default).ConfigureAwait(false);
 
                     sw1.Stop();
 
@@ -97,7 +97,8 @@ namespace BenchmarkTool.Database
                 }
                 else //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 {
-                    DateTime roundedDate = new DateTime(Config.GetStartTime().Year, Config.GetStartTime().Month, Config.GetStartTime().Day, Config.GetStartTime().Hour, Config.GetStartTime().Minute, Config.GetStartTime().Second, Config.GetStartTime().Millisecond, DateTimeKind.Utc);
+                    var firsttime = batch.Records.First().Time;
+                    DateTime roundedDate = new DateTime(firsttime.Year, firsttime.Month, firsttime.Day, firsttime.Hour, firsttime.Minute, firsttime.Second, firsttime.Millisecond, DateTimeKind.Utc);
                     int dataDims = Config.GetDataDimensionsNr();
                     int timestepIndex = -1;
                     int anzahlSensorenInBatch = 1;
@@ -235,7 +236,7 @@ namespace BenchmarkTool.Database
                     //                         // }
                 }
                 Stopwatch sw2 = Stopwatch.StartNew();
-                await _client.IngestVectorsAsync<double>(vectorContainer, OverwriteMode.older, TimeSeriesCreationTimestampStorageType.NONE, default);
+                await _client.IngestVectorsAsync<double>(vectorContainer, OverwriteMode.older, TimeSeriesCreationTimestampStorageType.NONE, default).ConfigureAwait(false);
                 sw2.Stop();
 
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw2.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
@@ -278,7 +279,7 @@ namespace BenchmarkTool.Database
                 points = readResult.Vectors.Length;
                 _aggInterval = 0;
                 sw.Stop();
-                await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
+                // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
@@ -314,7 +315,7 @@ namespace BenchmarkTool.Database
                 points = readResult.Vectors.Length;
                 _aggInterval = 0;
                 sw.Stop();
-                await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
+                // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
             }
@@ -347,7 +348,7 @@ namespace BenchmarkTool.Database
                 points = readResult.Vectors.Length;
                 _aggInterval = 0;
                 sw.Stop();
-                await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
+                // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
@@ -383,7 +384,7 @@ namespace BenchmarkTool.Database
                 points = readResult.Vectors.Length;
                 _aggInterval = 0;
                 sw.Stop();
-                await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
+                // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
             }
@@ -409,12 +410,12 @@ namespace BenchmarkTool.Database
 
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var readResult = await _client.RetrieveVectorsAsync<double>(DltsQuery, true);
+                var readResult = await _client.RetrieveVectorsAsync<double>(DltsQuery, true).ConfigureAwait(false);
                 var points = 0;
                 points = readResult.Vectors.Length;
                 _aggInterval = (int)Config.GetAggregationInterval();
                 sw.Stop();
-                await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
+                // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
             }
             catch (Exception ex)
@@ -446,7 +447,7 @@ namespace BenchmarkTool.Database
 
                 Stopwatch sw = Stopwatch.StartNew();
                 var points = 0;
-                var readResult = await _client.RetrievePointsAsync<double>(DltsQuery, false, false, default);
+                var readResult = await _client.RetrievePointsAsync<double>(DltsQuery, false, false, default).ConfigureAwait(false);
 
                 points = readResult.Count(); //TODO assert correcness
 
@@ -478,12 +479,12 @@ namespace BenchmarkTool.Database
                 DltsQuery.Selection.Add(dir, series);
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var readResult = await _client.RetrieveVectorsAsync<double>(DltsQuery, true);
+                var readResult = await _client.RetrieveVectorsAsync<double>(DltsQuery, true).ConfigureAwait(false);
                 var points = 0;
                 points = readResult.Vectors.Length;
                 _aggInterval = (int)Config.GetAggregationInterval();
                 sw.Stop();
-                await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
+                // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.DifferenceAggQuery));
             }
             catch (Exception ex)
@@ -507,11 +508,12 @@ namespace BenchmarkTool.Database
                 DltsQuery.Selection.Add(dir, series);
 
                 Stopwatch sw = Stopwatch.StartNew();
-                var readResult = await _client.RetrieveVectorsAsync<double>(DltsQuery, true, default);
+                var readResult = await _client.RetrieveVectorsAsync<double>(DltsQuery, true, default).ConfigureAwait(false);
                 var points = 0;
                 points = readResult.Vectors.Length;
                 _aggInterval = (int)Config.GetAggregationInterval();
-                sw.Stop(); await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
+                sw.Stop(); 
+                // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.STDDevQuery));
             }
