@@ -72,7 +72,7 @@ namespace BenchmarkTool
                 var batchStartdate = _date;
                 Batch batch = dataGenerator.GenerateBatch(_BatchSize, sensorIdsForThisClientList, batchStartdate, _DimNb);
 
-                var status = await _targetDb.WriteBatch(batch);
+                var status = await _targetDb.WriteBatch(batch).ConfigureAwait(false);
                 Console.WriteLine($"[ClientID:{_chosenClientIndex}-Iteraton:{TestRetryWriteIteration}-Date:{batchStartdate}] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [Client Number{_chosenClientIndex} out of totalClNb:{_totalClientsNumber} - Batch Size {_BatchSize} - Sensors Numbers {String.Join( ';' , sensorIdsForThisClientList)} of {_SensorsNumber} with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
                 status.Iteration = TestRetryWriteIteration;
                 status.Client = _chosenClientIndex;

@@ -137,7 +137,7 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                StringBuilder sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value`) VALUES " + batch.Records);
+                StringBuilder sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value`) VALUES " + batch.RecordsArray);
                 sCommand.Append(";");
                 Stopwatch sw = new Stopwatch();
                 using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), _connection))

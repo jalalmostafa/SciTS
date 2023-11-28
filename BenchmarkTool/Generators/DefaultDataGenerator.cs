@@ -17,7 +17,7 @@ namespace BenchmarkTool.Generators
             for (int k = 0; k < batchSize; k++)
             {
                 var recordTimestamp = GetRecordTimestamp(date);
-                batch.Records.Add(recordFactory.Create(start, recordTimestamp, rndval.Next()));
+                batch.RecordsList.Add(recordFactory.Create(start, recordTimestamp, rndval.Next()));
                 start++;
                 if (start >= sensorStartId + sensorsPerClient)
                     start = sensorStartId;
@@ -43,7 +43,7 @@ namespace BenchmarkTool.Generators
                     }
                     var recordTimestamp = GetRecordTimestamp(date);
 
-                    batch.Records.Add(recordFactory.Create(chosenSensor, recordTimestamp, rndval.Next()));
+                    batch.RecordsList.Add(recordFactory.Create(chosenSensor, recordTimestamp, rndval.Next()));
                 }
 
             
@@ -74,7 +74,7 @@ namespace BenchmarkTool.Generators
                     }
                     var recordTimestamp = GetRecordTimestamp(date);
 
-                    batch.Records.Add(recordFactory.Create(chosenSensor, recordTimestamp, inputList.ToArray() ));
+                    batch.RecordsList.Add(recordFactory.Create(chosenSensor, recordTimestamp, inputList.ToArray() ));
                 }
 
             

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks.Dataflow;
 using InfluxDB.Client.Api.Domain;
+using InfluxDB.Client.Core.Internal;
 
 namespace BenchmarkTool.Generators
 {
@@ -13,7 +15,7 @@ namespace BenchmarkTool.Generators
         static int _scaleMilliseconds = Config.GetRegularTsScaleMilliseconds();
         private bool InTypeReg;
 
-        public Batch GenerateBatch(int batchSize, int sensorStartId, decimal sensorsPerClient, int offset, int clientOffset, DateTime date) // date is here relative to the number of batches which have been written before and th eTestretries
+        public Batch GenerateBatch(int batchSize, int sensorStartId, decimal sensorsPerClient, int offset, int clientOffset, DateTime date) // OLD // date is here relative to the number of batches which have been written before and th eTestretries
         {
             if (Config.GetIngestionType() == "regular")
                 InTypeReg = true;
@@ -22,7 +24,7 @@ namespace BenchmarkTool.Generators
             int step = 0;
             RecordFactory recordFactory = new RecordFactory();
             Random rndval = new Random();
-            Batch batch = new Batch(batchSize);
+            Batch batch = new Batch(); batch.Size = batchSize;
             var sensorid = (clientOffset + offset) * batchSize + sensorStartId >= sensorsPerClient + sensorStartId ? sensorStartId : (clientOffset + offset) * batchSize + sensorStartId;
             timeindex = 0;
             for (int k = 0; k < batchSize; k++)
@@ -40,7 +42,7 @@ namespace BenchmarkTool.Generators
                 // GetRecordTimestamp(_Timestamp, timeindex, step);
                 _Timestamp = recordTimestamp;
 
-                batch.Records.Add(recordFactory.Create(sensorid, recordTimestamp, rndval.Next()));
+                batch.RecordsList.Add(recordFactory.Create(sensorid, recordTimestamp, rndval.Next()));
                 sensorid++;
             }
             return batch;
@@ -54,12 +56,11 @@ namespace BenchmarkTool.Generators
             RecordFactory recordFactory = new RecordFactory();
             _rnd = new Random(7839);
             _rndX = new XorShiftRng(3345, 4234);
-            Batch batch = new Batch(batchSize);
             var _Timestamp = date;
             int step = 0;
 
 
-// TODO delete old, wrong
+            // TODO delete old, wrong
             // // int timeindex = 0;
             // for (int dataPointNr = 0; dataPointNr < batchSize; dataPointNr++)
             // {
@@ -83,32 +84,39 @@ namespace BenchmarkTool.Generators
             //     batch.Records.Add(recordFactory.Create(chosenSensor, _Timestamp, GetInput(dimensions)));
             // }
 
+            Batch batch = new Batch(batchSize);
+
+
             int dataPointNr = 0;
+            int index = 0;
             while (dataPointNr < batchSize)
             {
                 foreach (var chosenSensor in sensorIdsForThisClientList)
                 {
-
-                    if (chosenSensor == sensorIdsForThisClientList.First() && dataPointNr != 0)
+                    if (dataPointNr < batchSize)
                     {
-                        // timeindex++;
-                        if (InTypeReg)
+
+                        if (chosenSensor == sensorIdsForThisClientList.First() && dataPointNr != 0)
                         {
-                            step = _scaleMilliseconds; _Timestamp = _Timestamp.AddMilliseconds(step);
+                            // timeindex++;
+                            if (InTypeReg)
+                            {
+                                step = _scaleMilliseconds; _Timestamp = _Timestamp.AddMilliseconds(step);
+                            }
+                            else
+                            {
+                                step = _rnd.Next(_scaleMilliseconds * 2); // *2 so to have a Apprx median of scaleMs
+                                _Timestamp = _Timestamp.AddMilliseconds(step);
+                            }
                         }
-                        else
-                        {
-                            step = _rnd.Next(_scaleMilliseconds * 2); // *2 so to have a Apprx median of scaleMs
-                            _Timestamp = _Timestamp.AddMilliseconds(step);
-                        }
+
+                        batch.RecordsArray[index] = recordFactory.Create(chosenSensor, _Timestamp, GetInput(dimensions));
+
+                        index++;
+                        dataPointNr++;
                     }
-
-
-                    batch.Records.Add(recordFactory.Create(chosenSensor, _Timestamp, GetInput(dimensions)));
-                    dataPointNr++;
                 }
             }
-
 
 
 
@@ -118,12 +126,17 @@ namespace BenchmarkTool.Generators
         private double[] GetInput(int dimensions)
         {
 
-            List<double> inputList = new List<double>();
-            for (int c = 1; c <= dimensions; c++)
+            double[] inputArray = new double[dimensions];
+
+
+
+            for (int c = 0; c < dimensions; c++)
             {
-                inputList.Add(_rnd.NextDouble());
+                inputArray[c] = _rnd.NextDouble();
             }
-            return inputList.ToArray();
+
+            return inputArray;
+
 
 
         }

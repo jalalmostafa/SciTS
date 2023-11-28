@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BenchmarkTool.Generators
 {
-    public class SimpleDataGenerator : IDataGenerator
+    public class SimpleDataGenerator : IDataGenerator // OLD -> Extended D G
     {
         private Random _rnd = new Random();
 
@@ -17,7 +17,7 @@ namespace BenchmarkTool.Generators
             for (int k = 0; k < batchSize; k++)
             {
                 var recordTimestamp = GetRecordTimestamp(date);
-                batch.Records.Add(recordFactory.Create(start, recordTimestamp, rndval.Next()));
+                batch.RecordsList.Add(recordFactory.Create(start, recordTimestamp, rndval.Next()));
                 start++;
                 if (start >= sensorStartId + sensorsPerClient)
                     start = sensorStartId;

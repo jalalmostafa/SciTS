@@ -286,7 +286,7 @@ namespace BenchmarkTool.Database
             try
             {
                 var lineData = new List<string>(batch.Size);
-                foreach (var item in batch.Records)
+                foreach (var item in batch.RecordsArray)
                 {
                     var timeSpan = item.Time.Subtract(EpochStart);
                     var time = TimeSpanToBigInteger(timeSpan, WritePrecision.Ns);

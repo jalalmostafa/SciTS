@@ -76,7 +76,7 @@ namespace BenchmarkTool.Database
                     while (c < Config.GetDataDimensionsNr()) { builder.Append(", value_dim" + (c + 1)); c++; }
                     sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value_dim1`" + builder + ") VALUES ");
 
-                    foreach (var record in batch.Records)
+                    foreach (var record in batch.RecordsArray)
                     {
                         Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, string.Join(",", record.ValuesArray.Select(x => x.ToString(CultureInfo.InvariantCulture)).ToArray())));
                     }
@@ -85,7 +85,7 @@ namespace BenchmarkTool.Database
                 else
                 {
                     sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value`) VALUES ");
-                    foreach (var record in batch.Records)
+                    foreach (var record in batch.RecordsArray)
                     {
                         Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, "{" + string.Join(",", record.ValuesArray.Select(x => x.ToString(CultureInfo.InvariantCulture)).ToArray()) + "}"));
                     }

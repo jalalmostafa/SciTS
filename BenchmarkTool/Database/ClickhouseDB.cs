@@ -437,7 +437,7 @@ namespace BenchmarkTool.Database
                 command.Parameters.Add(new ClickHouseParameter
                 {
                     ParameterName = "bulk",
-                    Value = batch.Records.AsEnumerable()
+                    Value = batch.RecordsArray.AsEnumerable()
                 });
 
                 Stopwatch sw = Stopwatch.StartNew();

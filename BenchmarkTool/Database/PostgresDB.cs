@@ -417,7 +417,7 @@ namespace BenchmarkTool.Database
             try
             {
                 Stopwatch sw = Stopwatch.StartNew();
-                await _copyHelper.SaveAllAsync(_connection, batch.Records);
+                await _copyHelper.SaveAllAsync(_connection, batch.RecordsArray);
                 sw.Stop();
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
             }

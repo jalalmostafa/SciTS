@@ -82,32 +82,18 @@ namespace BenchmarkTool.System
         }
 
 
-        public async Task CommitAsync()
-        {
-            await _lock.WaitAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
-
-            try
-            {
-                foreach (var item in _metrics)
-                {
-                    item.WriteToCSV(_path, _operation.ToString(), _clientsNb, _batchSize, _sensorsNb);
-                }
-                _metrics.Clear();
-
-            }
-            finally
-            {
-                _lock.Release();
-            }
-
-        }
 
         public async Task EndMonitorAsync()
         {
-            await CommitAsync().ConfigureAwait(false);
 
             _cancellationTokenSource.Cancel();
             await _thread.ConfigureAwait(false);
+            foreach (var item in _metrics)
+            {
+                item.WriteToCSV(_path, _operation.ToString(), _clientsNb, _batchSize, _sensorsNb);
+            }
+            _cancellationTokenSource.Dispose();
+            _thread.Dispose();
 
 
         }

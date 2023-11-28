@@ -63,7 +63,7 @@ namespace BenchmarkTool.Database
 
                     pointContainer = new List<TimeSeriesPoint<double>>();
 
-                    foreach (var record in batch.Records)
+                    foreach (var record in batch.RecordsArray)
                     {
 
                         for (var dim = 0; dim < record.ValuesArray.Length; dim++)
@@ -97,25 +97,25 @@ namespace BenchmarkTool.Database
                 }
                 else //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 {
-                    var firsttime = batch.Records.First().Time;
+                    var firsttime = batch.RecordsArray.First().Time;
                     DateTime roundedDate = new DateTime(firsttime.Year, firsttime.Month, firsttime.Day, firsttime.Hour, firsttime.Minute, firsttime.Second, firsttime.Millisecond, DateTimeKind.Utc);
                     int dataDims = Config.GetDataDimensionsNr();
                     int timestepIndex = -1;
                     int anzahlSensorenInBatch = 1;
                     int i = 0; bool f = true; Dictionary<int, int> sensIDperClientDict = new Dictionary<int, int>();
-                    sensIDperClientDict.Add(batch.Records.First().SensorID, 0);
+                    sensIDperClientDict.Add(batch.RecordsArray.First().SensorID, 0);
                     while (f)
                     {
-                        var alt = batch.Records.ElementAt(i).SensorID;
+                        var alt = batch.RecordsArray.ElementAt(i).SensorID;
                         i++;
-                        var neu = batch.Records.ElementAt(i).SensorID;
+                        var neu = batch.RecordsArray.ElementAt(i).SensorID;
                         if (neu > alt)
                         {
                             anzahlSensorenInBatch++; sensIDperClientDict.Add(neu, anzahlSensorenInBatch - 1);
                         }
-                        if (alt > neu || batch.Records.ElementAt(i) == batch.Records.Last()) { f = false; }
+                        if (alt > neu || batch.RecordsArray.ElementAt(i) == batch.RecordsArray.Last()) { f = false; }
                     }
-                    int anzahlTimestepsPerDimSensor = batch.Records.Count() / anzahlSensorenInBatch;
+                    int anzahlTimestepsPerDimSensor = batch.RecordsArray.Count() / anzahlSensorenInBatch;
                     ;
 
                     vectorContainer = new VectorContainer<double>()
@@ -128,7 +128,7 @@ namespace BenchmarkTool.Database
 
 
 
-                    foreach (var record in batch.Records)
+                    foreach (var record in batch.RecordsArray)
                     {
                         int sensorId = record.SensorID;
 
