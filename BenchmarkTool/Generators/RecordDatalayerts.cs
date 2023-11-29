@@ -24,7 +24,7 @@ namespace BenchmarkTool.Generators
             return ValuesArray[0];
         }
          public double[] ValuesArray { get; set; }
-         public double Value { get; set; }
+        //  public double Value { get; set; }
         //  public bool polyDim { get;  }
 
         public int SensorID { get; set; }

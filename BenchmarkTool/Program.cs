@@ -145,7 +145,7 @@ namespace BenchmarkTool
         private async static Task PopulateOneDayRegularData(int dayAfterStartdate)
         {
             var init = Config.GetQueryType(); // Just for Init the Array
-            int batchSize = Config.GetSensorNumber() * Config.GetDataDimensionsNr() * 60 * (1000 / Config.GetRegularTsScaleMilliseconds()); // one minute ingestion
+            int batchSize = Config.GetSensorNumber()  * 60 * (1000 / Config.GetRegularTsScaleMilliseconds()); // one minute ingestion
 
             int totalClientsNb = Config.GetClientNumberOptions().Last();
 

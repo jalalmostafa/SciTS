@@ -38,7 +38,7 @@ namespace BenchmarkTool.Database
         }
         public void CheckOrCreateTable()
         {
-           //not needed, DLTS creates automaticly.
+            //not needed, DLTS creates automaticly.
         }
 
 
@@ -124,31 +124,31 @@ namespace BenchmarkTool.Database
                         IntervalTicks = 10000 * Config.GetRegularTsScaleMilliseconds(), // second = 10mil
                         LastTimestamp = roundedDate.AddMilliseconds(anzahlTimestepsPerDimSensor * Config.GetRegularTsScaleMilliseconds())
                     };
-                    vectorContainer.Vectors = new TimeSeriesVector<double>[anzahlSensorenInBatch * dataDims].Select(a => new TimeSeriesVector<double>()).ToArray();
-
+                    // vectorContainer.Vectors = new TimeSeriesVector<double>[anzahlSensorenInBatch * dataDims].Select(a => new TimeSeriesVector<double>()).ToArray();
+                    vectorContainer.Vectors = new TimeSeriesVector<double>[anzahlSensorenInBatch * dataDims];
 
 
                     foreach (var record in batch.RecordsArray)
                     {
-                        int sensorId = record.SensorID;
+                        int IndexOfSensorID = sensIDperClientDict[record.SensorID];
 
-                        int IndexOfSensorID = sensIDperClientDict[sensorId];
                         if (IndexOfSensorID == 0) //runs through all sensor IDs of the same time, then steps to the sensors of the next timeslot
                             timestepIndex++;
 
-                        for (int j = 0; j < dataDims; j++)
+                        for (int chosenDim = 0; chosenDim < dataDims; chosenDim++)
                         {
-                            int vectorIndex = IndexOfSensorID * dataDims + j;
+                            int vectorIndex = IndexOfSensorID * dataDims + chosenDim;
 
+                            vectorContainer.Vectors[vectorIndex] = new TimeSeriesVector<double>();
 
                             if (vectorContainer.Vectors[vectorIndex].Values == null)
                             {
                                 vectorContainer.Vectors[vectorIndex].Directory = GetDirectoryName();
-                                vectorContainer.Vectors[vectorIndex].Series = "sensor_id_" + sensorId +  $"_{Constants.Value}_" + j;
+                                vectorContainer.Vectors[vectorIndex].Series = "sensor_id_" + record.SensorID + $"_{Constants.Value}_" + chosenDim;
                                 vectorContainer.Vectors[vectorIndex].Values = new double[anzahlTimestepsPerDimSensor + 1];
                             }
 
-                            vectorContainer.Vectors[vectorIndex].Values[timestepIndex] = record.ValuesArray[j];
+                            vectorContainer.Vectors[vectorIndex].Values[timestepIndex] = record.ValuesArray[chosenDim];
                         }
                     }
 ;
@@ -512,7 +512,7 @@ namespace BenchmarkTool.Database
                 var points = 0;
                 points = readResult.Vectors.Length;
                 _aggInterval = (int)Config.GetAggregationInterval();
-                sw.Stop(); 
+                sw.Stop();
                 // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.STDDevQuery));
