@@ -15,8 +15,16 @@
 apt update -y
 apt install -y tzdata
 apt upgrade -y
-apt install -y wget curl gpg sudo htop vim pip git glances dotnet7 net-tools fio sysbench
-cd home
+apt install -y wget curl gpg sudo htop vim pip git glances dotnet7 net-tools fio sysbench glances apt-transport-https ca-certificates dirmngr  
+# cd home
+
+
+mkdir /mnt/vdb1/
+#evtl fdisk /dev/vdb -> n -> w  -> mkfs -t xfs /dev/vdb1   
+mount /dev/vdb1 /mnt/vdb1
+# add to fstab UUID=25e0fc93-8bc4-43bc-b5eb-cc0e860570a2 /mnt/vdb1 xfs  defaults  0      0
+#  change all data dirs in POSTGRES CLICKHOUSE INFLUX to vdb1
+#  assure listen to * /correctn networkinterface
 
  iptables -t nat -I PREROUTING -p tcp --dport 8086 -j DNAT --to 127.0.0.1:8086
  iptables -t nat -I PREROUTING -p tcp --dport 5432 -j DNAT --to 127.0.0.1:5432
@@ -26,9 +34,9 @@ cd home
 
 # curl -O https://dl.influxdata.com/influxdb/releases/influxdb2_2.7.3-1_amd64.deb
 # c
-# wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.7.3-linux-amd64.tar.gz
-# tar xvzf influxdb2-client-2.7.3-linux-amd64.tar.gz
-# cp ./influx /usr/local/bin/
+wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.7.3-linux-amd64.tar.gz
+tar xvzf influxdb2-client-2.7.3-linux-amd64.tar.gz
+cp ./influx /usr/local/bin/
 
 
  curl -O https://dl.influxdata.com/influxdb/releases/influxdb2_2.7.4-1_amd64.deb
@@ -41,24 +49,34 @@ sudo dpkg -i influxdb2_2.7.4-1_amd64.deb
 # sandro@sandro-opi:~$ sudo ssh -L 18086:localhost:8086 root@85.215.243.202 -i ./KIT/sandro_test.openssh 
 
 
-influx setup \
+#  TOKEN IONOS 1-12
+#    aOBozbShzfkQo2EOKGAwbi8GDJKXaSiMF5WG9UoH0XIa8oM0EMZ1fesiyzTPvbrIbdJzdH4aKNI3GEKI_odHGA==
+
+
+
+influx setup -n scitsconfig\
   --org scits \
   --bucket scitsdb \
   --username scits \
   --password InfluxPW \
-  --host http://localhost:8086 \
+  --host http://127.0.0.1:8086 \
   --token u7Ek4P5s0Nle61QQF1nNA3ywL1JYZky6rHRXxkPBX5bY4H3YFJ6T4KApWSRhaKNj_kHgx70ZLBowB6Di4t2YXg== \
  --force  
 
  influx config create --active \
-  -n config-name \
-  -u http://localhost:8086 \
+  -n scitsconfigclient \
+  -u http://127.0.0.1:8086 \
   -t u7Ek4P5s0Nle61QQF1nNA3ywL1JYZky6rHRXxkPBX5bY4H3YFJ6T4KApWSRhaKNj_kHgx70ZLBowB6Di4t2YXg== \
   -o scits     
 
-export INFLUXD_HTTP_BIND_ADDRESS=10.7.222.12:8087
- influxd --http-bind-address=10.7.222.12:8789
-chown -R influxdb /var/lib/influxdb
+export INFLUXD_HTTP_BIND_ADDRESS=127.0.0.1:8086
+ influxd --http-bind-address=127.0.0.1:8086
+# evtl chown -R influxdb /PATH/influxdb
+#  VIM /ETC/INFLUX/CONFIG
+
+
+# vlickhouse
+
 
 sudo apt-get install -y apt-transport-https ca-certificates dirmngr
 GNUPGHOME=$(mktemp -d)
@@ -70,23 +88,18 @@ echo "deb [signed-by=/usr/share/keyrings/clickhouse-keyring.gpg] https://package
     /etc/apt/sources.list.d/clickhouse.list
 sudo apt-get update
 
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E0C56BD4
-echo "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
-sudo apt update
-
 sudo apt-get install -y clickhouse-server clickhouse-client
 
 sudo service clickhouse-server start
 
-Insert here_: vim /etc/clickhouse-server/users.d/default-password.xml 
-        <password></password>
+# Insert here_: vim /etc/clickhouse-server/users.d/default-password.xml 
+#         <password></password>
 
 
-/etc/clickhouse-server/config.xml   change:  ::  to
- <clickhouse>
-    <listen_host>0.0.0.0</listen_host>
+# /etc/clickhouse-server/config.xml   change:  ::  to
+#  <clickhouse>
+#     <listen_host>0.0.0.0</listen_host> -> DATA PATH!!!!
 
-sandro@sandro-opi:~$ sudo ssh -L 8086:localhost:8086 root@85.215.243.202 -i ./KIT/sandro_test.openssh 
 
 # postgres
 # Create the file repository configuration:
@@ -102,15 +115,43 @@ apt-get update -y
 # If you want a specific version, use 'postgresql-12' or similar instead of 'postgresql':
 apt-get -y install postgresql
 chown -R postgres /var/lib/postgresql/
-
+#  postgres.CONF::::    HOST -> * ,  PATH -> /mnt...
 # HBA file:::: host    all             all             10.7.222.11  255.255.255.0 trust 
 #  schnelltest-von clientmacshein:  psql -h 10.7.222.12 -p 5432 -U postgres
-
+# local   all             all                                     trust
+# host    all             all             all                     trust
+# 
 
 # POSTGRES TUNE:: https://pgtune.leopard.in.ua/
 
 #  postgres.config  : listen : localhost uncomment
 
+# TUNE:  (insert in postgres.conf)
+# DB Version: 16
+# OS Type: linux
+# DB Type: mixed
+# Total Memory (RAM): 64 GB
+# CPUs num: 8
+# Connections num: 50
+# Data Storage: ssd
+
+# max_connections = 50
+# shared_buffers = 16GB
+# effective_cache_size = 48GB
+# maintenance_work_mem = 2GB
+# checkpoint_completion_target = 0.9
+# wal_buffers = 16MB
+# default_statistics_target = 100
+# random_page_cost = 1.1
+# effective_io_concurrency = 200
+# work_mem = 41943kB
+# huge_pages = try
+# min_wal_size = 1GB
+# max_wal_size = 4GB
+# max_worker_processes = 8
+# max_parallel_workers_per_gather = 4
+# max_parallel_workers = 8
+# max_parallel_maintenance_workers = 4
 
 # # timescale
 apt install -y gnupg postgresql postgresql-common apt-transport-https lsb-release wget
@@ -142,7 +183,7 @@ victoria-metrics-prod  -retentionPeriod=9y > VM.log 2>&1 &
 
  # pip install --user 'glances[all]'
 glances -w --disable-webui &
-
+#  MODUIFY SERIVICE FILE!!!
  
 git clone https://github.com/sandrosano/SciTS
 
@@ -157,30 +198,30 @@ vim  /etc/postgresql/14/main/pg_hba.conf
 # AmbientCapabilities=CAP_SYS_NICE CAP_NET_BIND_SERVICE
 #  vim /etc/systemd/system/influxd.service
 #  :w /etc/systemd/system/postgresql.service
-#   systemctl daemon-reload
-
-chmod -R 777 /var/lib/postgresql/
-chmod -R 777 /var/lib/influxdb/
-chmod -R 777 /var/lib/clickhouse/
 
 
- 
-setcap 'cap_net_bind_service=+ep' /usr/lib/postgresql/16/bin/postgres
-
-setcap 'cap_net_bind_service=+ep' /usr/bin/influxd 
-setcap 'cap_net_bind_service=+ep' /usr/bin/clickhouse 
-setcap 'cap_net_bind_service=+ep' /usr/bin/clickhouse-server
+#  vim /etc/systemd/system/glances.service
 
 
- 
-setcap 'CAP_SYS_NICE=+ep' /usr/lib/postgresql/16/bin/postgres
-
-setcap 'CAP_SYS_NICE=+ep' /usr/bin/influxd 
-setcap 'CAP_SYS_NICE=+ep' /usr/bin/clickhouse
-setcap 'CAP_SYS_NICE=+ep' /usr/bin/clickhouse-server
 
 
+mkdir /mnt/vdb1/clickhouse /mnt/vdb1/influxdb /mnt/vdb1/postgresql /mnt/vdb1/postgresql/16/ /mnt/vdb1/postgresql/16/main
+
+chown -R clickhouse:clickhouse /mnt/vdb1/clickhouse/
+chown -R influxdb:influxdb /mnt/vdb1/influxdb/
+chown -R postgres:postgres /mnt/vdb1/postgresql/
+chown -R postgres:postgres /var/log/postgresql/
+
+sudo -u postgres /usr/lib/postgresql/16/bin/initdb -D /mnt/vdb1/postgresql/16/main
+sudo -u postgres /usr/lib/postgresql/16/bin/pg_ctl -D /mnt/vdb1/postgresql/16/main -l /var/log/postgresql/16/main/my-postgres.log start
+
+
+systemctl daemon-reload
+service clickhouse-server restart
+service influxdb restart
+service postgresql restart
 # dotnet run --project SciTS/BenchmarkTool consecutive regular InfluxDB
 # dotnet run --project SciTS/BenchmarkTool consecutive regular PostgresDB
 # dotnet run --project SciTS/BenchmarkTool consecutive regular ClickhouseDB
+
 

@@ -109,9 +109,9 @@ namespace BenchmarkTool.Database
 
                             // create table
                             var command = _write_connection.CreateCommand();
-                            int c = 0; StringBuilder builder = new StringBuilder("");
+                            int c = 1; StringBuilder builder = new StringBuilder("");
 
-                            while (c < actualDim) { builder.Append(", value_" + c + " Float64"); c++; }
+                            while (c <= actualDim) { builder.Append(", "+Constants.Value+"_" + c + " Float64"); c++; }
 
                             command.CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + tableName + " ( time DateTime64(9) , sensor_id Int32 " + builder + ") ENGINE = MergeTree() PARTITION BY toYYYYMMDD(time) ORDER BY (sensor_id, time);");
 
@@ -429,9 +429,9 @@ namespace BenchmarkTool.Database
             try
             {
                 var command = _write_connection.CreateCommand();
-                int c = 0; StringBuilder builderKey = new StringBuilder("");
+                int c = 1; StringBuilder builderKey = new StringBuilder("");
                 List<object> builderVal = new List<object>(); builderVal.Add(Config.GetPolyDimTableName()); builderVal.Add(Constants.Time); builderVal.Add(Constants.SensorID);
-                while (c < Config.GetDataDimensionsNr()) { builderKey.Append(", {" + (3 + c) + "} "); builderVal.Add(Constants.Value + "_" + c); c++; }
+                while (c <= Config.GetDataDimensionsNr()) { builderKey.Append(", {" + (2 + c) + "} "); builderVal.Add(Constants.Value + "_" + c); c++; }
 
                 command.CommandText = String.Format("INSERT INTO {0} ({1}, {2}" + builderKey + " ) VALUES @bulk", builderVal.ToArray());
                 command.Parameters.Add(new ClickHouseParameter
