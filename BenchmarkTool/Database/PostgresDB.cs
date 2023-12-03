@@ -73,7 +73,7 @@ namespace BenchmarkTool.Database
                             int c = 0; StringBuilder builder = new StringBuilder("");
 
 
-                            while (c < actualDim) { builder.Append(", value_" + c + " double precision"); c++; }
+                            while (c < actualDim) { builder.Append(", "+Constants.Value+"_" + c + " double precision"); c++; }
 
 
                             NpgsqlCommand m_createtbl_cmd = new NpgsqlCommand(
