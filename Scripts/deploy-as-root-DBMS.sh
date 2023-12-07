@@ -145,7 +145,7 @@ chown -R postgres /var/lib/postgresql/
 # random_page_cost = 1.1
 # effective_io_concurrency = 200
 # work_mem = 41943kB
-# huge_pages = try
+# huge_pages = tryAnerkennung
 # min_wal_size = 1GB
 # max_wal_size = 4GB
 # max_worker_processes = 8

@@ -127,7 +127,7 @@ namespace BenchmarkTool.Database
                     // vectorContainer.Vectors = new TimeSeriesVector<double>[anzahlSensorenInBatch * dataDims].Select(a => new TimeSeriesVector<double>()).ToArray();
                     vectorContainer.Vectors = new TimeSeriesVector<double>[anzahlSensorenInBatch * dataDims];
 
-
+var dirName = GetDirectoryName();
                     foreach (var record in batch.RecordsArray)
                     {
                         int IndexOfSensorID = sensIDperClientDict[record.SensorID];
@@ -143,7 +143,7 @@ namespace BenchmarkTool.Database
 
                             if (vectorContainer.Vectors[vectorIndex].Values == null)
                             {
-                                vectorContainer.Vectors[vectorIndex].Directory = GetDirectoryName();
+                                vectorContainer.Vectors[vectorIndex].Directory = dirName;
                                 vectorContainer.Vectors[vectorIndex].Series = "sensor_id_" + record.SensorID + $"_{Constants.Value}_" + chosenDim;
                                 vectorContainer.Vectors[vectorIndex].Values = new double[anzahlTimestepsPerDimSensor + 1];
                             }
