@@ -78,8 +78,7 @@ namespace BenchmarkTool.Database
                                 record.Time.Day,
                                 record.Time.Hour,
                                 record.Time.Minute,
-                                record.Time.Second,
-                                record.Time.Millisecond,
+                                record.Time.Second, // .Millisecond  unavalible for DLTS-> crashes for this kind of low interval
                                 DateTimeKind.Utc)
 
                             };
@@ -88,7 +87,7 @@ namespace BenchmarkTool.Database
                     }
 
                     Stopwatch sw1 = Stopwatch.StartNew();
-                    await _client.IngestPointsAsync<double>(pointContainer, OverwriteMode.older, 10000, TimeSeriesCreationTimestampStorageType.NONE, default).ConfigureAwait(false);
+                    await _client.IngestPointsAsync<double>(pointContainer, OverwriteMode.older, 10000 * Config.GetRegularTsScaleMilliseconds(), TimeSeriesCreationTimestampStorageType.NONE, default).ConfigureAwait(false);
 
                     sw1.Stop();
 
@@ -546,10 +545,8 @@ var dirName = GetDirectoryName();
 
         private string GetDirectoryName()
         {
-            if (Config.GetIngestionType().Contains("irregular"))
-                return Config.GetPolyDimTableName();
-            else
-                return Config.GetPolyDimTableName() + "_in_" + Config.GetRegularTsScaleMilliseconds().ToString() + "_ms_steps";
+          
+            return Config.GetPolyDimTableName() + "_in_" + Config.GetRegularTsScaleMilliseconds().ToString() + "_ms_steps";
 
         }
 
