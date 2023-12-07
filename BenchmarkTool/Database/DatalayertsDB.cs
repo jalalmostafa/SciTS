@@ -65,13 +65,13 @@ namespace BenchmarkTool.Database
 
                     foreach (var record in batch.RecordsArray)
                     {
-
+                        var dirName = GetDirectoryName();
                         for (var dim = 0; dim < record.ValuesArray.Length; dim++)
                         {
                             timeSeriesPoint = new TimeSeriesPoint<double>()
                             {
-                                Directory = GetDirectoryName(),
-                                Series = GetSeriesNames(record.SensorID, dim),
+                                Directory = dirName,
+                                Series =  "sensor_id_" + record.SensorID + $"_{Constants.Value}_" + dim , // GetSeriesNames(record.SensorID, dim),
                                 Value = record.ValuesArray[dim],
                                 Timestamp = new DateTime(record.Time.Year,
                                 record.Time.Month,
@@ -575,7 +575,7 @@ var dirName = GetDirectoryName();
         {
             string[] series;
 
-            series = new String[Config.GetDataDimensionsNr() * Config.GetSensorNumber()];
+            series = new String[Config.GetDataDimensionsNr() * Config.GetSensorNumber()+1];
             foreach (int c in SensorIDs)
             {
                 foreach (int d in dimensions)
