@@ -9,6 +9,7 @@ namespace BenchmarkTool.Generators
 {
     public class ExtendedDataGenerator : IDataGenerator // does regular , random , single and polydimensional Data
     {
+        
         private Random _rnd = new Random();
         private XorShiftRng _rndX = new XorShiftRng();
         private int timeindex;

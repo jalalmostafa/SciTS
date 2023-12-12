@@ -52,7 +52,7 @@ namespace BenchmarkTool
             return await RunIngestion(new ExtendedDataGenerator(), TestRetryWriteIteration);
         }
 
-        public async Task<List<QueryStatusWrite>> RunIngestion(ExtendedDataGenerator dataGenerator, int TestRetryWriteIteration)
+        private async Task<List<QueryStatusWrite>> RunIngestion(ExtendedDataGenerator dataGenerator, int TestRetryWriteIteration)
         {
 
             // new logic: modulo
@@ -86,7 +86,7 @@ namespace BenchmarkTool
             return statuses;
         }
 
-        public async Task<List<QueryStatusWrite>> RunIngestion(SimpleDataGenerator dataGenerator) // deprecated
+        private async Task<List<QueryStatusWrite>> RunIngestion(SimpleDataGenerator dataGenerator) // deprecated
         {
             var operation = Config.GetQueryType();
             int loop = Config.GetTestRetries();

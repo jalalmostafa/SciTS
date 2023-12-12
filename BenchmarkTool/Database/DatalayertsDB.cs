@@ -311,9 +311,10 @@ var dirName = GetDirectoryName();
                 Stopwatch sw = Stopwatch.StartNew();
                 var readResult = await _client.RetrieveVectorsAsync<double>(DltsQuery, true, true).ConfigureAwait(false);
                 var points = 0;
-                points = readResult.Vectors.Length;
+                
                 _aggInterval = 0;
                 sw.Stop();
+                points = readResult.Vectors.Length * readResult.Vectors.First().Values.Length;
                 // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
@@ -568,6 +569,7 @@ var dirName = GetDirectoryName();
 
             return GetSeriesNames(SensorIDs, AllDim);
         }
+        
         private string[] GetSeriesNames(int[] SensorIDs, int[] dimensions)
         {
             string[] series;
@@ -581,6 +583,7 @@ var dirName = GetDirectoryName();
 
             return series.Where(c => c != null).ToArray();
         }
+        
 
     }
 }
