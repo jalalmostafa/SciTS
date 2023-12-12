@@ -1,0 +1,5 @@
+@startuml
+class UnitTest1 {
+    + ToRecordTest() : void
+}
+@enduml

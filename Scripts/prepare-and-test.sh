@@ -4,7 +4,7 @@ echo "are all dbms deamons running?" & \
 \
 dotnet run --project BenchmarkTool populate regular PostgresDB > P-r-pop.log 2>&1 && echo "P-reg-pop done" & \
 \
-dotnet run --project BenchmarkTool populate regular ClickhouseDB > C-r-pop.log 2>&1 && echo "C-reg-pop done" & \
+dotnet run --project BenchmarkTool populate regular ClickhouseDB - && echo "C-reg-pop done" & \
 \
 dotnet run --project BenchmarkTool populate regular TimescaleDB > T-r-pop.log 2>&1 && echo "T-reg-pop done"   & \
 \

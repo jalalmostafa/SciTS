@@ -6,22 +6,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClickHouse.Client" Version="6.7.4" />
-    <PackageReference Include="DataLayerTS.Client" Version="1.8.0" />
-    <PackageReference Include="ClickHouse.Ado" Version="1.5.5" />
-    <PackageReference Include="InfluxDB.Client" Version="4.13.0" />
-    <PackageReference Include="MySqlConnector" Version="2.2.7" />
-    <PackageReference Include="Npgsql" Version="7.0.6" />
+    <PackageReference Include="ClickHouse.Client" Version="6.8.1" />
+    <PackageReference Include="DataLayerTS.Client" Version="2.1.4" />
+    <PackageReference Include="ClickHouse.Ado" Version="2.0.2.2" />
+    <PackageReference Include="InfluxDB.Client" Version="4.14.0" />
+    <PackageReference Include="MySqlConnector" Version="2.3.1" />
+    <PackageReference Include="Npgsql" Version="8.0.1" />
     <PackageReference Include="PostgreSQLCopyHelper" Version="2.8.0" />
     <PackageReference Include="PromQL.NET" Version="0.4.1" />
     <PackageReference Include="RestSharp" Version="110.2.0" />
     <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.0" />
-    <PackageReference Include="Serilog" Version="3.0.1" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+    <PackageReference Include="Serilog" Version="3.1.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
     <PackageReference Include="dotnet-xunit" Version="2.3.1" />
-    <PackageReference Include="xunit" Version="2.5.0" />
+    <PackageReference Include="xunit" Version="2.6.3" />
   </ItemGroup>
 
 </Project>
