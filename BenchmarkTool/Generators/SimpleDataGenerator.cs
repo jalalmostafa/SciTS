@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BenchmarkTool.Generators
 {
-    public class SimpleDataGenerator : IDataGenerator // OLD -> Extended D G
+    public class SimpleDataGenerator : IDataGenerator // OLD -> see ExtendedDataGenerator.cs
     {
         private Random _rnd = new Random();
 

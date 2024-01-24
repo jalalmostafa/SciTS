@@ -5,7 +5,7 @@ namespace BenchmarkTool
     public abstract class PerformanceMetricBase<T> : IMetric<T>
     {
 
-        public PerformanceMetricBase(double latency, long succeededDataPoints,
+        public PerformanceMetricBase(double latency , long succeededDataPoints,
                                     long failedDataPoints, Operation operation)
         {
             Latency = latency;
@@ -18,6 +18,7 @@ namespace BenchmarkTool
         public string Mode { get; }
          public int Percentage { get; }
         public double Latency { get; }
+        public double ClientLatency { get; set;} // measures not only the server's answer time, but also the Clients Batch Generation Time and the API or DatabaseDB.class-calculation times.
 
         public long SucceededDataPoints { get; }
 
@@ -26,6 +27,6 @@ namespace BenchmarkTool
 
         public Operation PerformedOperation { get; }
 
-        public abstract T ToLogRecord(string mode, int percentage, long timestamp, DateTime startDate, int batchSize, int clientsNb, int sensorNb, int client, int iteration, int dimNb);
+        public abstract T ToLogRecord(string mode, int percentage, long timestamp, DateTime startDate,  int batchSize, int clientsNb, int sensorNb, int client, int iteration, int dimNb);
     }
 }

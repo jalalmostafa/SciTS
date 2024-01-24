@@ -30,17 +30,13 @@ namespace BenchmarkTool.Generators
             timeindex = 0;
             for (int k = 0; k < batchSize; k++)
             {
-                // var recordTimestamp = GetRecordTimestamp(date, timeindex);
-                // batch.Records.Add(recordFactory.Create(sensorid, recordTimestamp, rndval.Next()));
 
                 if (sensorid >= sensorStartId + sensorsPerClient)
                 {
                     sensorid = sensorStartId;
-                    // timeindex++;
                     if (InTypeReg) { step = _scaleMilliseconds; } else { step = _rnd.Next(_scaleMilliseconds); }
                 }
                 var recordTimestamp = _Timestamp.AddMilliseconds(step);
-                // GetRecordTimestamp(_Timestamp, timeindex, step);
                 _Timestamp = recordTimestamp;
 
                 batch.RecordsList.Add(recordFactory.Create(sensorid, recordTimestamp, rndval.Next()));
@@ -49,7 +45,7 @@ namespace BenchmarkTool.Generators
             return batch;
         }
 
-        public Batch GenerateBatch(int batchSize, List<int> sensorIdsForThisClientList, DateTime date, int dimensions) // date is here relative to the number of batches which have been written before and th eTestretries
+        public Batch GenerateBatch(int batchSize, List<int> sensorIdsForThisClientList, DateTime date, int dimensions) // CURRENT // date is here relative to the number of batches which have been written before and th eTestretries
         {
             if (Config.GetIngestionType() == "regular")
                 InTypeReg = true;
@@ -59,31 +55,6 @@ namespace BenchmarkTool.Generators
             _rndX = new XorShiftRng(3345, 4234);
             var _Timestamp = date;
             int step = 0;
-
-
-            // TODO delete old, wrong
-            // // int timeindex = 0;
-            // for (int dataPointNr = 0; dataPointNr < batchSize; dataPointNr++)
-            // {
-            //     var chosenSensor = dataPointNr % sensorIdsForThisClientList.Count;
-            //     if (chosenSensor == 0 && dataPointNr != 0)
-            //     {
-            //         // timeindex++;
-            //         if (InTypeReg)
-            //         {
-            //             step = _scaleMilliseconds; _Timestamp = _Timestamp.AddMilliseconds(step);
-            //         }
-            //         else
-            //         {
-            //             step = _rnd.Next(_scaleMilliseconds * 2); // *2 so to have a Apprx median of scaleMs
-            //             _Timestamp = _Timestamp.AddMilliseconds(step);
-            //         }
-            //     }
-
-            //     // GetRecordTimestamp(_Timestamp, timeindex, step);
-
-            //     batch.Records.Add(recordFactory.Create(chosenSensor, _Timestamp, GetInput(dimensions)));
-            // }
 
             Batch batch = new Batch(batchSize);
 
@@ -99,7 +70,6 @@ namespace BenchmarkTool.Generators
 
                         if (chosenSensor == sensorIdsForThisClientList.First() && dataPointNr != 0)
                         {
-                            // timeindex++;
                             if (InTypeReg)
                             {
                                 step = _scaleMilliseconds; _Timestamp = _Timestamp.AddMilliseconds(step);
@@ -143,17 +113,7 @@ namespace BenchmarkTool.Generators
         }
 
 
-        private DateTime GetRecordTimestamp(DateTime baseTime, int timeindex) // possibly deprecated TODO delete
-        {
-            var on = 0;
-            if (timeindex > 0) on = 1;
-            if (InTypeReg)
-                return baseTime.AddMilliseconds(_scaleMilliseconds * timeindex);
-            else
-                return baseTime.AddMilliseconds(_scaleMilliseconds * timeindex + on * _rnd.Next(_scaleMilliseconds));
-
-
-        }
+   
 
 
     }

@@ -6,7 +6,7 @@ namespace BenchmarkTool
     {
         public PerformanceMetricWrite(double latency, long succeededDataPoints,
                                      long failedDataPoints, Operation operation)
-                : base(latency, succeededDataPoints, failedDataPoints, operation)
+                : base(latency,succeededDataPoints, failedDataPoints, operation)
         {
         }
 
@@ -14,7 +14,7 @@ namespace BenchmarkTool
                                                     int clientsNb, int sensorNb,
                                                     int client, int iteration, int dimNb)
         {
-            return new LogRecordWrite(Latency, SucceededDataPoints, timestamp, startDate,
+            return new LogRecordWrite(Latency,ClientLatency, SucceededDataPoints, timestamp, startDate,
                                     FailedDataPoints, PerformedOperation,mode,   percentage, clientsNb,
                                     batchSize, sensorNb, client, iteration, dimNb);
         }

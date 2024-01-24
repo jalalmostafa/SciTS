@@ -11,7 +11,6 @@ namespace BenchmarkTool.Generators
         public Batch(int size)
         {
             Size = size;
-             // Records = new List<IRecord>(); // OLD
             RecordsArray = new IRecord[size];
         }
         public List<IRecord> RecordsList { get; set; }

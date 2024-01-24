@@ -1,5 +1,0 @@
-@startuml
-class AllMetricsTest {
-    + Test1() : void
-}
-@enduml

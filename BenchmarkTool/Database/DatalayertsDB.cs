@@ -427,7 +427,7 @@ var dirName = GetDirectoryName();
 
         public async Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
         {
-            try  // TODO check if true OUT of RANGE
+            try   
             {
                 var DltsQuery = _iquery.OutOfRange;
 

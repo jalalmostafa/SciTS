@@ -267,7 +267,7 @@ namespace BenchmarkTool
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.QueryType];
             if (String.IsNullOrEmpty(QueryTypeOnRunTime)) //INIT
             {
-                if (val == "All"){ //TODO move logic to Config.GetQueryOptions
+                if (val == "All"){ //Optional TODO move logic to Config.GetQueryOptions
                     Config._QueryArray = new string[] { "RangeQueryRawData", "RangeQueryRawAllDimsData", "RangeQueryAggData", "OutOfRangeQuery", "DifferenceAggQuery", "STDDevQuery" };
                 }else if (val == "Agg" || Program.Mode.Contains("Agg")){
                     Config._QueryArray = new string[] { "RangeQueryAggData", "DifferenceAggQuery", "STDDevQuery" };
@@ -277,7 +277,7 @@ namespace BenchmarkTool
                     foreach( var x in valA){
                       x.ToEnum<Operation>();
                     } 
-                    // TODO insert check method assert correct parsing
+                    //Optional TODO insert check method assert correct parsing
                     
                     Config._QueryArray = valA.ToArray();
                 }

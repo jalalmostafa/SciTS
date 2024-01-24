@@ -6,7 +6,7 @@ using System.Globalization;
 using BenchmarkTool.Queries;
 using BenchmarkTool.Database;
 using System.Collections.Generic;
-using BenchmarkTool;
+using System.Diagnostics;
 
 namespace BenchmarkTool
 {
@@ -19,7 +19,7 @@ namespace BenchmarkTool
         private long _minutes;
         private int _daySpan;
         private Random _rnd = new Random();
-                public int _chosenClientIndex { get; private set; }
+        public int _chosenClientIndex { get; private set; }
 
 
         public ClientRead()
@@ -27,8 +27,8 @@ namespace BenchmarkTool
             try
             {
 
-                Thread.CurrentThread.CurrentCulture =  CultureInfo.InvariantCulture;
-                
+                Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
                 _date = Config.GetStartTime();
                 _daySpan = Config.GetDaySpan();
                 _aggInterval = Config.GetAggregationInterval();
@@ -46,7 +46,7 @@ namespace BenchmarkTool
         }
 
 
-        public async Task<List<QueryStatusRead>> RunQuery(int TestRetryReadIteration,int chosenClientIndex, int limit)
+        public async Task<QueryStatusRead> RunQuery(int TestRetryReadIteration, int chosenClientIndex, int limit)
         {
             var sensorsFilter = Config.GetSensorsFilter();
             var sensorsFilterString = Config.GetSensorsFilterString();
@@ -55,22 +55,23 @@ namespace BenchmarkTool
             var minValue = Config.GetMinValue();
             var firstSensorId = Config.GetFirstSensorID();
             var secondSensorId = Config.GetSecondSensorID();
-            var statuses = new List<QueryStatusRead>();
-                            _chosenClientIndex = chosenClientIndex;
-
+            QueryStatusRead status;
+            _chosenClientIndex = chosenClientIndex;
+            Stopwatch swC = Stopwatch.StartNew();
 
             switch (_operation)
             {
-                                case Operation.RangeQueryRawData:
+                case Operation.RangeQueryRawData:
                     {
                         Log.Information("Executing Range Raw Query");
                         var startDate = GetRandomDateTime();
                         var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
-                        var status = await _targetDb.RangeQueryRaw(query );
+                        status = await _targetDb.RangeQueryRaw(query);
                         status.Iteration = TestRetryReadIteration;
-                         status.Client = _chosenClientIndex;
-                         status.StartDate=startDate;
-                        statuses.Add(status);
+                        status.Client = _chosenClientIndex;
+                        status.StartDate = startDate;
+                        swC.Stop();
+                        status.PerformanceMetric.ClientLatency = swC.ElapsedMilliseconds;
                         Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -80,12 +81,12 @@ namespace BenchmarkTool
                         Log.Information("Executing Range Raw Query");
                         var startDate = GetRandomDateTime();
                         var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
-                        var status = await _targetDb.RangeQueryRawAllDims(query );
+                        status = await _targetDb.RangeQueryRawAllDims(query);
                         status.Iteration = TestRetryReadIteration;
-                                                 status.Client = _chosenClientIndex;
-                         status.StartDate=startDate;
-
-                        statuses.Add(status);
+                        status.Client = _chosenClientIndex;
+                        status.StartDate = startDate;
+                        swC.Stop();
+                        status.PerformanceMetric.ClientLatency = swC.ElapsedMilliseconds;
                         Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -96,12 +97,12 @@ namespace BenchmarkTool
                         Log.Information("Executing Range Raw Query Limited");
                         var startDate = GetRandomDateTime();
                         var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
-                        var status = await _targetDb.RangeQueryRawLimited(query, limit);
+                        status = await _targetDb.RangeQueryRawLimited(query, limit);
                         status.Iteration = TestRetryReadIteration;
-                                                 status.Client = _chosenClientIndex;
-                         status.StartDate=startDate;
-
-                        statuses.Add(status);
+                        status.Client = _chosenClientIndex;
+                        status.StartDate = startDate;
+                        swC.Stop();
+                        status.PerformanceMetric.ClientLatency = swC.ElapsedMilliseconds;
                         Console.WriteLine($"[Succeded:{status.DataPoints}-Out-of{limit}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -111,12 +112,12 @@ namespace BenchmarkTool
                         Log.Information("Executing Range Raw Query Limited");
                         var startDate = GetRandomDateTime();
                         var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
-                        var status = await _targetDb.RangeQueryRawAllDimsLimited(query, limit);
+                        status = await _targetDb.RangeQueryRawAllDimsLimited(query, limit);
                         status.Iteration = TestRetryReadIteration;
-                                                 status.Client = _chosenClientIndex;
-                         status.StartDate=startDate;
-
-                        statuses.Add(status);
+                        status.Client = _chosenClientIndex;
+                        status.StartDate = startDate;
+                        swC.Stop();
+                        status.PerformanceMetric.ClientLatency = swC.ElapsedMilliseconds;
                         Console.WriteLine($"[Succeded:{status.DataPoints}-Out-of{limit}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -126,12 +127,12 @@ namespace BenchmarkTool
                         Log.Information("Executing Range Aggregared Query");
                         var startDate = GetRandomDateTime();
                         var aggQuery = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
-                        var status = await _targetDb.RangeQueryAgg(aggQuery);
+                        status = await _targetDb.RangeQueryAgg(aggQuery);
                         status.Iteration = TestRetryReadIteration;
-                                                 status.Client = _chosenClientIndex;
-                         status.StartDate=startDate;
-
-                        statuses.Add(status);
+                        status.Client = _chosenClientIndex;
+                        status.StartDate = startDate;
+                        swC.Stop();
+                        status.PerformanceMetric.ClientLatency = swC.ElapsedMilliseconds;
                         Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -141,12 +142,12 @@ namespace BenchmarkTool
                         Log.Information("Executing Out of Range Query");
                         var startDate = GetRandomDateTime();
                         var oorangeQuery = new OORangeQuery(startDate, _minutes, sensorId, maxValue, minValue);
-                        var status = await _targetDb.OutOfRangeQuery(oorangeQuery);
+                        status = await _targetDb.OutOfRangeQuery(oorangeQuery);
                         status.Iteration = TestRetryReadIteration;
-                                                 status.Client = _chosenClientIndex;
-                         status.StartDate=startDate;
-
-                        statuses.Add(status);
+                        status.Client = _chosenClientIndex;
+                        status.StartDate = startDate;
+                        swC.Stop();
+                        status.PerformanceMetric.ClientLatency = swC.ElapsedMilliseconds;
                         Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -156,12 +157,12 @@ namespace BenchmarkTool
                         Log.Information("Executing Agg Difference Query");
                         var startDate = GetRandomDateTime();
                         var comparisonQuery = new ComparisonQuery(startDate, _minutes, firstSensorId, secondSensorId);
-                        var status = await _targetDb.AggregatedDifferenceQuery(comparisonQuery);
+                        status = await _targetDb.AggregatedDifferenceQuery(comparisonQuery);
                         status.Iteration = TestRetryReadIteration;
-                                                 status.Client = _chosenClientIndex;
-                         status.StartDate=startDate;
-
-                        statuses.Add(status);
+                        status.Client = _chosenClientIndex;
+                        status.StartDate = startDate;
+                        swC.Stop();
+                        status.PerformanceMetric.ClientLatency = swC.ElapsedMilliseconds;
                         Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()}[ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -170,12 +171,13 @@ namespace BenchmarkTool
                     {
                         Log.Information("Executing Standard Deviation Query");
                         var startDate = GetRandomDateTime();
-                        var status = await _targetDb.StandardDevQuery(new SpecificQuery(startDate, _minutes, secondSensorId));
+                        status = await _targetDb.StandardDevQuery(new SpecificQuery(startDate, _minutes, secondSensorId));
                         status.Iteration = TestRetryReadIteration;
-                                                 status.Client = _chosenClientIndex;
-                         status.StartDate=startDate;
+                        status.Client = _chosenClientIndex;
+                        status.StartDate = startDate;
 
-                        statuses.Add(status);
+                        swC.Stop();
+                        status.PerformanceMetric.ClientLatency = swC.ElapsedMilliseconds;
                         Console.WriteLine($"[Succeded:{status.DataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()}[ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -187,12 +189,12 @@ namespace BenchmarkTool
             _targetDb.Cleanup();
             _targetDb.Close();
 
-            return statuses;
+            return status;
         }
 
         private DateTime GetRandomDateTime()
         {
-            return _date.AddDays(_rnd.Next(_daySpan-1)).AddHours(_rnd.Next(24));
+            return _date.AddDays(_rnd.Next(_daySpan - 1)).AddHours(_rnd.Next(24));
         }
     }
 }

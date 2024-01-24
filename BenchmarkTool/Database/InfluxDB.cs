@@ -91,7 +91,7 @@ namespace BenchmarkTool.Database
                 flux = flux.Replace(QueryParams.SensorIDParam, query.SensorID.ToString());
                 flux = flux.Replace(QueryParams.MaxValParam, query.MaxValue.ToString());
                 flux = flux.Replace(QueryParams.MinValParam, query.MinValue.ToString());
-                // Log.Information(String.Format("Flux query: {0}", flux));
+                Log.Information(String.Format("Flux query: {0}", flux));
 
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -146,9 +146,6 @@ namespace BenchmarkTool.Database
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
 
-
-
-
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
                 var results = await queryApi.QueryAsync(flux, Config.GetInfluxOrganization());
@@ -175,8 +172,6 @@ namespace BenchmarkTool.Database
                 var ids = String.Concat("/", String.Join("|", sensorIds), "/");
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
-
-
 
                 var queryApi = _client.GetQueryApi();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -206,7 +201,6 @@ namespace BenchmarkTool.Database
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
 
-
                 flux = flux.Replace(QueryParams.Limit, limit.ToString());
 
                 var queryApi = _client.GetQueryApi();
@@ -235,7 +229,6 @@ namespace BenchmarkTool.Database
                 var ids = String.Concat("/", String.Join("|", sensorIds), "/");
                 flux = flux.Replace(QueryParams.SensorIDsParam, ids);
                 Log.Information("Flux query: " + flux);
-
 
                 flux = flux.Replace(QueryParams.Limit, limit.ToString());
 
@@ -290,8 +283,8 @@ namespace BenchmarkTool.Database
                 {
                     var timeSpan = item.Time.Subtract(EpochStart);
                     var time = TimeSpanToBigInteger(timeSpan, WritePrecision.Ns);
-
-                    if (Config.GetMultiDimensionStorageType() == "column") // measurement,tag1=foo,tag2=bar value_a=1,value_b=2 timestamp //  (item.Time - new DateTime(1970, 1, 1)).TotalMilliseconds
+//LineProtocoll:  measurement,tag1=foo,tag2=bar value_a=1,value_b=2 timestamp //  (item.Time - new DateTime(1970, 1, 1)).TotalMilliseconds
+                    if (Config.GetMultiDimensionStorageType() == "column") 
                     {
                         int c = 0; StringBuilder builder = new StringBuilder("");
                         while (c < Config.GetDataDimensionsNr()) { builder.Append($",{Constants.Value}_{c}={item.ValuesArray[c]}"); c++; }

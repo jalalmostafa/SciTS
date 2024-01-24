@@ -6,17 +6,14 @@ namespace BenchmarkTool.Generators
     public class RecordClickhouse : IRecord, IEnumerable
     {
         public int SensorID { get; set; }
-        // public double Value { get; set; }
-        public double[] ValuesArray { get; set; }
+         public double[] ValuesArray { get; set; }
         public DateTime Time { get; set; }
 
         public RecordClickhouse(int sensorId, DateTime timestamp, double value)
         {
             SensorID = sensorId;
             Time = timestamp;
-            // Value = value;
-                        ValuesArray = new double[1];
-
+            ValuesArray = new double[1];
             ValuesArray[0] = value;
 
         }
@@ -36,7 +33,6 @@ namespace BenchmarkTool.Generators
         {
             yield return Time;
             yield return SensorID;
-            // yield return ValuesArray;
             foreach (int n in ValuesArray)
             {
                 yield return ValuesArray[n];

@@ -9,15 +9,13 @@ namespace BenchmarkTool
         public double FailedDataPoints { get; }
         public string Operation { get; }
         public double Latency { get; }
+        public double ClientLatency { get; }
         public string Mode { get; }
- public int WLPercentage { get; }
+        public int WLPercentage { get; }
         public string TargetDatabase { get; }
         public int Client { get; }
         public int ClientsNumber { get; }
-
         public int SensorsNumber { get; }
-
-
         public DateTime StartDate { get; }
         public long Duration { get; }
         public int Iteration { get; }
@@ -25,12 +23,13 @@ namespace BenchmarkTool
 
         public int Dimensions { get; }
 
-        public LogRecordRead(double latency, double succeededPoints, long epoch, int sensNb,
+        public LogRecordRead(double latency, double clientlatency, double succeededPoints, long epoch, int sensNb,
                             double failedPoints, Operation operation, string mode,int percentage, int client, int clientsNb,
                             DateTime startDate, long duration, int aggregation, int iteration, int dimNb)
         {
             SensorsNumber = sensNb;
             Latency = latency;
+            ClientLatency = clientlatency;
             SucceededDataPoints = succeededPoints;
             FailedDataPoints = failedPoints;
             Operation = operation.ToString();

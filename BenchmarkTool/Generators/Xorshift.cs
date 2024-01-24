@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BenchmarkTool.Generators
 {
-public sealed class XorShiftRng: Random 
+public sealed class XorShiftRng: Random // Not implemented, as not enough performance benefits and less "nice" values compared to current Random implementation..
 {
     public XorShiftRng(ulong seed1, ulong seed2)
     {

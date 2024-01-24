@@ -68,7 +68,7 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                StringBuilder sCommand; // TODO supstitute with Binary insert
+                StringBuilder sCommand;  
                 List<string> Rows = new List<string>();
                 if (Config.GetMultiDimensionStorageType() == "column")
                 {
@@ -99,7 +99,6 @@ namespace BenchmarkTool.Database
 
 
                 sw.Start();
-                // await File.AppendAllTextAsync("/tmp/dummy_" + DateTime.Now.Day.ToString() + ".txt", sCommand.ToString());
                 await File.AppendAllTextAsync("/tmp/dummy_empty_" + DateTime.Now.Day.ToString() + ".txt", " ");
 
                 sw.Stop();

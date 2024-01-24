@@ -14,7 +14,7 @@ namespace BenchmarkTool
         public long Duration { get; private set; }
         public int Aggregation { get; private set; }
 
-        public PerformanceMetricRead(double latency, long succeededDataPoints,
+        public PerformanceMetricRead(double latency,  long succeededDataPoints,
                                      long failedDataPoints, DateTime date,
                                      long duration, int aggregation, Operation operation)
              : base(latency, succeededDataPoints, failedDataPoints, operation)
@@ -28,7 +28,7 @@ namespace BenchmarkTool
                                                 int clientsNb, int sensorNb,
                                                 int client, int iteration, int dimNb)
         {
-            return new LogRecordRead(Latency, SucceededDataPoints, timestamp, sensorNb,
+            return new LogRecordRead(Latency,ClientLatency, SucceededDataPoints, timestamp, sensorNb,
                                     FailedDataPoints, PerformedOperation, mode,   percentage,client, clientsNb,
                                     StartDate, Duration, Aggregation,iteration ,dimNb);
         }

@@ -5,9 +5,7 @@ namespace BenchmarkTool.Generators
     public class RecordTimescaleDB : IRecord
     {
         public int SensorID { get; set; }
-        // public double Value { get; set; }
-                public double[] ValuesArray { get; set; }
-// public bool polyDim { get;  }
+        public double[] ValuesArray { get; set; }
         public DateTime Time { get; set; }
         double getFirstValue(){
             return ValuesArray[0];
@@ -17,10 +15,8 @@ namespace BenchmarkTool.Generators
         {
             SensorID = sensorId;
             Time = timestamp;
-            // Value = value;  
-                        ValuesArray = new double[1];
-
-                      ValuesArray[0] = value;
+            ValuesArray = new double[1];
+            ValuesArray[0] = value;
 
         }
         public RecordTimescaleDB(int sensorId, DateTime timestamp, double[] values)

@@ -104,7 +104,7 @@ namespace BenchmarkTool
         }
 
         public static long GetNanoEpoch()
-        { // TODO check if it makes sense
+        { 
             TimeSpan t = DateTime.Now - Epoch;
             return t.Ticks * 100;
         }

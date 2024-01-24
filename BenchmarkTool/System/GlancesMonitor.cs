@@ -73,7 +73,7 @@ namespace BenchmarkTool.System
             var swapAsync = GetSwapAsync();
             var fsAsync = GetFSAsync();
 
-            var metrics = new AllMetrics() //TODO How can i continue executing the task although some tasks are cancelled?
+            var metrics = new AllMetrics()  
             {  
                 Cpu = await cpuAsync,
                 DatabaseProcess = await processAsync,

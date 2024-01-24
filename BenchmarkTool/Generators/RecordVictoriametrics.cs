@@ -6,11 +6,8 @@ namespace BenchmarkTool.Generators
     public class RecordVictoriametrics : IRecord
     {
         public int SensorID { get; set; }
-        // public bool polyDim { get; }
-
-        // public double Value { get; set; }
         public double[] ValuesArray { get; set; }
-         public DateTime Time { get; set; }
+        public DateTime Time { get; set; }
         double getFirstValue()
         {
             return ValuesArray[0];
@@ -19,10 +16,8 @@ namespace BenchmarkTool.Generators
         {
             SensorID = sensorId;
             Time = TimeZoneInfo.ConvertTimeToUtc(timestamp);
-            // Value = value;
-                        ValuesArray = new double[1];
-
-                        ValuesArray[0] = value;
+            ValuesArray = new double[1];
+            ValuesArray[0] = value;
 
         }
         public RecordVictoriametrics(int sensorId, DateTime timestamp, double[] values)

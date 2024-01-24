@@ -68,8 +68,7 @@ namespace BenchmarkTool.System.Metrics
                 SensorsNumber = sensorsNb,
                 Mode = BenchmarkTool.Program.Mode,
                 Dimensions = _dimensions,
-                Percentage = Config._actualMixedWLPercentage, // TODO it this performative?
-
+                Percentage = Config._actualMixedWLPercentage,  
                 // Cpu
                 CpuTotal = this.Cpu.Total,
                 CpuSystem = this.Cpu.System,

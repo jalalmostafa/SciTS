@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BenchmarkTool.Generators
 {
-    public class RegularDataGenerator : IDataGenerator // OLD -> see Extended D G
+    public class RegularDataGenerator : IDataGenerator // OLD -> see ExtendedDataGenerator.cs
     {
         private Random _rnd = new Random();
         private int timeindex;

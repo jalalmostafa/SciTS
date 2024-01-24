@@ -53,11 +53,7 @@ namespace BenchmarkTool.Database
         public void Init()
         {
             try
-            {
-                // TODO if both connections work properly async ,  kill one of them
-
-
-
+            { 
                 _read_connection = new ClickHouse.Client.ADO.ClickHouseConnection("Host=" + Config.GetClickhouseHost() + ";Protocol=https;Port=" + Config.GetClickhousePort() + ";Username=" + Config.GetClickhouseUser());
                 _read_connection.ChangeDatabase(Config.GetClickhouseDatabase());
                 _read_connection.OpenAsync();

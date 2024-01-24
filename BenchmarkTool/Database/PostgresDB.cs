@@ -67,20 +67,13 @@ namespace BenchmarkTool.Database
                         foreach (var tableName in Config.GetAllPolyDimTableNames())
                         {
                             var actualDim = Config.GetDataDimensionsNrOptions()[dimNb];
-
-
-
                             int c = 0; StringBuilder builder = new StringBuilder("");
 
-
                             while (c < actualDim) { builder.Append(", "+Constants.Value+"_" + c + " double precision"); c++; }
-
 
                             NpgsqlCommand m_createtbl_cmd = new NpgsqlCommand(
                               String.Format("CREATE TABLE IF NOT EXISTS " + tableName + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE;  ")
                                , _connection);
-
-
 
                             m_createtbl_cmd.ExecuteNonQuery();
                             _TableCreated = true;
@@ -112,20 +105,15 @@ namespace BenchmarkTool.Database
 
                 if (Config.GetMultiDimensionStorageType() == "column")
                 {
-
-
-
                     _copyHelper = new PostgreSQLCopyHelper<IRecord>(Constants.SchemaName, Config.GetPolyDimTableName())
                                 .MapTimeStamp(Constants.Time, x => x.Time)
                                 .MapInteger(Constants.SensorID, x => x.SensorID);
-                    // Console.WriteLine(Config.GetDataDimensionsNr());
                     for (var i = 0; i < Config.GetDataDimensionsNr(); i++)
-                    {//TODO weird error OOB
+                    {
                         int j = i;
-                        _copyHelper = _copyHelper.MapDouble(Constants.Value + "_" + i, x => x.ValuesArray[j]);
-                        // Console.WriteLine(j);
+                        _copyHelper = _copyHelper.MapDouble(Constants.Value + "_" + i, x => x.ValuesArray[j]);  
                     }
-                    //debugdummy(x,j) 
+                    
 
 
                 }
@@ -243,9 +231,6 @@ namespace BenchmarkTool.Database
                 cmd.Parameters.AddWithValue(QueryParams.End, NpgsqlTypes.NpgsqlDbType.Timestamp, query.EndDate);
                 cmd.Parameters.AddWithValue(QueryParams.SensorIDs, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Integer, query.SensorIDs);
 
-
-
-
                 var points = 0;
                 cmd.Prepare();
                 Stopwatch sw = Stopwatch.StartNew();
@@ -275,7 +260,6 @@ namespace BenchmarkTool.Database
                 cmd.Parameters.AddWithValue(QueryParams.Start, NpgsqlTypes.NpgsqlDbType.Timestamp, query.StartDate);
                 cmd.Parameters.AddWithValue(QueryParams.End, NpgsqlTypes.NpgsqlDbType.Timestamp, query.EndDate);
                 cmd.Parameters.AddWithValue(QueryParams.SensorIDs, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Integer, query.SensorIDs);
-
 
                 var points = 0;
                 cmd.Prepare();
@@ -308,10 +292,7 @@ namespace BenchmarkTool.Database
                 cmd.Parameters.AddWithValue(QueryParams.End, NpgsqlTypes.NpgsqlDbType.Timestamp, query.EndDate);
                 cmd.Parameters.AddWithValue(QueryParams.SensorIDs, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Integer, query.SensorIDs);
 
-
                 cmd.Parameters.AddWithValue(QueryParams.Limit, NpgsqlTypes.NpgsqlDbType.Integer, limit);
-
-
 
                 var points = 0;
                 cmd.Prepare();
@@ -342,7 +323,6 @@ namespace BenchmarkTool.Database
                 cmd.Parameters.AddWithValue(QueryParams.Start, NpgsqlTypes.NpgsqlDbType.Timestamp, query.StartDate);
                 cmd.Parameters.AddWithValue(QueryParams.End, NpgsqlTypes.NpgsqlDbType.Timestamp, query.EndDate);
                 cmd.Parameters.AddWithValue(QueryParams.SensorIDs, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Integer, query.SensorIDs);
-
 
                 cmd.Parameters.AddWithValue(QueryParams.Limit, NpgsqlTypes.NpgsqlDbType.Integer, limit);
                 var points = 0;
