@@ -78,7 +78,7 @@ This tool uses [glances](https://github.com/nicolargo/glances/).
 
 ## Workload Definition Files
 
-you can open App.config.default, edit it and save it as App.config.
+you can open Default-App.config edit it and save it as App.config.
 It has following content:
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
