@@ -45,7 +45,7 @@ Please cite our work:
 }
 ```
 
-## How to run
+# How to run
 
 1. Create your workload as `App.config` (case-sensitive) in `BenchmarkTool`.
 2. Edit the connection strings to your database servers in the workload file.
@@ -53,6 +53,17 @@ Please cite our work:
 4. run `dotnet run --project BenchmarkTool write` if it's an ingestion workload,
 and `dotnet run --project BenchmarkTool read` if it's a query workload.
 x. Use `Scripts/ccache.sh <database-service-name>` to clear the cache between query tests.
+
+## Additional Command Line options:
+
+`dotnet run --project BenchmarkTool [action] [regular/irregular] [DatabaseNameDB]`
+
+Available Actions:
+
+* read: start the specified retrieval and aggregation workloads.
+* write: start the ingestion across specified batchsize, number of clients, dimensions.
+* mixed-AggQueries: start the online, mixed workload benchmark as a mixture of aggregated quieries and Ingestion-Parameters
+* mixed-LimitedQueries: start the online, mixed workload benchmark as a mixture of queried and ingested datapoints according the specified percentage parameter and the requested Ingestion-Parameters. E.g. 100% means that as much datapoints are retrieved as ingested.
 
 
 ## System Metrics using Glances
@@ -146,17 +157,6 @@ It has following content:
 
 </configuration>
 ```
-# Executing SciTS
-
-`dotnet run --project BenchmarkTool [action] [regular/irregular] [DatabaseNameDB]`
-
-Available Actions:
-
-* read: start the specified retrieval and aggregation workloads.
-* write: start the ingestion across specified batchsize, number of clients, dimensions.
-* mixed-AggQueries: start the online, mixed workload benchmark as a mixture of aggregated quieries and Ingestion-Parameters
-* mixed-LimitedQueries: start the online, mixed workload benchmark as a mixture of queried and ingested datapoints according the specified percentage parameter and the requested Ingestion-Parameters. E.g. 100% means that as much datapoints are retrieved as ingested.
-
 
 ## Workloads from 2022 benchmark.
 
