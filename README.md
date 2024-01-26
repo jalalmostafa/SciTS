@@ -54,21 +54,6 @@ Please cite our work:
 and `dotnet run --project BenchmarkTool read` if it's a query workload.
 x. Use `Scripts/ccache.sh <database-service-name>` to clear the cache between query tests.
 
-## Workloads from 2022 benchmark.
-
-You can choose from the available workloads by choosing a `*.config` file from `Workloads` folder.
-The file to workload mapping is as follow:
-
-| Workload    | Workload file                      |
-| ----------- | ---------------------------------- |
-| Q1          | query-q1.config                    |
-| Q2          | query-q2.config                    |
-| Q3          | query-q3.config                    |
-| Q4          | query-q4.config                    |
-| Q5          | query-q5.config                    |
-| Batching    | ingestion-batching-1client.config  |
-| Concurrency | ingestion-batching-nclients.config |
-| Scaling     | ingestion-scaling.config           |
 
 ## System Metrics using Glances
 
@@ -167,7 +152,24 @@ It has following content:
 
 Available Actions:
 
-read: start the specified retrieval and aggregation workloads.
-write: start the ingestion across specified batchsize, number of clients, dimensions.
-mixed-AggQueries: start the online, mixed workload benchmark as a mixture of aggregated quieries and Ingestion-Parameters
-mixed-LimitedQueries: start the online, mixed workload benchmark as a mixture of queried and ingested datapoints according the specified percentage parameter and the requested Ingestion-Parameters. E.g. 100% means that as much datapoints are retrieved as ingested.
+* read: start the specified retrieval and aggregation workloads.
+* write: start the ingestion across specified batchsize, number of clients, dimensions.
+* mixed-AggQueries: start the online, mixed workload benchmark as a mixture of aggregated quieries and Ingestion-Parameters
+* mixed-LimitedQueries: start the online, mixed workload benchmark as a mixture of queried and ingested datapoints according the specified percentage parameter and the requested Ingestion-Parameters. E.g. 100% means that as much datapoints are retrieved as ingested.
+
+
+## Workloads from 2022 benchmark.
+
+You can choose from the available workloads by choosing a `*.config` file from `Workloads` folder.
+The file to workload mapping is as follow:
+
+| Workload    | Workload file                      |
+| ----------- | ---------------------------------- |
+| Q1          | query-q1.config                    |
+| Q2          | query-q2.config                    |
+| Q3          | query-q3.config                    |
+| Q4          | query-q4.config                    |
+| Q5          | query-q5.config                    |
+| Batching    | ingestion-batching-1client.config  |
+| Concurrency | ingestion-batching-nclients.config |
+| Scaling     | ingestion-scaling.config           |
