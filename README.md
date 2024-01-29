@@ -158,7 +158,7 @@ It has following content:
 </configuration>
 ```
 
-### Workloads from 2022 benchmark.
+### Workload Files
 
 You can choose from the available workloads by choosing a `*.config` file from `Workloads` folder.
 The file to workload mapping is as follow:
