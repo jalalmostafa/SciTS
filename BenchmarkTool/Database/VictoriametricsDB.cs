@@ -19,15 +19,10 @@ using PromQL.Vectors;
 using System.Net.Http;
 using System.Globalization;
 
-
-
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using InfluxDB.Client.Api.Client;
-
-
-
 
 namespace BenchmarkTool.Database
 {
@@ -48,8 +43,6 @@ namespace BenchmarkTool.Database
             // var orgId = _client.GetOrganizationsApi().FindOrganizationsAsync(org: org).GetAwaiter().GetResult().First().Id;
             // _client.GetBucketsApi().DeleteBucketAsync(Config.GetInfluxBucket()).GetAwaiter().GetResult();
             // _client.GetBucketsApi().CreateBucketAsync(Config.GetInfluxBucket(), orgId).GetAwaiter().GetResult();
-
-
 
         }
 
@@ -79,7 +72,6 @@ namespace BenchmarkTool.Database
 
                 Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
-
                 var t = new TimeSpan(0, 0, 10, 0);
                 _options = new InfluxDBClientOptions.Builder()
                     .Url(Config.GetVictoriametricsHost())
@@ -101,10 +93,8 @@ namespace BenchmarkTool.Database
             }
         }
 
-
         public async Task<QueryStatusRead> RangeQueryRaw(RangeQuery query)
         {
-
 
             try
             {
@@ -118,7 +108,6 @@ namespace BenchmarkTool.Database
                                                         .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs))
                                                         .Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds().ToString()+"ms"); // irreg = 1ms geht nicht, da VM eine querybechraenkung von 30K datapoints hat.
 
-
                 Log.Information("MetricsQL query: " + vmquery);
                 using HttpClient client = new();
 
@@ -128,15 +117,12 @@ namespace BenchmarkTool.Database
                         new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
                     client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
 
-
-
                     // Stopwatch sw = Stopwatch.StartNew();
                     // async Task ProcessRepositoriesAsync(HttpClient client)
                     // {
 
                     //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
                     //                      "/api/v1/query_range?" + vmquery);
-
 
                     //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
 
@@ -169,7 +155,6 @@ namespace BenchmarkTool.Database
         public async Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery query)
         {
 
-    
             try
             {
 
@@ -182,7 +167,6 @@ namespace BenchmarkTool.Database
                                                         .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs))
                                                         .Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds().ToString()+"ms"); // irreg = 1ms geht nicht, da VM eine querybechraenkung von 30K datapoints hat.
 
-
                 Log.Information("MetricsQL query: " + vmquery);
                 using HttpClient client = new();
 
@@ -192,15 +176,12 @@ namespace BenchmarkTool.Database
                         new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
                     client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
 
-
-
                     // Stopwatch sw = Stopwatch.StartNew();
                     // async Task ProcessRepositoriesAsync(HttpClient client)
                     // {
 
                     //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
                     //                      "/api/v1/query_range?" + vmquery);
-
 
                     //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
 
@@ -218,8 +199,6 @@ namespace BenchmarkTool.Database
                 int count = results.Count;
 
                 // results  != null && results.Count > 0 ? results[0].metric.Count : 0;
-
-
 
                 Log.Information("Number of points: " + count.ToString());
 
@@ -239,8 +218,6 @@ namespace BenchmarkTool.Database
             try
             {
 
-
-
                 var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
 
                 var endEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
@@ -251,7 +228,6 @@ namespace BenchmarkTool.Database
                                                         .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs))
                                                         .Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds().ToString()+"ms"); // irreg = 1ms geht nicht, da VM eine querybechraenkung von 30K datapoints hat.
 
-
                 Log.Information("MetricsQL query: " + vmquery);
                 using HttpClient client = new();
 
@@ -261,15 +237,12 @@ namespace BenchmarkTool.Database
                         new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
                     client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
 
-
-
                     // Stopwatch sw = Stopwatch.StartNew();
                     // async Task ProcessRepositoriesAsync(HttpClient client)
                     // {
 
                     //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
                     //                      "/api/v1/query_range?" + vmquery);
-
 
                     //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
 
@@ -304,7 +277,6 @@ namespace BenchmarkTool.Database
 
             try
             {
-              
 
                 var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
 
@@ -316,7 +288,6 @@ namespace BenchmarkTool.Database
                                                         .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs))
                                                         .Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds().ToString()+"ms"); // irreg = 1ms geht nicht, da VM eine querybechraenkung von 30K datapoints hat.
 
-
                 Log.Information("MetricsQL query: " + vmquery);
                 using HttpClient client = new();
 
@@ -326,15 +297,12 @@ namespace BenchmarkTool.Database
                         new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
                     client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
 
-
-
                     // Stopwatch sw = Stopwatch.StartNew();
                     // async Task ProcessRepositoriesAsync(HttpClient client)
                     // {
 
                     //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
                     //                      "/api/v1/query_range?" + vmquery);
-
 
                     //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
 
@@ -369,7 +337,6 @@ namespace BenchmarkTool.Database
 
             try
             {
-              
 
                 var startEP = (query.StartDate.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalMilliseconds;
 
@@ -382,7 +349,6 @@ namespace BenchmarkTool.Database
                                                         .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorID.ToString()))
                                                         .Replace(QueryParams.AggWindow, Config.GetRegularTsScaleMilliseconds().ToString()+"ms"); // irreg = 1ms geht nicht, da VM eine querybechraenkung von 30K datapoints hat.
 
-
                 Log.Information("MetricsQL query: " + vmquery);
                 using HttpClient client = new();
 
@@ -392,15 +358,12 @@ namespace BenchmarkTool.Database
                         new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
                     client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
 
-
-
                     // Stopwatch sw = Stopwatch.StartNew();
                     // async Task ProcessRepositoriesAsync(HttpClient client)
                     // {
 
                     //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
                     //                      "/api/v1/query_range?" + vmquery);
-
 
                     //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
 
@@ -444,7 +407,6 @@ namespace BenchmarkTool.Database
                                                         .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorIDs.ToString()))
                                                         ;
 
-
                 Log.Information("MetricsQL query: " + vmquery);
                 using HttpClient client = new();
 
@@ -453,21 +415,6 @@ namespace BenchmarkTool.Database
                     client.DefaultRequestHeaders.Accept.Add(
                         new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
                     client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
-
-
-
-                    // Stopwatch sw = Stopwatch.StartNew();
-                    // async Task ProcessRepositoriesAsync(HttpClient client)
-                    // {
-
-                    //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
-                    //                      "/api/v1/query_range?" + vmquery);
-
-
-                    //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
-
-                    //     points = answer.data.result.Count();
-                    // }
 
                 }
 
@@ -506,7 +453,6 @@ namespace BenchmarkTool.Database
                                                         .Replace(QueryParams.SensorIDsParam, String.Join("|", query.SensorID.ToString()))
                                                         ; 
 
-
                 Log.Information("MetricsQL query: " + vmquery);
                 using HttpClient client = new();
 
@@ -516,15 +462,12 @@ namespace BenchmarkTool.Database
                         new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
                     client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
 
-
-
                     // Stopwatch sw = Stopwatch.StartNew();
                     // async Task ProcessRepositoriesAsync(HttpClient client)
                     // {
 
                     //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
                     //                      "/api/v1/query_range?" + vmquery);
-
 
                     //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
 
@@ -556,8 +499,6 @@ namespace BenchmarkTool.Database
         public async Task<QueryStatusRead> AggregatedDifferenceQuery(ComparisonQuery query)
         {
 
-
-
             try
             {
               
@@ -571,7 +512,6 @@ namespace BenchmarkTool.Database
                                                         .Replace(QueryParams.FirstSensorIDParam, query.SecondSensorID.ToString())
                                                         ; 
 
-
                 Log.Information("MetricsQL query: " + vmquery);
                 using HttpClient client = new();
 
@@ -581,15 +521,12 @@ namespace BenchmarkTool.Database
                         new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
                     client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");  // await ProcessRepositoriesAsync(client);
 
-
-
                     // Stopwatch sw = Stopwatch.StartNew();
                     // async Task ProcessRepositoriesAsync(HttpClient client)
                     // {
 
                     //     var jresult = await client.GetStringAsync(@"http://localhost:8428" +
                     //                      "/api/v1/query_range?" + vmquery);
-
 
                     //     Result answer = JsonSerializer.Deserialize<Result>(jresult);
 
@@ -640,7 +577,6 @@ namespace BenchmarkTool.Database
                     else
                         lineData.Add($"{Config.GetPolyDimTableName()},sensor_id={item.SensorID} {Constants.Value}={item.ValuesArray} {time}");
                 }
-
 
                 Stopwatch sw = Stopwatch.StartNew();
 
@@ -715,7 +651,6 @@ namespace BenchmarkTool.Database
             foreach (int d in dimensions)
                 series[d] = Config.GetPolyDimTableName() +  $"_{Constants.Value}_" + d;
 
-
             return series.Where(c => c != null).ToArray();
         }
         public class Result
@@ -756,7 +691,5 @@ namespace BenchmarkTool.Database
 
     }
 
-
 }
-
 

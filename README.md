@@ -14,7 +14,7 @@ for questions on these features, please contact info@saninfo.de
 
 Requires .NET 7.x cross-platform framework.
 
-## Citation
+## Citation 
 
 [![DOI](https://zenodo.org/badge/429005385.svg)](https://zenodo.org/badge/latestdoi/429005385)
 
@@ -158,13 +158,15 @@ It has following content:
 </configuration>
 ```
 
-## Workloads from 2022 benchmark.
+### Workloads from 2022 benchmark.
 
 You can choose from the available workloads by choosing a `*.config` file from `Workloads` folder.
 The file to workload mapping is as follow:
 
 | Workload    | Workload file                      |
 | ----------- | ---------------------------------- |
+| 2022 WLs    |                                    |
+| ----------- |                                    |
 | Q1          | query-q1.config                    |
 | Q2          | query-q2.config                    |
 | Q3          | query-q3.config                    |
@@ -173,3 +175,6 @@ The file to workload mapping is as follow:
 | Batching    | ingestion-batching-1client.config  |
 | Concurrency | ingestion-batching-nclients.config |
 | Scaling     | ingestion-scaling.config           |
+|.............|....................................|
+|Collection   |                                    |
+|of 2023 WLs  | test2023.sh                        |

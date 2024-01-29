@@ -32,7 +32,6 @@ namespace BenchmarkTool.Generators
             Random rndval = new Random();  
             Batch batch = new Batch(batchSize);
 
-
                 int timeindex = 0;
                 for (int dataPointNr = 0; dataPointNr < batchSize; dataPointNr++)
                 {
@@ -46,7 +45,6 @@ namespace BenchmarkTool.Generators
                     batch.RecordsList.Add(recordFactory.Create(chosenSensor, recordTimestamp, rndval.Next()));
                 }
 
-            
             return batch;
         }
         public Batch GenerateBatch(int batchSize, List<int> sensorIdsForThisClientList, DateTime date, int dimensions) // date is here relative to the number of batches which have been written before and th eTestretries

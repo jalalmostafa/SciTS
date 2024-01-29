@@ -47,7 +47,6 @@ namespace BenchmarkTool.Generators
                 var recordTimestamp = GetRecordTimestamp(date, timeindex);
                 batch.RecordsList.Add(recordFactory.Create(chosenSensor, recordTimestamp, rndval.Next()));
 
-
             }
             return batch;
         }
@@ -57,9 +56,6 @@ namespace BenchmarkTool.Generators
             RecordFactory recordFactory = new RecordFactory();
             Random rndval = new Random(); 
             Batch batch = new Batch(batchSize);
-
-
-
 
             int timeindex = 0;
             for (int dataPointNr = 0; dataPointNr < batchSize; dataPointNr++)
@@ -73,7 +69,6 @@ namespace BenchmarkTool.Generators
 
                 batch.RecordsList.Add(recordFactory.Create(chosenSensor, recordTimestamp, GetInput(dimensions)));
             }
-
 
             return batch;
         }

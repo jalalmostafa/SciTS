@@ -80,7 +80,6 @@ namespace BenchmarkTool.Database
          // not needed, columns are influx-flags.
         }
 
-
         public async Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
         {
             try
@@ -189,7 +188,6 @@ namespace BenchmarkTool.Database
             }
         }
 
-
         public async Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery query, int limit)
         {
             try
@@ -247,7 +245,6 @@ namespace BenchmarkTool.Database
                                            query.StartDate, query.DurationMinutes, 0, Operation.RangeQueryRawAllDimsData), ex, ex.ToString());
             }
         }
-
 
         public async Task<QueryStatusRead> AggregatedDifferenceQuery(ComparisonQuery query)
         {
@@ -377,5 +374,4 @@ namespace BenchmarkTool.Database
         }
     }
 }
-
 

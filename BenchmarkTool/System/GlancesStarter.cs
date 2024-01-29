@@ -27,8 +27,6 @@ namespace BenchmarkTool.System
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-
-
         public GlancesStarter(Operation operation, int clientsNb, int batchSize, int sensorsNb)
         {
             _baseUrl = Config.GetGlancesUrl();
@@ -44,7 +42,6 @@ namespace BenchmarkTool.System
             _fs = Config.GetGlancesStorageFileSystem();
             _monitor = new GlancesMonitor(_baseUrl);
             _thread = Task.Factory.StartNew(async () => await MonitorAsync(_cancellationTokenSource.Token).ConfigureAwait(false), TaskCreationOptions.LongRunning);
-
 
         }
 
@@ -81,8 +78,6 @@ namespace BenchmarkTool.System
             }
         }
 
-
-
         public async Task EndMonitorAsync()
         {
 
@@ -94,7 +89,6 @@ namespace BenchmarkTool.System
             }
             _cancellationTokenSource.Dispose();
             _thread.Dispose();
-
 
         }
     }

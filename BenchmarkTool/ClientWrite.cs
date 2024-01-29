@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using BenchmarkTool.Database;
 using System.Diagnostics;
 
-
 namespace BenchmarkTool
 {
     public class ClientWrite
@@ -40,7 +39,6 @@ namespace BenchmarkTool
                 _targetDb.Init();
                 _DimNb = dimNb;
                 _targetDb.CheckOrCreateTable();
-
 
             }
             catch (Exception ex)

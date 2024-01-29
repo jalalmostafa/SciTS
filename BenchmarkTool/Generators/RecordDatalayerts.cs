@@ -23,7 +23,6 @@ namespace BenchmarkTool.Generators
         }
          public double[] ValuesArray { get; set; }
 
-
         public int SensorID { get; set; }
 
         public DateTime Time { get; set; }

@@ -16,7 +16,6 @@ namespace BenchmarkTool.Database
 
         void Close();
 
- 
         Task<QueryStatusWrite> WriteBatch(Batch batch);
         Task<QueryStatusWrite> WriteRecord(IRecord record);
         Task<QueryStatusRead> RangeQueryRaw(RangeQuery rangeQuery );  

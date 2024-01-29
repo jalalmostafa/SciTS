@@ -25,8 +25,6 @@ dotnet run --project BenchmarkTool populate irregular InfluxDB > I-ir-pop.log 2>
 dotnet run --project BenchmarkTool populate irregular DatalayertsDB > D-ir-pop.log 2>&1 &&   echo "D-ir done"  && \
 echo "done"
 
-
-
 # glances -w --disable-webui & \
 # echo "are all dbms deamons running?" & \
 # \

@@ -64,9 +64,6 @@ namespace BenchmarkTool.Database.Queries
                                                         |> filter(fn: (r) => r[""{4}""] =~ {5})   
                                                         |> aggregateWindow(every: {6}h, fn: mean, createEmpty: false)  
                                                         |> yield(name: ""mean"")";
-        
-
-
 
         public String RangeRaw =>
             String.Format(_rangeRaw, Config.GetInfluxBucket(),

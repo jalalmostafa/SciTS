@@ -257,8 +257,6 @@ namespace BenchmarkTool
 
         public static string QueryTypeOnRunTime;
 
-
-
         public static string[] _QueryArray;
 
         public static string GetQueryType()
@@ -300,7 +298,7 @@ namespace BenchmarkTool
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.IngestionType];
             if (_ingType.Contains("reg"))
                 val = _ingType;
-            if (String.IsNullOrEmpty(val) | (val != "regular" & val != "irregular"))
+            if (String.IsNullOrEmpty(val) || (val != "regular" && val != "irregular"))
                 throw new Exception(String.Format("Invalid or Null or empty app settings val for key={0}", ConfigurationKeys.IngestionType));
             return val;
         }
@@ -311,7 +309,6 @@ namespace BenchmarkTool
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.MultiDimensionStorageType));
             return val;
         }
-
 
         public static int GetAggregationInterval()
         {
@@ -330,24 +327,11 @@ namespace BenchmarkTool
             long.TryParse(val, out long duration);
             return duration;
         }
-        public static bool _sensorFilterAll = false;
-        public static string GetSensorsFilterString()
-        {
-            var val = ConfigurationManager.AppSettings[ConfigurationKeys.SensorsFilter];
-            if (val == "All")
-                _sensorFilterAll = true;
-            if (String.IsNullOrEmpty(val))
-                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.SensorsFilter));
-            return val;
-        }
 
         public static int[] GetSensorsFilter()
-        {
+        {  int[] aa;
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.SensorsFilter];
             if (String.IsNullOrEmpty(val))
-                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.SensorsFilter));
-            int[] aa;
-            if (_sensorFilterAll == true)
             {
                 aa = new int[Config.GetSensorNumber()];
                 for (var i = 0; i < aa.Length; i += 1)
@@ -359,7 +343,6 @@ namespace BenchmarkTool
             else
                 return Array.ConvertAll(val.Split(","), s => int.TryParse(s, out var x) ? x : -1);
         }
-
 
         public static int GetSensorID()
         {
@@ -405,7 +388,6 @@ namespace BenchmarkTool
             int.TryParse(val, out int sensorId);
             return sensorId;
         }
-
 
         public static int[] GetClientNumberOptions()
         {
@@ -481,7 +463,6 @@ namespace BenchmarkTool
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.GlancesNIC));
             return val;
         }
-
 
         public static int _actualMixedWLPercentage;
         public static int[] GetMixedWLPercentageOptions()

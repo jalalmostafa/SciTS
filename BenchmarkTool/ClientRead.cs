@@ -21,7 +21,6 @@ namespace BenchmarkTool
         private Random _rnd = new Random();
         public int _chosenClientIndex { get; private set; }
 
-
         public ClientRead()
         {
             try
@@ -45,11 +44,10 @@ namespace BenchmarkTool
             }
         }
 
-
         public async Task<QueryStatusRead> RunQuery(int TestRetryReadIteration, int chosenClientIndex, int limit)
         {
+            
             var sensorsFilter = Config.GetSensorsFilter();
-            var sensorsFilterString = Config.GetSensorsFilterString();
             var sensorId = Config.GetSensorID();
             var maxValue = Config.GetMaxValue();
             var minValue = Config.GetMinValue();
@@ -65,7 +63,7 @@ namespace BenchmarkTool
                     {
                         Log.Information("Executing Range Raw Query");
                         var startDate = GetRandomDateTime();
-                        var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
+                        var query = new RangeQuery(startDate, _minutes,  sensorsFilter);
                         status = await _targetDb.RangeQueryRaw(query);
                         status.Iteration = TestRetryReadIteration;
                         status.Client = _chosenClientIndex;
@@ -80,7 +78,7 @@ namespace BenchmarkTool
                     {
                         Log.Information("Executing Range Raw Query");
                         var startDate = GetRandomDateTime();
-                        var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
+                        var query = new RangeQuery(startDate, _minutes,  sensorsFilter);
                         status = await _targetDb.RangeQueryRawAllDims(query);
                         status.Iteration = TestRetryReadIteration;
                         status.Client = _chosenClientIndex;
@@ -96,7 +94,7 @@ namespace BenchmarkTool
                     {
                         Log.Information("Executing Range Raw Query Limited");
                         var startDate = GetRandomDateTime();
-                        var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
+                        var query = new RangeQuery(startDate, _minutes,  sensorsFilter);
                         status = await _targetDb.RangeQueryRawLimited(query, limit);
                         status.Iteration = TestRetryReadIteration;
                         status.Client = _chosenClientIndex;
@@ -111,7 +109,7 @@ namespace BenchmarkTool
                     {
                         Log.Information("Executing Range Raw Query Limited");
                         var startDate = GetRandomDateTime();
-                        var query = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
+                        var query = new RangeQuery(startDate, _minutes,  sensorsFilter);
                         status = await _targetDb.RangeQueryRawAllDimsLimited(query, limit);
                         status.Iteration = TestRetryReadIteration;
                         status.Client = _chosenClientIndex;
@@ -126,7 +124,7 @@ namespace BenchmarkTool
                     {
                         Log.Information("Executing Range Aggregared Query");
                         var startDate = GetRandomDateTime();
-                        var aggQuery = new RangeQuery(startDate, _minutes, sensorsFilter, sensorsFilterString);
+                        var aggQuery = new RangeQuery(startDate, _minutes,  sensorsFilter);
                         status = await _targetDb.RangeQueryAgg(aggQuery);
                         status.Iteration = TestRetryReadIteration;
                         status.Client = _chosenClientIndex;

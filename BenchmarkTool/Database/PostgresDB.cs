@@ -60,8 +60,6 @@ namespace BenchmarkTool.Database
                 if (_TableCreated != true)
                 {
 
-
-
                     if (Config.GetMultiDimensionStorageType() == "column")
                     {
                         foreach (var tableName in Config.GetAllPolyDimTableNames())
@@ -84,9 +82,7 @@ namespace BenchmarkTool.Database
                     else
                         throw new NotImplementedException();
 
-
                 }
-
 
             }
             catch (Exception ex)
@@ -113,8 +109,6 @@ namespace BenchmarkTool.Database
                         int j = i;
                         _copyHelper = _copyHelper.MapDouble(Constants.Value + "_" + i, x => x.ValuesArray[j]);  
                     }
-                    
-
 
                 }
                 else
@@ -161,7 +155,6 @@ namespace BenchmarkTool.Database
             }
         }
 
-
         public async Task<QueryStatusRead> AggregatedDifferenceQuery(ComparisonQuery query)
         {
             try
@@ -190,12 +183,11 @@ namespace BenchmarkTool.Database
             }
         }
 
-
         public async Task<QueryStatusRead> RangeQueryAgg(RangeQuery query)
         {
             try
             {
-                Log.Information("Start date: {0}, end date: {1}, sensors: {2}", query.StartDate, query.EndDate, query.SensorFilter);
+                Log.Information("Start date: {0}, end date: {1}, sensors: {2}", query.StartDate, query.EndDate, query.SensorIDs);
                 using var cmd = new NpgsqlCommand(_query.RangeAgg, _connection);
                 cmd.Parameters.AddWithValue(QueryParams.Start, NpgsqlTypes.NpgsqlDbType.Timestamp, query.StartDate);
                 cmd.Parameters.AddWithValue(QueryParams.End, NpgsqlTypes.NpgsqlDbType.Timestamp, query.EndDate);

@@ -12,7 +12,5 @@ namespace BenchmarkTool.Generators
             return ValuesArray[0];
         }
 
-
-
     }
 }

@@ -16,7 +16,6 @@ namespace BenchmarkTool
             return (T)Enum.Parse(typeof(T), value, ignoreCase);
         }
 
-
         /// <summary>
         /// Return a CSV string of the values in the list
         /// </summary>
@@ -66,7 +65,6 @@ namespace BenchmarkTool
             return results.SelectMany(r => r).ToList();
         }
 
-
         public static async Task<List<QueryStatusRead>> ParallelForEachAsync(
        this IEnumerable<ClientRead> source,
        Func<ClientRead, Task<List<QueryStatusRead>>> func,
@@ -95,7 +93,6 @@ namespace BenchmarkTool
                     .Select(p => AwaitPartition(p)));
             return results.SelectMany(r => r).ToList();
         }
-
 
         public static long GetMilliEpoch()
         {

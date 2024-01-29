@@ -22,6 +22,8 @@ namespace BenchmarkTool.Generators
                 Constants.MySQLClass => new RecordMySQLDB(sensorId, timestamp, value),
                 Constants.DummyClass => new RecordMySQLDB(sensorId, timestamp, value),
                 Constants.PostgresClass => new RecordTimescaleDB(sensorId, timestamp, value),
+// VictoriaMetrics has not been tested successfully yet, there is an issue with inlux-protocoll line ingestion. 
+                // Constants.VictoriametricsDBClass => new RecordVictoriametrics(sensorId, timestamp, values),
 
                 _ => throw new NotImplementedException(),
             };
@@ -37,8 +39,8 @@ namespace BenchmarkTool.Generators
                 Constants.MySQLClass => new RecordMySQLDB(sensorId, timestamp, values),
                 Constants.DummyClass => new RecordMySQLDB(sensorId, timestamp, values),
                 Constants.PostgresClass => new RecordTimescaleDB(sensorId, timestamp, values),
-                Constants.VictoriametricsDBClass => new RecordVictoriametrics(sensorId, timestamp, values),
-
+// VictoriaMetrics has not been tested successfully yet, there is an issue with inlux-protocoll line ingestion.
+                // Constants.VictoriametricsDBClass => new RecordVictoriametrics(sensorId, timestamp, values),
 
                 _ => throw new NotImplementedException(),
             };

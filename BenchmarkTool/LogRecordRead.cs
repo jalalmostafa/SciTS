@@ -46,8 +46,6 @@ namespace BenchmarkTool
             Aggregation = aggregation;
             Iteration = iteration;
 
-
-
         }
     }
 }

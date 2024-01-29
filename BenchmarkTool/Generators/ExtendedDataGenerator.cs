@@ -58,7 +58,6 @@ namespace BenchmarkTool.Generators
 
             Batch batch = new Batch(batchSize);
 
-
             int dataPointNr = 0;
             int index = 0;
             while (dataPointNr < batchSize)
@@ -89,17 +88,12 @@ namespace BenchmarkTool.Generators
                 }
             }
 
-
-
-
             return batch;
         }
         private double[] GetInput(int dimensions)
         {
 
             double[] inputArray = new double[dimensions];
-
-
 
             for (int c = 0; c < dimensions; c++)
             {
@@ -108,13 +102,7 @@ namespace BenchmarkTool.Generators
 
             return inputArray;
 
-
-
         }
-
-
-   
-
 
     }
 }

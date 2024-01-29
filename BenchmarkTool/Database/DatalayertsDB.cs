@@ -28,8 +28,6 @@ namespace BenchmarkTool.Database
 
         private int _aggInterval;
 
-
-
         public void Init()
         {
             // _client =  habe ich als statisch deklariert
@@ -41,13 +39,9 @@ namespace BenchmarkTool.Database
             //not needed, DLTS creates automaticly.
         }
 
-
-
         public void Cleanup() { }
 
         public void Close() { }
-
-
 
         public async Task<QueryStatusWrite> WriteBatch(Batch batch)
         {
@@ -152,87 +146,6 @@ var dirName = GetDirectoryName();
                     }
 ;
 
-                    //                     VectorContainer<double> vectorContainer;
-                    //                     //TODO to config
-                    //                     string pth = "./DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetRegularTsScaleMilliseconds() + "_batchsize" + batch.Size + ".bin";
-                    //                     if (File.Exists(pth) & false)//Debug TTODO
-                    //                     {
-
-                    //                         using (Stream stream = File.Open(pth, FileMode.Open))
-                    //                         {
-                    //                             vectorContainer = await MemoryPackSerializer.DeserializeAsync<VectorContainer<double>>(stream);
-                    //                         }
-                    //                     }
-                    //                     else
-                    //                     {
-
-                    //                         int scale = Config.GetRegularTsScaleMilliseconds();
-                    //                         DateTime roundedDate = new DateTime(Config.GetStartTime().Year, Config.GetStartTime().Month, Config.GetStartTime().Day, Config.GetStartTime().Hour, Config.GetStartTime().Minute, Config.GetStartTime().Second, Config.GetStartTime().Millisecond, DateTimeKind.Utc);
-                    //                         Dictionary<int, List<double>> DictOfDimXSensorIDsToListsFromValueArrays = new Dictionary<int, List<double>>();
-                    //                         Dictionary<int, int[]> IndexOfSensorIDsDimensions = new Dictionary<int, int[]>();  
-
-                    // // man kann in Dicts groesse beim erstellen angeben (sind arrays) (mindestgroese mit init), Statt dicts und listen lieber arrays . Linq ist oft langsamer
-                    // // 
-                    //                         foreach (var item in batch.Records)
-                    //                         {
-
-
-                    //                             for (int d = 0; d < Config.GetDataDimensionsNr(); d++)
-                    //                             {
-
-
-                    //                                 if (!DictOfDimXSensorIDsToListsFromValueArrays.ContainsKey(item.SensorID * Config.GetDataDimensionsNr() + d))
-                    //                                 {
-                    //                                     DictOfDimXSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d] = new List<double>();
-                    //                                 }
-
-                    //                                 IndexOfSensorIDsDimensions[item.SensorID * Config.GetDataDimensionsNr() + d] = new int[2] { item.SensorID, d };
-                    //                                 DictOfDimXSensorIDsToListsFromValueArrays[item.SensorID * Config.GetDataDimensionsNr() + d].Add(item.ValuesArray[d]);
-
-                    //                             }
-
-                    //                         }
-
-                    //                         Dictionary<int, List<double>>.ValueCollection val_col = DictOfDimXSensorIDsToListsFromValueArrays.Values;
-
-                    //                         string[] series = new int[Config.GetSensorNumber()].Select(i => "sensor_id_" + i.ToString()).ToArray();
-
-                    //                         vectorContainer = new VectorContainer<double>()
-                    //                         {
-                    //                             FirstTimestamp = roundedDate,
-                    //                             IntervalTicks = 10000 * scale, // second = 10mil
-                    //                             LastTimestamp = roundedDate.AddMilliseconds((val_col.First().Count - 1) * scale)
-                    //                         };
-                    //                         vectorContainer.Vectors = new TimeSeriesVector<double>[val_col.Count()].Select(a => new TimeSeriesVector<double>()).ToArray();
-
-                    //                         foreach (var DimSensorNr in DictOfDimXSensorIDsToListsFromValueArrays.Keys)
-                    //                         {
-                    //                             vectorContainer.Vectors[DimSensorNr].Directory = GetDirectoryName();
-                    //                             vectorContainer.Vectors[DimSensorNr].Series = GetSeriesNames(IndexOfSensorIDsDimensions[DimSensorNr][0], IndexOfSensorIDsDimensions[DimSensorNr][1]);
-
-                    //                             // vectorContainer.Vectors[DimSensorNr].Values = new double[val_col.First().Count]; 
-
-                    //                             vectorContainer.Vectors[DimSensorNr].Values = val_col.Select(a => a.ToArray()).ToArray()[DimSensorNr];
-
-                    //                             if (Config.GetPrintModeEnabled() == true) // Todo remove
-                    //                                 for (int i = 0; i < vectorContainer.Vectors[DimSensorNr].Values.GetLength(0); i++)
-                    //                                 {
-                    //                                     if (vectorContainer.Vectors[DimSensorNr].Values[i] > 0) await Console.Out.WriteLineAsync("write  | " + vectorContainer.Vectors[DimSensorNr].Values[i] + " in  " + vectorContainer.Vectors[DimSensorNr].Series + " at TS: " + roundedDate.AddMilliseconds(i * Config.GetRegularTsScaleMilliseconds()).ToString());
-                    //                                 }
-                    //                             // }
-                    //                         }
-
-
-                    //                         // TODO to config
-                    //                         // string pth = "/tmp/DLTS_SensNb" + Config.GetSensorNumber() + "_Dim" + Config.GetDataDimensionsNr() + "_Date" + Config.GetStartTime().ToFileTimeUtc() + "_Scale" + Config.GetRegularTsScaleMilliseconds() + "_lenght" + val_col.First().Count + ".bin";
-
-                    //                         using (Stream stream = File.Open(pth, FileMode.Create))}
-                    //                         {
-                    //                             var bin = MemoryPackSerializer.Serialize(vectorContainer);
-                    //                             var writoter = new BinaryWriter(stream);
-                    //                             writer.Write(bin);
-                    //                         }
-                    //                         // }
                 }
                 Stopwatch sw2 = Stopwatch.StartNew();
                 await _client.IngestVectorsAsync<double>(vectorContainer, OverwriteMode.older, TimeSeriesCreationTimestampStorageType.NONE, default).ConfigureAwait(false);
@@ -247,9 +160,7 @@ var dirName = GetDirectoryName();
                 return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString());
             }
 
-
         }
-
 
         public Task<QueryStatusWrite> WriteRecord(IRecord record)
         {
@@ -264,7 +175,6 @@ var dirName = GetDirectoryName();
                 var DltsQuery = _iquery.RangeRaw;
 
                 DltsQuery.FirstTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc);
-
 
                 DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.EndDate, DateTimeKind.Utc);
 
@@ -296,13 +206,7 @@ var dirName = GetDirectoryName();
 
                 DltsQuery.FirstTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc);
 
-
-
                 DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.EndDate, DateTimeKind.Utc);
-
-
-
-
 
                 string dir = GetDirectoryName();
                 string[] series = GetSeriesNames(query.SensorIDs);
@@ -334,8 +238,6 @@ var dirName = GetDirectoryName();
 
                 DltsQuery.FirstTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc);
 
-
-
                 DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc).AddMilliseconds(Config.GetRegularTsScaleMilliseconds() * limit);
 
                 string dir = GetDirectoryName();
@@ -366,13 +268,7 @@ var dirName = GetDirectoryName();
 
                 DltsQuery.FirstTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc);
 
-
-
                 DltsQuery.LastTimestamp = DateTime.SpecifyKind(query.StartDate, DateTimeKind.Utc).AddMilliseconds(Config.GetRegularTsScaleMilliseconds() * limit);
-
-
-
-
 
                 string dir = GetDirectoryName();
                 string[] series = GetSeriesNames(query.SensorIDs);
@@ -408,7 +304,6 @@ var dirName = GetDirectoryName();
                 string[] series = GetSeriesNames(query.SensorIDs);
                 DltsQuery.Selection.Add(dir, series);
 
-
                 Stopwatch sw = Stopwatch.StartNew();
                 var readResult = await _client.RetrieveVectorsAsync<double>(DltsQuery, true).ConfigureAwait(false);
                 var points = 0;
@@ -437,13 +332,11 @@ var dirName = GetDirectoryName();
                 string dir = GetDirectoryName();
                 string[] series = GetSeriesNames(query.SensorID);
 
-
                 DltsQuery.Selection.Add(dir, series);
 
                 DltsQuery.Transformations[0].Function = FunctionType.FILTER;
                 DltsQuery.Transformations[0].Min = query.MaxValue;
                 DltsQuery.Transformations[0].Max = query.MinValue;
-
 
                 Stopwatch sw = Stopwatch.StartNew();
                 var points = 0;
@@ -524,11 +417,7 @@ var dirName = GetDirectoryName();
             }
         }
 
-        public Task Print(object readResult, string type, bool enabled)
-        {
-            throw new NotImplementedException();
-        }
-        private async Task Print(VectorContainer<double> readResult, string type, bool enabled)
+        private async void Print(VectorContainer<double> readResult, string type, bool enabled)
         {
             if (enabled == true)
             {
@@ -542,7 +431,6 @@ var dirName = GetDirectoryName();
                 }
             }
         }
-
 
         private string GetDirectoryName()
         {
@@ -583,7 +471,6 @@ var dirName = GetDirectoryName();
 
             return series.Where(c => c != null).ToArray();
         }
-        
 
     }
 }

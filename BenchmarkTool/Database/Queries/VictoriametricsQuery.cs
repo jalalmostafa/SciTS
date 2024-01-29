@@ -6,12 +6,10 @@ namespace BenchmarkTool.Database.Queries
     {
 //    https://prometheus.io/docs/prometheus/latest/querying/basics/
         // private static string _rangeRawAllDims = @"{2} @{0} {{{3}=~{4}}} @{1}";
-                
-                
+
 // https://docs.victoriametrics.com/keyConcepts.html#range-query                
         private static string _rangeRawAllDims = @"query={2}{3}{{{4}=~'{5}'}}&start={0}&end={1}&step={6}";
 
-       
             // 1) Select all the raw values for the given sensor ids on the given time range: 
 
             // value{sensor_id=~"id1|...|idN"}
@@ -32,7 +30,6 @@ namespace BenchmarkTool.Database.Queries
 
         private static string _stdDev = @"query=stddev_over_time({2}{3}{{{4}=~'{5}'}}[{6}])&start={0}&end={1}";
 
-
             // 4) Data down-sampling:
 
             // aggr_over_time_func(value{sensor_id=~"id1|...|idN"}[{6}])
@@ -49,17 +46,12 @@ namespace BenchmarkTool.Database.Queries
             // The query must be sent to e.g. range query API in the same way as the query 2 above.
 
         private static string _rangeAgg = @"query=avg_over_time({2}{3}{{{4}=~'{5}'}}[{6}])&start={0}&end={1}"    ;
-        
 
             // 3) Aggregate query:
 
             // aggr_func(aggr_over_time_func(value{sensor_id=~"id1|...|idN"}[d]))
 
             // See the supported `aggr_func()` and `aggr_over_time_func()` options here and here. The `d` must be set to the time selected time range duration. See supported values for d in these docs. The query must be passed to e.g. instant query API via `query` query arg alongside the end of the time range via `time` query arg. See these docs.
-
-
-
-
 
         public String RangeRaw =>
             String.Format(_rangeRaw,  

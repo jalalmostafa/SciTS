@@ -15,7 +15,6 @@ namespace BenchmarkTool.Database
         private MySqlConnection _connection;
         private static bool _TableCreated;
 
-
         public void Cleanup()
         {
             throw new NotImplementedException();
@@ -48,10 +47,7 @@ namespace BenchmarkTool.Database
                         {
                             var actualDim = Config.GetDataDimensionsNrOptions()[dimNb];
 
-
-
                             int c = 0; StringBuilder builder = new StringBuilder("");
-
 
                             while (c < actualDim) { builder.Append(", value_" + c + " double precision"); c++; }
 
@@ -66,10 +62,7 @@ namespace BenchmarkTool.Database
                     else
                         throw new NotImplementedException();
 
-
                 }
-
-
 
             }
             catch (Exception ex)
@@ -131,7 +124,6 @@ namespace BenchmarkTool.Database
         {
             throw new NotImplementedException();
         }
-
 
         public Task<QueryStatusWrite> WriteBatch(Batch batch)
         {

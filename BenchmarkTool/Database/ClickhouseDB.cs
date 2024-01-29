@@ -13,8 +13,8 @@ using System.Diagnostics;
 using BenchmarkTool.Database.Queries;
 using System.Globalization;
 
-// TODO fix async
-
+//  async Warning message is related by the fact that internally ClickHouse transforms it to Async
+// Read and Write are executed by different Api's, Read Api offers String Replacement but not "flexible" Bulk insertion (flexible, because the amount of values is not clear at compilation time). The Write Api does support this kind of insert, but not query-string replacement, like "sql.Replace(Placeholder,TrueValue).
 namespace BenchmarkTool.Database
 {
     public class ClickhouseDB : IDatabase
@@ -25,7 +25,6 @@ namespace BenchmarkTool.Database
         private IQuery<String> _query;
         private int _aggInterval;
         private static bool _TableCreated;
-
 
         public void Cleanup()
         {
@@ -58,7 +57,6 @@ namespace BenchmarkTool.Database
                 _read_connection.ChangeDatabase(Config.GetClickhouseDatabase());
                 _read_connection.OpenAsync();
 
-
                 var write_settings = new ClickHouse.Ado.ClickHouseConnectionSettings()
                 {
                     Host = Config.GetClickhouseHost(),
@@ -82,8 +80,6 @@ namespace BenchmarkTool.Database
             }
         }
 
-
-
         public void CheckOrCreateTable()
         {
             try
@@ -102,7 +98,6 @@ namespace BenchmarkTool.Database
                         {
                             var actualDim = Config.GetDataDimensionsNrOptions()[dimNb];
 
-
                             // create table
                             var command = _write_connection.CreateCommand();
                             int c = 0; StringBuilder builder = new StringBuilder("");
@@ -119,12 +114,7 @@ namespace BenchmarkTool.Database
                     else
                         throw new NotImplementedException();
 
-
-
                 }
-
-
-
 
             }
             catch (Exception ex)
@@ -151,10 +141,6 @@ namespace BenchmarkTool.Database
 
                 Stopwatch sw = Stopwatch.StartNew();
                 var reader = cmd.ExecuteReader();
-                // while (reader.Read())
-                // {
-                //     points++;
-                // }
                 reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
 
@@ -175,7 +161,7 @@ namespace BenchmarkTool.Database
                 string sql = _query.RangeAgg;
                 sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorFilter);
+                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorIDs.ToString());
 
                 Log.Information(sql);
                 var cmd = _write_connection.CreateCommand();
@@ -183,10 +169,7 @@ namespace BenchmarkTool.Database
 
                 Stopwatch sw = Stopwatch.StartNew();
                 var reader = cmd.ExecuteReader();
-                // while (reader.Read())
-                // {
-                //     points++;
-                // }
+               
                 reader.ReadAll(rowReader => { points++; });
 
                 sw.Stop();
@@ -208,24 +191,14 @@ namespace BenchmarkTool.Database
                 string sql = _query.RangeRaw;
                 sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorFilter);
+                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorIDs.ToString());
                 Log.Information(sql);
-
-
-
-
-
-
 
                 var cmd = _write_connection.CreateCommand();
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                // var reader = await cmd.ExecuteReaderAsync();       TODO delete if delete read_conn        
-                // while (reader.Read())
-                // {
-                //     points++;
-                // }
+              
                 var reader = cmd.ExecuteReader();
                 reader.ReadAll(rowReader => { points++; });
 
@@ -248,24 +221,11 @@ namespace BenchmarkTool.Database
                 string sql = _query.RangeRawAllDims;
                 sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorFilter);
+                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorIDs.ToString());
                 Log.Information(sql);
-
-
-
-
-
-
-
                 var cmd = _write_connection.CreateCommand();
                 cmd.CommandText = sql;
-
                 Stopwatch sw = Stopwatch.StartNew();
-                // var reader = await cmd.ExecuteReaderAsync();       TODO delete if delete read_conn        
-                // while (reader.Read())
-                // {
-                //     points++;
-                // }
                 var reader = cmd.ExecuteReader();
                 reader.ReadAll(rowReader => { points++; });
 
@@ -288,23 +248,16 @@ namespace BenchmarkTool.Database
                 string sql = _query.RangeRawLimited;
                 sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorFilter);
+                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorIDs.ToString());
                 Log.Information(sql);
 
-
-
                 sql = sql.Replace(QueryParams.Limit, limit.ToString());
-
 
                 var cmd = _write_connection.CreateCommand();
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                // var reader = await cmd.ExecuteReaderAsync();       TODO delete if delete read_conn        
-                // while (reader.Read())
-                // {
-                //     points++;
-                // }
+
                 var reader = cmd.ExecuteReader();
                 reader.ReadAll(rowReader => { points++; });
 
@@ -327,23 +280,16 @@ namespace BenchmarkTool.Database
                 string sql = _query.RangeRawAllDimsLimited;
                 sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorFilter);
+                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorIDs.ToString());
                 Log.Information(sql);
 
-
-
                 sql = sql.Replace(QueryParams.Limit, limit.ToString());
-
 
                 var cmd = _write_connection.CreateCommand();
                 cmd.CommandText = sql;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                // var reader = await cmd.ExecuteReaderAsync();       TODO delete if delete read_conn        
-                // while (reader.Read())
-                // {
-                //     points++;
-                // }
+
                 var reader = cmd.ExecuteReader();
                 reader.ReadAll(rowReader => { points++; });
 
@@ -375,10 +321,7 @@ namespace BenchmarkTool.Database
 
                 Stopwatch sw = Stopwatch.StartNew();
                 var reader = cmd.ExecuteReader();
-                // while (reader.Read())
-                // {
-                //     points++;
-                // }
+
                 reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.DifferenceAggQuery));
@@ -405,10 +348,7 @@ namespace BenchmarkTool.Database
 
                 Stopwatch sw = Stopwatch.StartNew();
                 var reader = cmd.ExecuteReader();
-                // while (reader.Read())
-                // {
-                //     points++;
-                // }
+   
                 reader.ReadAll(rowReader => { points++; });
                 sw.Stop();
                 return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
 namespace BenchmarkTool.Generators
 {
     public interface IDataGenerator

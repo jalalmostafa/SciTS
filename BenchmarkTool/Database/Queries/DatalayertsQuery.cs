@@ -49,7 +49,6 @@ namespace BenchmarkTool.Database.Queries
                     Function = FunctionType.FILTER, },
                 },
 
-
         };
 
         public ContainerRequest StdDev => new ContainerRequest()

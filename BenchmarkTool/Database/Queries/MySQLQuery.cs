@@ -10,14 +10,11 @@ namespace BenchmarkTool.Database.Queries
         public String RangeRawAllDimsLimited => throw new NotImplementedException();
         public String RangeAgg => throw new NotImplementedException();
 
-
-
         public String OutOfRange => throw new NotImplementedException();
 
         public String StdDev => throw new NotImplementedException();
 
         public String AggDifference => throw new NotImplementedException();
-
 
     }
 }

@@ -5,8 +5,6 @@
 # mount TEST DIR to DOCKER
 # https://cloud.google.com/compute/docs/disks/benchmarking-pd-performance?hl=de
 
-
-
 # docker run -it --cap-add SYS_ADMIN --cap-add=SYS_PTRACE -p 61209:61208 -p 8087:8086  -p 6432:5432 -p 5433:5432 -p 8124:8123 -p 9001:9000 -p 9010:9009    -p 8428:8428  ubuntu bash 
 # psql -U postgres -W   ( to check pw access)
 # set postgres conf: https://hassanannajjar.medium.com/how-to-fix-error-password-authentication-failed-for-the-user-in-postgresql-896e1fd880dc
@@ -17,7 +15,6 @@ apt install -y tzdata
 apt upgrade -y
 apt install -y wget curl gpg sudo htop vim pip git glances dotnet7 net-tools fio sysbench glances apt-transport-https ca-certificates dirmngr  
 # cd home
-
 
 mkdir /mnt/vdb1/
 #evtl fdisk /dev/vdb -> n -> w  -> mkfs -t xfs /dev/vdb1   
@@ -31,13 +28,11 @@ mount /dev/vdb1 /mnt/vdb1
  iptables -t nat -I PREROUTING -p tcp --dport 9000 -j DNAT --to 127.0.0.1:9000
  iptables -t nat -I PREROUTING -p tcp --dport 61209 -j DNAT --to 127.0.0.1:61209
 
-
 # curl -O https://dl.influxdata.com/influxdb/releases/influxdb2_2.7.3-1_amd64.deb
 # c
 wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.7.3-linux-amd64.tar.gz
 tar xvzf influxdb2-client-2.7.3-linux-amd64.tar.gz
 cp ./influx /usr/local/bin/
-
 
  curl -O https://dl.influxdata.com/influxdb/releases/influxdb2_2.7.4-1_amd64.deb
 sudo dpkg -i influxdb2_2.7.4-1_amd64.deb
@@ -48,11 +43,8 @@ sudo dpkg -i influxdb2_2.7.4-1_amd64.deb
 # or edit gui on 18086
 # sandro@sandro-opi:~$ sudo ssh -L 18086:localhost:8086 root@85.215.243.202 -i ./KIT/sandro_test.openssh 
 
-
 #  TOKEN IONOS 1-12
 #    aOBozbShzfkQo2EOKGAwbi8GDJKXaSiMF5WG9UoH0XIa8oM0EMZ1fesiyzTPvbrIbdJzdH4aKNI3GEKI_odHGA==
-
-
 
 influx setup -n scitsconfig\
   --org scits \
@@ -74,9 +66,7 @@ export INFLUXD_HTTP_BIND_ADDRESS=127.0.0.1:8086
 # evtl chown -R influxdb /PATH/influxdb
 #  VIM /ETC/INFLUX/CONFIG
 
-
 # vlickhouse
-
 
 sudo apt-get install -y apt-transport-https ca-certificates dirmngr
 GNUPGHOME=$(mktemp -d)
@@ -95,11 +85,9 @@ sudo service clickhouse-server start
 # Insert here_: vim /etc/clickhouse-server/users.d/default-password.xml 
 #         <password></password>
 
-
 # /etc/clickhouse-server/config.xml   change:  ::  to
 #  <clickhouse>
 #     <listen_host>0.0.0.0</listen_host> -> DATA PATH!!!!
-
 
 # postgres
 # Create the file repository configuration:
@@ -157,11 +145,9 @@ chown -R postgres /var/lib/postgresql/
 apt install -y gnupg postgresql postgresql-common apt-transport-https lsb-release wget
 sh /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh  
 
-
 # # echo "deb https://packagecloud.io/timescale/timescaledb/ubuntu/ $(lsb_release -c -s) main" | tee /etc/apt/sources.list.d/timescaledb.list  
 # # upper link substituted by:
 curl -s https://packagecloud.io/install/repositories/timescale/timescaledb/script.deb.sh | bash
-
 
 wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor -o /etc/apt/trusted.gpg.d/timescaledb.gpg
 apt install -y timescaledb-2-postgresql-14
@@ -175,7 +161,6 @@ service postgresql restart
  # sudo -u postgres psql
 #  nano /var/log/postgresql/postgresql....
 # https://stackoverflow.com/questions/31645550/postgresql-why-psql-cant-connect-to-server
-
 
 curl https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.94.0/victoria-metrics-darwin-amd64-v1.94.0.tar.gz
 tar -x victoria-metrics-darwin-amd64-v1.94.0.tar.gz
@@ -199,11 +184,7 @@ vim  /etc/postgresql/14/main/pg_hba.conf
 #  vim /etc/systemd/system/influxd.service
 #  :w /etc/systemd/system/postgresql.service
 
-
 #  vim /etc/systemd/system/glances.service
-
-
-
 
 mkdir /mnt/vdb1/clickhouse /mnt/vdb1/influxdb /mnt/vdb1/postgresql /mnt/vdb1/postgresql/16/ /mnt/vdb1/postgresql/16/main
 
@@ -215,13 +196,8 @@ chown -R postgres:postgres /var/log/postgresql/
 sudo -u postgres /usr/lib/postgresql/16/bin/initdb -D /mnt/vdb1/postgresql/16/main
 sudo -u postgres /usr/lib/postgresql/16/bin/pg_ctl -D /mnt/vdb1/postgresql/16/main -l /var/log/postgresql/16/main/my-postgres.log start
 
-
 systemctl daemon-reload
 service clickhouse-server restart
 service influxdb restart
 service postgresql restart
-# dotnet run --project SciTS/BenchmarkTool consecutive regular InfluxDB
-# dotnet run --project SciTS/BenchmarkTool consecutive regular PostgresDB
-# dotnet run --project SciTS/BenchmarkTool consecutive regular ClickhouseDB
-
 

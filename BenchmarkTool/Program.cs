@@ -7,15 +7,11 @@ using BenchmarkTool.System;
 using System.Linq;
 using System.Drawing.Text;
 
-
-
-
 namespace BenchmarkTool
 {
     static class Program
     {
 
-        
         public static string Mode { get; private set; }
         public static int _currentReadClientsNR { get; private set; }
         public static int _currentClientsNR { get; private set; }
@@ -36,7 +32,6 @@ namespace BenchmarkTool
                 Console.WriteLine("Starting...");
                 Log.Information("Application started");
 
-
                 var action = args != null && args.Length > 0 ? args[0] : "read";
                 string setting; string ingType;
                 if (args.Length >= 2)
@@ -49,9 +44,6 @@ namespace BenchmarkTool
                         setting = args[2];
                         Config.SetTargetDatabase(setting);
                     }
-
-
-
 
                 }
                 switch (action)
@@ -89,7 +81,7 @@ namespace BenchmarkTool
                         Mode = "mixed-AggQueries_" + Config.GetIngestionType();
                         await MixedWL(true);
                         break;
-                    case var s when action.Contains("mixed-") & action.Contains("%LimitedQueries"):
+                    case var s when action.Contains("mixed-") && action.Contains("%LimitedQueries"):
                         int ii1 = s.IndexOf("-") + 1;
                         int ii2 = s.IndexOf("%");
                         string sub = s.Substring(ii1, ii2 - ii1);
@@ -97,7 +89,6 @@ namespace BenchmarkTool
                         Mode = "mixed-" + sub + "%LimitedQueries_" + Config.GetIngestionType();
                         await MixedWL(true);
                         break;
-
 
                     default:
                         Console.WriteLine($"Unknown option {action}");
@@ -111,7 +102,6 @@ namespace BenchmarkTool
                 Log.Error(ex.ToString());
             }
         }
-
 
         private async static Task<QueryStatusWrite> RunIngestionTask(ClientWrite client)
         {
@@ -160,7 +150,6 @@ namespace BenchmarkTool
                 }
             }
         }
-
 
         private async static Task MixedWL(bool log)
         {
@@ -228,7 +217,6 @@ namespace BenchmarkTool
 
                                 loop++;
 
-
                                 foreach (string Query in Config._QueryArray)
                                 {
                                     Config.QueryTypeOnRunTime = Query;
@@ -262,15 +250,10 @@ namespace BenchmarkTool
                     }
                 }
 
-
-
-
             }
             Console.Out.WriteLine("MixedWL-Completed");
 
         }
-
-
 
         private async static Task Batching(bool log)
         {
@@ -362,7 +345,6 @@ namespace BenchmarkTool
                                     _currentReadClientsNR = clientNumberArray.Last() + 1;
                                 }
                                 _currentlimit = (int)(double)Config.GetBatchSizeOptions().Last();
-
 
                                 Config.QueryTypeOnRunTime = Query;
                                 var client = new ClientRead();

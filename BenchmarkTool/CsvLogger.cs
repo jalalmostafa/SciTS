@@ -13,7 +13,6 @@ namespace BenchmarkTool
         private StreamWriter _stream;
         private CsvWriter _writer;
         bool exists;
-        
 
         public CsvLogger(string operation)
         {
@@ -21,21 +20,20 @@ namespace BenchmarkTool
             { 
                 if( operation == "read"){
                     var path = Config.GetMetricsCSVPath()+"Read.csv";
-                     exists = File.Exists(path);
+                    exists = File.Exists(path);
                     _stream = new StreamWriter(path, true, new UTF8Encoding(true));
                     _writer = new CsvWriter(_stream, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture));
                 }else{
                     var path = Config.GetMetricsCSVPath()+"Write.csv";
-                     exists = File.Exists(path);
+                    exists = File.Exists(path);
                     _stream = new StreamWriter(path, true, new UTF8Encoding(true));
                     _writer = new CsvWriter(_stream, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture));
                  
                 }
 
-
                 if (!exists)
                 {
-                     _writer.WriteHeader<T>(); 
+                    _writer.WriteHeader<T>(); 
                     _writer.NextRecord();
                 }
             }
@@ -47,7 +45,7 @@ namespace BenchmarkTool
 
         public void WriteRecord(T record)
         {
-                         _writer.WriteRecord<T>(record);
+            _writer.WriteRecord<T>(record);
             _writer.NextRecord();
         }
 

@@ -15,8 +15,6 @@ namespace BenchmarkTool.System
             //  , new ConfigureSerialization(    s => s.UseSerializer(() =>  new UseNewtonsoftJson()    ) )   )  ;  // nwetonsoftJson? TODO
             //         //   .UseNewtonsoftJson();
 
-  
-
         public GlancesMonitor(string baseUrl)
         {
             // Habe "new RestClient" als statische Var Dek
@@ -86,7 +84,6 @@ namespace BenchmarkTool.System
 
             return metrics;
         }
-
 
     }
 }

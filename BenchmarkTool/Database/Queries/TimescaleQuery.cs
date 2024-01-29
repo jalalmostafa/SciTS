@@ -14,8 +14,6 @@ namespace BenchmarkTool.Database.Queries
         private static string _rangeAgg = @"SELECT time_bucket('{0}h', {1}) AS time_agg, sensor_id, avg({2}) FROM {3}
                                             where {1} >= {4} and {1} <= {5} and {6} = ANY({7}) group by time_agg, sensor_id";
 
-
-
         private static string _outOfRange = @"SELECT time_bucket('{0}h', {1}) AS time_agg, max({2}), min({2}) FROM {3}
                                             where {1} >= {4} and {1} <= {5} and {6} = {7}
                                             group by time_agg having min({2}) < {8} OR max({2}) >{9}";
@@ -37,7 +35,6 @@ namespace BenchmarkTool.Database.Queries
         public String RangeRawLimited => String.Format(_rangeRawLimited, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam, Constants.Value + "_0", QueryParams.Limit);
 
         public String RangeAgg => String.Format(_rangeAgg, Config.GetAggregationInterval(), Constants.Time, Constants.Value + "_0", Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam);
-
 
         public String OutOfRange => String.Format(_outOfRange, Config.GetAggregationInterval(), Constants.Time, Constants.Value + "_0", Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDParam, QueryParams.MinValParam, QueryParams.MaxValParam);
 

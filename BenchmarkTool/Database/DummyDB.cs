@@ -11,7 +11,6 @@ using BenchmarkTool.Generators;
 using System.Diagnostics;
 using System.Globalization;
 
-
 namespace BenchmarkTool.Database
 {
     public class DummyDB : IDatabase
@@ -35,7 +34,6 @@ namespace BenchmarkTool.Database
     
         }
 
-
         public Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
         {
             throw new NotImplementedException();
@@ -45,8 +43,6 @@ namespace BenchmarkTool.Database
         {
             throw new NotImplementedException();
         }
-
-
 
         public Task<QueryStatusRead> StandardDevQuery(SpecificQuery query)
         {
@@ -62,7 +58,6 @@ namespace BenchmarkTool.Database
         {
             throw new NotImplementedException();
         }
-
 
         public async Task<QueryStatusWrite> WriteBatch(Batch batch)
         {
@@ -94,15 +89,12 @@ namespace BenchmarkTool.Database
 
                 sCommand.Append(";");
 
-
                 Stopwatch sw = new Stopwatch();
-
 
                 sw.Start();
                 await File.AppendAllTextAsync("/tmp/dummy_empty_" + DateTime.Now.Day.ToString() + ".txt", " ");
 
                 sw.Stop();
-
 
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
             }

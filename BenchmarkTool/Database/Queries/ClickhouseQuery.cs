@@ -41,7 +41,6 @@ namespace BenchmarkTool.Database.Queries
 
         public String RangeRawLimited => String.Format(_rangeRawLimited, Config.GetPolyDimTableName(), Constants.Time, QueryParams.StartParam, QueryParams.EndParam, Constants.SensorID, QueryParams.SensorIDsParam, Constants.Value + "_0", QueryParams.Limit);
 
-
         public String RangeAgg => String.Format(_rangeAgg, Constants.Time, Config.GetAggregationInterval(), Constants.Value + "_0", Constants.SensorID, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDsParam, QueryParams.Limit);
 
         public String OutOfRange => String.Format(_outOfRange, Constants.Time, Config.GetAggregationInterval(), Constants.Value + "_0", Constants.SensorID, Config.GetPolyDimTableName(), QueryParams.StartParam, QueryParams.EndParam, QueryParams.SensorIDParam, QueryParams.MinValParam, QueryParams.MaxValParam);

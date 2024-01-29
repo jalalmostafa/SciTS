@@ -25,7 +25,6 @@ namespace BenchmarkTool.Generators
             return batch;
         }
 
- 
         public Batch GenerateBatch(int batchSize, List<int> sensorIdsForThisClientList, DateTime date, int dimensions) // date is here relative to the number of batches which have been written before and th eTestretries
         {
             throw new NotImplementedException();
