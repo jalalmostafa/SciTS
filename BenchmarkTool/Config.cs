@@ -1,10 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 
 namespace BenchmarkTool
 {
     public class Config
     {
+        public static string GetGlancesStorageFileSystem()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.GlancesStorageFileSystem];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.GlancesStorageFileSystem));
+            return val;
+        }
+        public static bool GetPrintModeEnabled()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.PrintModeEnabled];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.PrintModeEnabled));
+            bool.TryParse(val, out bool print);
+            return print;
+        }
         public static DateTime GetStartTime()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.StartTime];
@@ -23,6 +40,39 @@ namespace BenchmarkTool
             return sensors;
         }
 
+        public static int _actualDataDimensionsNr = 0;
+        public static int GetDataDimensionsNr()
+        {
+            var val = _actualDataDimensionsNr;
+            if (val == 0)
+                val = GetDataDimensionsNrOptions().First<int>();
+            return val;
+        }
+        public static int[] GetDataDimensionsNrOptions()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DataDimensionsNrOptions];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DataDimensionsNr));
+            return Array.ConvertAll(val.Split(","), s => int.TryParse(s, out var x) ? x : -1);
+        }
+
+        public static string GetPolyDimTableName()
+        {
+            var val = Constants.TableName + $"_{Constants.Value}_" + Config.GetDataDimensionsNr() + "_" + Config.GetIngestionType();
+
+            return val;
+        }
+        public static string[] GetAllPolyDimTableNames()
+        {
+            var list = new List<string>();
+            foreach (var dim in GetDataDimensionsNrOptions())
+            {
+                list.Add(Constants.TableName + $"_{Constants.Value}_" + dim + "_" + Config.GetIngestionType());
+            }
+            var val = list.ToArray<string>();
+
+            return val;
+        }
         public static int GetTestRetries()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.TestRetries];
@@ -31,13 +81,21 @@ namespace BenchmarkTool
             int.TryParse(val, out int loop);
             return loop;
         }
-
+        private static string _DbSetting = "null";
         public static string GetTargetDatabase()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.TargetDatabase];
+            if (_DbSetting.Contains("DB"))
+            {
+                val = _DbSetting;
+            }
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.TargetDatabase));
             return val;
+        }
+        internal static void SetTargetDatabase(string setting)
+        {
+            _DbSetting = setting;
         }
 
         public static string GetPostgresConnection()
@@ -48,6 +106,35 @@ namespace BenchmarkTool
             return val;
         }
 
+        public static string GetDatalayertsConnection()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DatalayertsConnection];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DatalayertsConnection));
+            return val;
+        }
+        public static string GetDatalayertsUser()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DatalayertsUser];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DatalayertsUser));
+            return val;
+        }
+        public static string GetDatalayertsPassword()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.DatalayertsPassword];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DatalayertsPassword));
+            return val;
+        }
+        public static int GetRegularTsScaleMilliseconds()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.RegularTsScaleMilliseconds];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.DatalayertsPassword));
+            int.TryParse(val, out int intVal);
+            return intVal;
+        }
         public static string GetTimescaleConnection()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.TimescaleConnection];
@@ -103,6 +190,37 @@ namespace BenchmarkTool
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.InfluxDBOrganization));
             return val;
         }
+        public static string GetVictoriametricsHost()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.VictoriametricsDBHost];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.VictoriametricsDBHost));
+            return val;
+        }
+
+        public static string GetVictoriametricsToken()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.VictoriametricsDBToken];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.VictoriametricsDBToken));
+            return val;
+        }
+
+        public static string GetVictoriametricsBucket()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.VictoriametricsDBBucket];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.VictoriametricsDBBucket));
+            return val;
+        }
+
+        public static string GetVictoriametricsOrganization()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.VictoriametricsDBOrganization];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.VictoriametricsDBOrganization));
+            return val;
+        }
 
         public static string GetClickhouseHost()
         {
@@ -137,13 +255,63 @@ namespace BenchmarkTool
             return val;
         }
 
+        public static string QueryTypeOnRunTime;
+
+
+
+        public static string[] _QueryArray;
+
         public static string GetQueryType()
         {
+
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.QueryType];
-            if (String.IsNullOrEmpty(val))
-                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.QueryType));
+            if (String.IsNullOrEmpty(QueryTypeOnRunTime)) //INIT
+            {
+                if (val == "All"){ //Optional TODO move logic to Config.GetQueryOptions
+                    Config._QueryArray = new string[] { "RangeQueryRawData", "RangeQueryRawAllDimsData", "RangeQueryAggData", "OutOfRangeQuery", "DifferenceAggQuery", "STDDevQuery" };
+                }else if (val == "Agg" || Program.Mode.Contains("Agg")){
+                    Config._QueryArray = new string[] { "RangeQueryAggData", "DifferenceAggQuery", "STDDevQuery" };
+                }else
+                {   
+                    List<string> valA = val.Split(',').ToList();
+                    foreach( var x in valA){
+                      x.ToEnum<Operation>();
+                    } 
+                    //Optional TODO insert check method assert correct parsing
+                    
+                    Config._QueryArray = valA.ToArray();
+                }
+
+                QueryTypeOnRunTime = _QueryArray.First();
+            }
+
+            val = QueryTypeOnRunTime;
+
             return val;
         }
+
+        private static string _ingType = "null";
+        internal static void SetIngestionType(string ingType)
+        {
+            _ingType = ingType;
+        }
+        public static string GetIngestionType()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.IngestionType];
+            if (_ingType.Contains("reg"))
+                val = _ingType;
+            if (String.IsNullOrEmpty(val) | (val != "regular" & val != "irregular"))
+                throw new Exception(String.Format("Invalid or Null or empty app settings val for key={0}", ConfigurationKeys.IngestionType));
+            return val;
+        }
+        public static string GetMultiDimensionStorageType()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.MultiDimensionStorageType];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.MultiDimensionStorageType));
+            return val;
+        }
+
 
         public static int GetAggregationInterval()
         {
@@ -162,10 +330,12 @@ namespace BenchmarkTool
             long.TryParse(val, out long duration);
             return duration;
         }
-
+        public static bool _sensorFilterAll = false;
         public static string GetSensorsFilterString()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.SensorsFilter];
+            if (val == "All")
+                _sensorFilterAll = true;
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.SensorsFilter));
             return val;
@@ -176,7 +346,18 @@ namespace BenchmarkTool
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.SensorsFilter];
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.SensorsFilter));
-            return Array.ConvertAll(val.Split(","), s => int.TryParse(s, out var x) ? x : -1);
+            int[] aa;
+            if (_sensorFilterAll == true)
+            {
+                aa = new int[Config.GetSensorNumber()];
+                for (var i = 0; i < aa.Length; i += 1)
+                {
+                    aa[i] = i;
+                }
+                return aa;
+            }
+            else
+                return Array.ConvertAll(val.Split(","), s => int.TryParse(s, out var x) ? x : -1);
         }
 
 
@@ -224,6 +405,7 @@ namespace BenchmarkTool
             int.TryParse(val, out int sensorId);
             return sensorId;
         }
+
 
         public static int[] GetClientNumberOptions()
         {
@@ -298,6 +480,16 @@ namespace BenchmarkTool
             if (String.IsNullOrEmpty(val))
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.GlancesNIC));
             return val;
+        }
+
+
+        public static int _actualMixedWLPercentage;
+        public static int[] GetMixedWLPercentageOptions()
+        {
+            var val = ConfigurationManager.AppSettings[ConfigurationKeys.MixedWLPercentageOptions];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.MixedWLPercentageOptions));
+            return Array.ConvertAll(val.Split(","), s => int.TryParse(s, out var x) ? x : -1); ;
         }
     }
 }

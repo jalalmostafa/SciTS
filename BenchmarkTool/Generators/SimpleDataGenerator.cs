@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace BenchmarkTool.Generators
 {
-    public class DataGenerator : IDataGenerator
+    public class SimpleDataGenerator : IDataGenerator // OLD -> see ExtendedDataGenerator.cs
     {
         private Random _rnd = new Random();
 
@@ -16,12 +17,18 @@ namespace BenchmarkTool.Generators
             for (int k = 0; k < batchSize; k++)
             {
                 var recordTimestamp = GetRecordTimestamp(date);
-                batch.Records.Add(recordFactory.Create(start, recordTimestamp, rndval.Next()));
+                batch.RecordsList.Add(recordFactory.Create(start, recordTimestamp, rndval.Next()));
                 start++;
                 if (start >= sensorStartId + sensorsPerClient)
                     start = sensorStartId;
             }
             return batch;
+        }
+
+ 
+        public Batch GenerateBatch(int batchSize, List<int> sensorIdsForThisClientList, DateTime date, int dimensions) // date is here relative to the number of batches which have been written before and th eTestretries
+        {
+            throw new NotImplementedException();
         }
 
         private DateTime GetRecordTimestamp(DateTime baseTime)

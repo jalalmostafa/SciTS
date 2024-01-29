@@ -7,10 +7,10 @@ namespace BenchmarkTool
     {
         private Exception _thrownException;
         private string _errorMessage;
-
         public bool Succeeded { get; }
         public int DataPoints { get; }
-        public int Iteration { get; set; }
+        public int Iteration { get; set; }     
+        public DateTime StartDate { get; set; }     
         public T PerformanceMetric { get; }
         public long Timestamp { get; }
 
@@ -18,8 +18,8 @@ namespace BenchmarkTool
         {
             Succeeded = succeeded;
             PerformanceMetric = metric;
-            Timestamp = Helper.GetNanoEpoch();
-        }
+            Timestamp = Helper.GetMilliEpoch();        
+            }
 
         public QueryStatus(bool succeeded, int dataPoints, T metric) : this(succeeded, metric)
         {

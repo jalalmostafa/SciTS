@@ -5,15 +5,16 @@ namespace BenchmarkTool.Generators
     public class Batch
     {
         public Batch (){
-            Records = new List<IRecord>();
+            RecordsList = new List<IRecord>();
         }
 
         public Batch(int size)
         {
             Size = size;
-            Records = new List<IRecord>();
+            RecordsArray = new IRecord[size];
         }
-        public List<IRecord> Records { get; set; }
+        public List<IRecord> RecordsList { get; set; }
+        public IRecord[] RecordsArray { get; set; }
         public int Size { get; set; }
     }
 }

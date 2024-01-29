@@ -13,6 +13,8 @@ namespace BenchmarkTool.Database
     public class MySQLDB : IDatabase
     {
         private MySqlConnection _connection;
+        private static bool _TableCreated;
+
 
         public void Cleanup()
         {
@@ -32,6 +34,49 @@ namespace BenchmarkTool.Database
             }
         }
 
+        public void CheckOrCreateTable()
+        {
+            try
+            {
+
+                var dimNb = 0;
+                if (_TableCreated != true)
+                {
+                    if (Config.GetMultiDimensionStorageType() == "column")
+                    {
+                        foreach (var tableName in Config.GetAllPolyDimTableNames())
+                        {
+                            var actualDim = Config.GetDataDimensionsNrOptions()[dimNb];
+
+
+
+                            int c = 0; StringBuilder builder = new StringBuilder("");
+
+
+                            while (c < actualDim) { builder.Append(", value_" + c + " double precision"); c++; }
+
+                            var cmd = _connection.CreateCommand().CommandText = String.Format("CREATE TABLE IF NOT EXISTS " + tableName + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE;  ");
+
+                            _connection.CreateCommand().ExecuteNonQuery();
+                            _TableCreated = true;
+
+                            dimNb++;
+                        }
+                    }
+                    else
+                        throw new NotImplementedException();
+
+
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(String.Format("Failed to create table. Exception: {0}", ex.ToString()));
+            }
+        }
         public void Init()
         {
             try
@@ -41,31 +86,43 @@ namespace BenchmarkTool.Database
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error(String.Format("Failed to initialize MySQL. Exception: {0}", ex.ToString()));
+                Serilog.Log.Error(String.Format("Failed to create table. Exception: {0}", ex.ToString()));
             }
         }
 
-        public QueryStatusRead OutOfRangeQuery(OORangeQuery query)
+        public Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
         {
             throw new NotImplementedException();
         }
 
-        public QueryStatusRead RangeQueryAgg(RangeQuery rangeQuery)
+        public Task<QueryStatusRead> RangeQueryAgg(RangeQuery rangeQuery)
         {
             throw new NotImplementedException();
         }
 
-        public QueryStatusRead RangeQueryRaw(RangeQuery rangeQuery)
+        public Task<QueryStatusRead> RangeQueryRaw(RangeQuery rangeQuery)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery rangeQuery)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery rangeQuery, int limit)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<QueryStatusRead> RangeQueryRawAllDimsLimited(RangeQuery rangeQuery, int limti)
         {
             throw new NotImplementedException();
         }
 
-        public QueryStatusRead StandardDevQuery(SpecificQuery query)
+        public Task<QueryStatusRead> StandardDevQuery(SpecificQuery query)
         {
             throw new NotImplementedException();
         }
 
-        public QueryStatusRead AggregatedDifferenceQuery(ComparisonQuery query)
+        public Task<QueryStatusRead> AggregatedDifferenceQuery(ComparisonQuery query)
         {
             throw new NotImplementedException();
         }
@@ -75,22 +132,12 @@ namespace BenchmarkTool.Database
             throw new NotImplementedException();
         }
 
+
         public Task<QueryStatusWrite> WriteBatch(Batch batch)
         {
             try
             {
-                StringBuilder sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value`) VALUES ");
-
-                List<string> Rows = new List<string>();
-
-
-                foreach (var record in batch.Records)
-                {
-                    Rows.Add(string.Format("('{0}',{1},{2})", record.Time.ToString("yyyy-MM-dd HH:mm:ss"), record.SensorID, record.Value));
-                }
-
-
-                sCommand.Append(string.Join(",", Rows));
+                StringBuilder sCommand = new StringBuilder("INSERT INTO sensor_data (`time`, sensor_id, `value`) VALUES " + batch.RecordsArray);
                 sCommand.Append(";");
                 Stopwatch sw = new Stopwatch();
                 using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), _connection))
@@ -109,5 +156,6 @@ namespace BenchmarkTool.Database
                 return Task.FromResult(new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, batch.Size, Operation.BatchIngestion), ex, ex.ToString()));
             }
         }
+
     }
 }

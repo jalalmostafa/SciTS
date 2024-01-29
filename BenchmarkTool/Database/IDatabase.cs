@@ -7,24 +7,26 @@ namespace BenchmarkTool.Database
     public interface IDatabase
     {
         void Init();
+        
+        static bool _TableCreated;
+
+        void CheckOrCreateTable();
 
         void Cleanup();
 
         void Close();
 
+ 
         Task<QueryStatusWrite> WriteBatch(Batch batch);
-
         Task<QueryStatusWrite> WriteRecord(IRecord record);
-
-        QueryStatusRead RangeQueryRaw(RangeQuery rangeQuery);
-
-        QueryStatusRead RangeQueryAgg(RangeQuery rangeQuery);
-
-        QueryStatusRead OutOfRangeQuery(OORangeQuery query);
-
-        QueryStatusRead AggregatedDifferenceQuery(ComparisonQuery query);
-
-        QueryStatusRead StandardDevQuery(SpecificQuery query);
+        Task<QueryStatusRead> RangeQueryRaw(RangeQuery rangeQuery );  
+        Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery rangeQuery );  
+        Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery rangeQuery, int limit); 
+        Task<QueryStatusRead> RangeQueryRawAllDimsLimited(RangeQuery rangeQuery, int limit); 
+        Task<QueryStatusRead> RangeQueryAgg(RangeQuery rangeQuery);
+        Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query);
+        Task<QueryStatusRead> AggregatedDifferenceQuery(ComparisonQuery query);
+        Task<QueryStatusRead> StandardDevQuery(SpecificQuery query);
 
     }
 }

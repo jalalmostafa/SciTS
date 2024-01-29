@@ -2,12 +2,30 @@ using System;
 
 namespace BenchmarkTool.Database.Queries
 {
-    public class InfluxQuery : IQuery
+    public class InfluxQuery : IQuery<String>
     {
-        private static string _rangeRaw = @"from(bucket: ""{0}"")   
+
+                private static string _rangeRawAllDims = @"from(bucket: ""{0}"")   
                                                         |> range(start: {1}, stop: {2})   
                                                         |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
                                                         |> filter(fn: (r) => r[""{4}""] =~ {5}) ";
+        private static string _rangeRaw = @"from(bucket: ""{0}"") 
+                                                        |> keep(columns: [""{4}"", ""{6}"",""{7}""]) 
+                                                        |> range(start: {1}, stop: {2})   
+                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
+                                                        |> filter(fn: (r) => r[""{4}""] =~ {5})";
+
+        private static string _rangeRawAllDimsLimited = @"from(bucket: ""{0}"")   
+                                                        |> range(start: {1}, stop: {2})   
+                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
+                                                        |> filter(fn: (r) => r[""{4}""] =~ {5}) 
+                                                        |> limit(n:{6})";
+        private static string _rangeRawLimited = @"from(bucket: ""{0}"") 
+                                                        |> keep(columns: [""{4}"", ""{6}"",""{7}""]) 
+                                                        |> range(start: {1}, stop: {2})   
+                                                        |> filter(fn: (r) => r[""_measurement""] == ""{3}"")   
+                                                        |> filter(fn: (r) => r[""{4}""] =~ {5})
+                                                        |> limit(n:{8})"; 
 
         private static string _outOfRange = @"data = from(bucket: ""{0}"")  
                                                         |> range(start: {1}, stop: {2})     
@@ -46,34 +64,50 @@ namespace BenchmarkTool.Database.Queries
                                                         |> filter(fn: (r) => r[""{4}""] =~ {5})   
                                                         |> aggregateWindow(every: {6}h, fn: mean, createEmpty: false)  
                                                         |> yield(name: ""mean"")";
-        public string RangeAgg =>
+        
+
+
+
+        public String RangeRaw =>
+            String.Format(_rangeRaw, Config.GetInfluxBucket(),
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
+            Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_0");
+        public String RangeRawAllDims =>
+            String.Format(_rangeRawAllDims, Config.GetInfluxBucket(),
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
+            Constants.SensorID, QueryParams.SensorIDsParam);
+        public String RangeRawLimited =>
+            String.Format(_rangeRawLimited, Config.GetInfluxBucket(),
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
+            Constants.SensorID, QueryParams.SensorIDsParam, Constants.Time, Constants.Value + "_0", QueryParams.Limit);
+        public String RangeRawAllDimsLimited =>
+            String.Format(_rangeRawAllDimsLimited, Config.GetInfluxBucket(),
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
+            Constants.SensorID, QueryParams.SensorIDsParam, QueryParams.Limit);
+
+        public String RangeAgg =>
             String.Format(_rangeAgg, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Constants.TableName,
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDsParam,
             Config.GetAggregationInterval());
 
-        public string RangeRaw =>
-            String.Format(_rangeRaw, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Constants.TableName,
-            Constants.SensorID, QueryParams.SensorIDsParam);
-
-        public string OutOfRange =>
+        public String OutOfRange =>
             String.Format(_outOfRange, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Constants.TableName,
-            Constants.SensorID, QueryParams.SensorIDParam, Constants.Value,
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
+            Constants.SensorID, QueryParams.SensorIDParam, Constants.Value + "_0",
             Config.GetAggregationInterval(), Constants.SensorID,
             QueryParams.MinValParam, QueryParams.MaxValParam);
 
-        public string StdDev =>
+        public String StdDev =>
             String.Format(_stdDev, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Constants.TableName,
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.SensorIDParam);
 
-        public string AggDifference =>
+        public String AggDifference =>
             String.Format(_aggDifference, Config.GetInfluxBucket(),
-            QueryParams.StartParam, QueryParams.EndParam, Constants.TableName,
+            QueryParams.StartParam, QueryParams.EndParam, Config.GetPolyDimTableName(),
             Constants.SensorID, QueryParams.FirstSensorIDParam,
-            QueryParams.SecondSensorIDParam, Constants.Value,
+            QueryParams.SecondSensorIDParam, Constants.Value + "_0",
             Config.GetAggregationInterval());
     }
 }
