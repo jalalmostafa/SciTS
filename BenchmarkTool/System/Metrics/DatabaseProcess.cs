@@ -17,7 +17,7 @@ namespace BenchmarkTool.System.Metrics
         public List<double> CpuTimes { get; set; }
 
         [JsonProperty("gids")]
-        public List<int> Gids { get; set; }
+        public List<int?> Gids { get; set; }
 
         [JsonProperty("io_counters")]
         public List<long> IOCounters { get; set; }
@@ -32,16 +32,16 @@ namespace BenchmarkTool.System.Metrics
         public string Name { get; set; }
 
         [JsonProperty("nice")]
-        public int Nice { get; set; }
+        public int? Nice { get; set; }
 
         [JsonProperty("num_threads")]
-        public int ThreadsNumber { get; set; }
+        public int? ThreadsNumber { get; set; }
 
         [JsonProperty("pid")]
-        public int Pid { get; set; }
+        public int? Pid { get; set; }
 
         [JsonProperty("ppid")]
-        public int PPid { get; set; }
+        public int? PPid { get; set; }
 
         [JsonProperty("status")]
         public string Status { get; set; }

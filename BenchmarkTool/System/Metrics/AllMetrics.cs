@@ -4,7 +4,8 @@ using System.IO;
 using System.Text;
 using CsvHelper;
 using Serilog;
-using BenchmarkTool;
+using  BenchmarkTool;
+using Microsoft.Net.Http.Headers;
 
 namespace BenchmarkTool.System.Metrics
 {
@@ -16,6 +17,8 @@ namespace BenchmarkTool.System.Metrics
 
         public DiskIO DiskIO { get; init; }
 
+        public FS FS { get; init; }
+
         public Memory Memory { get; init; }
 
         public Network Network { get; init; }
@@ -23,6 +26,7 @@ namespace BenchmarkTool.System.Metrics
         public Swap Swap { get; init; }
 
         private string _database = Config.GetTargetDatabase();
+        private int _dimensions = Config.GetDataDimensionsNr();
 
         public void WriteToCSV(string path, string operation, int clientsNb, int batchSize, int sensorsNb)
         {
@@ -31,7 +35,7 @@ namespace BenchmarkTool.System.Metrics
                 bool exists = File.Exists(path);
                 using (StreamWriter sw = new StreamWriter(path, true, new UTF8Encoding(true)))
                 {
-                    using (CsvWriter cw = new CsvWriter(sw, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.CurrentCulture)))
+                    using (CsvWriter cw = new CsvWriter(sw, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)))
                     {
                         if (!exists)
                         {
@@ -55,14 +59,16 @@ namespace BenchmarkTool.System.Metrics
         {
             return new GlancesRecord()
             {
-                Timestamp = Helper.GetNanoEpoch(),
+                Timestamp = Helper.GetMilliEpoch(),
 
                 Database = _database,
                 Operation = operation,
                 ClientsNumber = clientsNb,
                 BatchSize = batchSize,
                 SensorsNumber = sensorsNb,
-
+                Mode = BenchmarkTool.Program.Mode,
+                Dimensions = _dimensions,
+                Percentage = Config._actualMixedWLPercentage,  
                 // Cpu
                 CpuTotal = this.Cpu.Total,
                 CpuSystem = this.Cpu.System,
@@ -94,6 +100,16 @@ namespace BenchmarkTool.System.Metrics
                 DiskReadCount = this.DiskIO.ReadCount,
                 DiskWriteBytes = this.DiskIO.WriteBytes,
                 DiskWriteCount = this.DiskIO.WriteCount,
+
+                // FS
+                FsDeviceName = this.FS.DeviceName,
+                FsFree = this.FS.Free,
+                FsFs_Type = this.FS.FS_Type,
+                FsKey = this.FS.Key,
+                FsMnt_Point = this.FS.Mnt_Point,
+                FsPercent = this.FS.Percent,
+                FsSize = this.FS.Size,
+                FsUsage = this.FS.Usage,
 
                 // Network
                 NetworkCumulativeConnections = this.Network.CumulativeConnections,
@@ -127,7 +143,11 @@ namespace BenchmarkTool.System.Metrics
             public string Operation { get; set; }
             public int ClientsNumber { get; set; }
             public int BatchSize { get; set; }
+                  public int Dimensions { get; set; }
+                   public int Percentage { get; set; }
             public int SensorsNumber { get; set; }
+
+            public string Mode {get;set; }
 
             public double CpuTotal { get; set; }
             public double CpuSystem { get; set; }
@@ -157,6 +177,15 @@ namespace BenchmarkTool.System.Metrics
             public double DiskWriteBytes { get; set; }
             public long DiskWriteCount { get; set; }
 
+            public string FsDeviceName { get; set; }
+            public long FsFree { get; set; }
+            public string FsFs_Type { get; set; }
+            public string FsKey { get; set; }
+            public string FsMnt_Point { get; set; }
+            public double FsPercent { get; set; }
+            public long FsSize { get; set; }
+            public long FsUsage { get; set; }
+
             public long NetworkCumulativeConnections { get; set; }
             public long NetworkCumulativeReceives { get; set; }
             public long NetworkCumulativeTransmissions { get; set; }
@@ -171,7 +200,7 @@ namespace BenchmarkTool.System.Metrics
             public string ProcessIOCounters { get; set; }
             public string ProcessMemoryInfo { get; set; }
             public double ProcessMemoryPercent { get; set; }
-            public int ProcessThreadsNumber { get; set; }
+            public int? ProcessThreadsNumber { get; set; }
             public string ProcessStatus { get; set; }
         }
     }

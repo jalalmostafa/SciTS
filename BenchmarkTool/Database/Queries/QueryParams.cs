@@ -4,6 +4,7 @@
     {
         public const string Start = "start";
         public const string End = "end";
+        public const string Limit = "@limit";
         public const string SensorIDs = "sensor_ids";
         public const string FirstSensorID = "sensor1_id";
         public const string SecondSensorID = "sensor2_id";
