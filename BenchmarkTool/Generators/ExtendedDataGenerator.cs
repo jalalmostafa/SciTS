@@ -11,7 +11,6 @@ namespace BenchmarkTool.Generators
     {
         
         private Random _rnd = new Random();
-        private XorShiftRng _rndX = new XorShiftRng();
         private int timeindex;
         static int _scaleMilliseconds = Config.GetRegularTsScaleMilliseconds();
         private bool InTypeReg;
@@ -52,7 +51,6 @@ namespace BenchmarkTool.Generators
 
             RecordFactory recordFactory = new RecordFactory();
             _rnd = new Random(7839);
-            _rndX = new XorShiftRng(3345, 4234);
             var _Timestamp = date;
             int step = 0;
 

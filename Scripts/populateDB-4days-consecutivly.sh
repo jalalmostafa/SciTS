@@ -1,3 +1,4 @@
+# usefull for "scaling workloads" benchmark: How does a system react  when it is already quite filled with data
 dotnet run --project BenchmarkTool populate regular PostgresDB > P-r-pop.log 2>&1 
 dotnet run --project BenchmarkTool populate+1 regular PostgresDB > P-r-pop.log 2>&1
 dotnet run --project BenchmarkTool populate+2 regular PostgresDB > P-r-pop.log 2>&1 
