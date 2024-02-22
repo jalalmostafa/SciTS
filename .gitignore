@@ -394,7 +394,7 @@ FodyWeavers.xsd
 
 # This Project
 *.csv
-BenchmarkTool/Jupyter/graphs/*
+BenchmarkTool/Jupyter/graphs/
 BenchmarkTool/App.config
 Results/
 history.md
