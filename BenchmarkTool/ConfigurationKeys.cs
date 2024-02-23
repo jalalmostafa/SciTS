@@ -48,5 +48,7 @@ namespace BenchmarkTool
         public const string GlancesOutput = "GlancesOutput";
         public const string GlancesDisk = "GlancesDisk";
         public const string GlancesNIC = "GlancesNIC";
+        public const string RedisHost = "RedisHost";
+        public const string RedisPort = "RedisPort";
     }
 }

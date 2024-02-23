@@ -26,6 +26,8 @@ namespace BenchmarkTool.Database
                     return new PostgresDB();
                 case Constants.MySQLClass:
                     return new MySQLDB();
+                case Constants.RedisTimeSeriesClass:
+                    return new RedisTimeSeriesDB();
                 default:
                     throw new NotImplementedException();
             }

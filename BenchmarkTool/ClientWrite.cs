@@ -60,7 +60,7 @@ namespace BenchmarkTool
                     date = date.AddHours(period);
                     var batch = _dataGenerator.GenerateBatch(BatchSize, startId, sensorsPerClient, i, Index, date);
                     var status = await _targetDb.WriteBatch(batch);
-                    Console.WriteLine($"[{Index}-{i}-{date}] [Clients Number {ClientsNumber} - Batch Size {BatchSize} - Sensors Number {SensorsNumber}] {status.PerformanceMetric.Latency}");
+                    // Console.WriteLine($"[{Index}-{i}-{date}] [Clients Number {ClientsNumber} - Batch Size {BatchSize} - Sensors Number {SensorsNumber}] {status.PerformanceMetric.Latency}");
                     status.Iteration = i;
                     status.Client = Index;
                     statuses.Add(status);

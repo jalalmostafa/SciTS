@@ -20,7 +20,7 @@ namespace BenchmarkTool.Generators
                 Constants.ClickhouseClass => new RecordClickhouse(sensorId, timestamp, value),
                 Constants.MySQLClass => new RecordMySQLDB(sensorId, timestamp, value),
                 Constants.PostgresClass => new RecordTimescaleDB(sensorId, timestamp, value),
-
+                Constants.RedisTimeSeriesClass => new RecordRedisTimeSeries(sensorId, timestamp, value),
                 _ => throw new NotImplementedException(),
             };
         }

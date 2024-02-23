@@ -299,5 +299,23 @@ namespace BenchmarkTool
                 throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.GlancesNIC));
             return val;
         }
+
+        private static string GetString(string key)
+        {
+            var val = ConfigurationManager.AppSettings[key];
+            if (String.IsNullOrEmpty(val))
+                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.GlancesNIC));
+            return val;
+        }
+
+        public static string GetRedisHost()
+        {
+            return GetString(ConfigurationKeys.RedisHost);
+        }
+
+        public static string GetRedisPort()
+        {
+            return GetString(ConfigurationKeys.RedisPort);
+        }
     }
 }
