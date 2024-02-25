@@ -6,6 +6,19 @@ dotnet run --project SciTS/BenchmarkTool consecutive 2>&1 | tee consecutive.log 
 dotnet run --project SciTS/BenchmarkTool mixed-AggQueries 2>&1 | tee  mixed-AggQueries.log &&
 dotnet run --project SciTS/BenchmarkTool mixed-LimitedQueries 2>&1 | tee  mixed-LimitedQueries.log && echo "ende"
 
+
+# 
+
+dotnet run --project SciTS/BenchmarkTool consecutive regular 2>&1 | tee Rconsecutive.log &&
+dotnet run --project SciTS/BenchmarkTool consecutive regular 2>&1 | tee Rconsecutive.log &&
+dotnet run --project SciTS/BenchmarkTool mixed-AggQueries regular 2>&1 | tee  Rmixed-AggQueries.log &&
+dotnet run --project SciTS/BenchmarkTool mixed-LimitedQueries regular 2>&1 | tee  Rmixed-LimitedQueries.log &&
+dotnet run --project SciTS/BenchmarkTool consecutive irregular 2>&1 | tee iRconsecutive.log &&
+dotnet run --project SciTS/BenchmarkTool consecutive irregular 2>&1 | tee iRconsecutive.log &&
+dotnet run --project SciTS/BenchmarkTool mixed-AggQueries irregular 2>&1 | tee  iRmixed-AggQueries.log &&
+dotnet run --project SciTS/BenchmarkTool mixed-LimitedQueries irregular 2>&1 | tee  iRmixed-LimitedQueries.log && echo "ende"
+
+
 # ASSERT App.config is configured correctly and glances is working on server.
 
 dotnet run --project SciTS/BenchmarkTool consecutive regular InfluxDB &&

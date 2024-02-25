@@ -17,7 +17,7 @@ namespace BenchmarkTool
         public static int _currentClientsNR { get; private set; }
         public static int _currentWriteClientsNR { get; private set; }
         public static int _currentWriteBatchSize { get; private set; }
-        static int _TestRetryIteration;
+        public static int _TestRetryIteration  { get; private set; }
         public static int _currentlimit { get; private set; }
 
         static async Task Main(string[] args)
@@ -155,7 +155,7 @@ namespace BenchmarkTool
         {
             var init = Config.GetQueryType(); // Just for Init the Array
 
-            int _TestRetryIteration = 0;
+            _TestRetryIteration = 0;
             int[] clientNumberArray = Config.GetClientNumberOptions();
 
             while (_TestRetryIteration < Config.GetTestRetries())
@@ -259,7 +259,7 @@ namespace BenchmarkTool
         {
             var init = Config.GetQueryType(); // Just for Init the Array
 
-            int _TestRetryIteration = 0;
+            _TestRetryIteration = 0;
             {
                 while ( _TestRetryIteration < Config.GetTestRetries())
                 {
@@ -326,7 +326,7 @@ namespace BenchmarkTool
             var init = Config.GetQueryType(); // Just to Init the Array
             int[] clientNumberArray = Config.GetClientNumberOptions();
             int[] dimNbArray = Config.GetDataDimensionsNrOptions();
-            int _TestRetryIteration = 0;
+            _TestRetryIteration = 0;
             {
                 while ( _TestRetryIteration < Config.GetTestRetries())
                 {
