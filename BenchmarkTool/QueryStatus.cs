@@ -30,6 +30,7 @@ namespace BenchmarkTool
                             Exception exception, string errorMessage)
                             : this(succeeded, dataPoints, metric)
         {
+            DataPoints = dataPoints;
             _errorMessage = errorMessage;
             _thrownException = exception;
         }
