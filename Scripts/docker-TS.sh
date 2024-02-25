@@ -8,5 +8,5 @@ docker run -d   -p 6432:5432 \
         -v $(realpath ./ts_data):/home/postgres/pgdata/data/ \
         -v $(realpath ./ts_config):/var/lib/postgresql/data/  \
         -v $(realpath ./ts_log):/var/log/postrgresql/               \
-        -e POSTGRES_PASSWORD=P@ssw0rd     \
+        -e POSTGRES_PASSWORD=TimescalePW     \
         timescale/timescaledb:latest-pg14
