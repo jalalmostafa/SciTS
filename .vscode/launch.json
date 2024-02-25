@@ -29,7 +29,7 @@
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/BenchmarkTool/bin/Debug/net7.0/BenchmarkTool.dll",
             "args": [
-                "mixed-LimitedQueries"  // can be populate, populate+1, read, write, mixed-LimitedQueries, mixed-AggQueries, mixed-11%LimitedQueries , consecutive on first place , regular /irregular as second argument - and X_DB on third. e.g. "write", "regular" , "PostgresDB"
+                "read"  // can be populate, populate+1, read, write, mixed-LimitedQueries, mixed-AggQueries, mixed-11%LimitedQueries , consecutive on first place , regular /irregular as second argument - and X_DB on third. e.g. "write", "regular" , "PostgresDB"
             ],
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",

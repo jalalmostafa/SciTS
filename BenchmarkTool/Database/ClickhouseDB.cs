@@ -161,7 +161,7 @@ namespace BenchmarkTool.Database
                 string sql = _query.RangeAgg;
                 sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorIDs.ToString());
+                sql = sql.Replace(QueryParams.SensorIDsParam, string.Join(",", query.SensorIDs));
 
                 Log.Information(sql);
                 var cmd = _write_connection.CreateCommand();
@@ -191,7 +191,7 @@ namespace BenchmarkTool.Database
                 string sql = _query.RangeRaw;
                 sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorIDs.ToString());
+                sql = sql.Replace(QueryParams.SensorIDsParam, string.Join(",", query.SensorIDs) );
                 Log.Information(sql);
 
                 var cmd = _write_connection.CreateCommand();
@@ -221,7 +221,7 @@ namespace BenchmarkTool.Database
                 string sql = _query.RangeRawAllDims;
                 sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorIDs.ToString());
+                sql = sql.Replace(QueryParams.SensorIDsParam, string.Join(",", query.SensorIDs));
                 Log.Information(sql);
                 var cmd = _write_connection.CreateCommand();
                 cmd.CommandText = sql;
@@ -248,7 +248,7 @@ namespace BenchmarkTool.Database
                 string sql = _query.RangeRawLimited;
                 sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorIDs.ToString());
+                sql = sql.Replace(QueryParams.SensorIDsParam, string.Join(",", query.SensorIDs));
                 Log.Information(sql);
 
                 sql = sql.Replace(QueryParams.Limit, limit.ToString());
@@ -280,7 +280,7 @@ namespace BenchmarkTool.Database
                 string sql = _query.RangeRawAllDimsLimited;
                 sql = sql.Replace(QueryParams.StartParam, query.StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 sql = sql.Replace(QueryParams.EndParam, query.EndDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                sql = sql.Replace(QueryParams.SensorIDsParam, query.SensorIDs.ToString());
+                sql = sql.Replace(QueryParams.SensorIDsParam, string.Join(",", query.SensorIDs));
                 Log.Information(sql);
 
                 sql = sql.Replace(QueryParams.Limit, limit.ToString());

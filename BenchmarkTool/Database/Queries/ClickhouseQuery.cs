@@ -5,17 +5,17 @@ namespace BenchmarkTool.Database.Queries
     public class ClickhouseQuery : IQuery<String>
     {
         private static string _rangeRawAllDims = @"SELECT * from {0} 
-                                            where {1} >= toDateTime('{2}') and {1} <= toDateTime('{3}') and {4} = ANY({5})";
+                                            where {1} >= toDateTime('{2}') and {1} <= toDateTime('{3}') and {4} IN ({5})";
         private static string _rangeRaw = @"SELECT {6} from {0} 
-                                            where {1} >= toDateTime('{2}') and {1} <= toDateTime('{3}') and {4} = ANY({5})";
+                                            where {1} >= toDateTime('{2}') and {1} <= toDateTime('{3}') and {4} IN ({5})";
 
         private static string _rangeRawAllDimsLimited = @"SELECT * from {0} 
-                                            where {1} >= toDateTime('{2}') and {1} <= toDateTime('{3}') and {4} = ANY({5}) LIMIT {6}";
+                                            where {1} >= toDateTime('{2}') and {1} <= toDateTime('{3}') and {4} IN ({5}) LIMIT {6}";
         private static string _rangeRawLimited = @"SELECT {6} from {0} 
-                                            where {1} >= toDateTime('{2}') and {1} <= toDateTime('{3}') and {4} = ANY({5}) LIMIT {7}";
+                                            where {1} >= toDateTime('{2}') and {1} <= toDateTime('{3}') and {4} IN ({5}) LIMIT {7}";
 
         private static string _rangeAgg = @"SELECT toStartOfInterval({0}, INTERVAL {1} hour) as interval, avg({2}), {3} from {4}
-                                            where {0} >= toDateTime('{5}') and {0} <= toDateTime('{6}') and {3}  = ANY({7})
+                                            where {0} >= toDateTime('{5}') and {0} <= toDateTime('{6}') and {3} IN ({7})
                                             GROUP BY {3}, interval";
 
         private static string _outOfRange = @"SELECT toStartOfInterval({0} ,INTERVAL {1} hour) as interval, max({2}), min({2}), {3} from {4}
