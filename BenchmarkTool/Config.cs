@@ -265,7 +265,7 @@ namespace BenchmarkTool
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.QueryType];
             if (String.IsNullOrEmpty(QueryTypeOnRunTime)) //INIT
             {
-                if (val == "All"){ //Optional TODO move logic to Config.GetQueryOptions
+                if (val == "All"){ //Optional TODO move logic to Config.GetQueryOptions,INSERT FILTERS SPACES
                     Config._QueryArray = new string[] { "RangeQueryRawData", "RangeQueryRawAllDimsData", "RangeQueryAggData", "OutOfRangeQuery", "DifferenceAggQuery", "STDDevQuery" };
                 }else if (val == "Agg" || Program.Mode.Contains("Agg")){
                     Config._QueryArray = new string[] { "RangeQueryAggData", "DifferenceAggQuery", "STDDevQuery" };

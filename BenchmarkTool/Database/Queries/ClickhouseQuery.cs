@@ -22,7 +22,6 @@ namespace BenchmarkTool.Database.Queries
                                              where {0} >= toDateTime('{5}') and {0} <= toDateTime('{6}') and {3} = {7}
                                              GROUP BY {3}, interval
                                              HAVING max({2}) > {8} or min({2}) < {9}";
-
         private static string _aggDifference = @"SELECT A1.interval, A2.val - A1.val from
                                                     (SELECT toStartOfInterval({0} ,INTERVAL {1} minute) as interval, avg({2}) as val from {3}
                                                         where {0} >=toDateTime('{4}') and {0}<=toDateTime('{5}') and {6} = {7}
