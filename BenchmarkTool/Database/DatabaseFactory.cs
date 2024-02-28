@@ -12,7 +12,7 @@ namespace BenchmarkTool.Database
             _database = Config.GetTargetDatabase();
         }
 
-        public IDatabase Create()
+        public IDatabase Create(int clientsNumber, int sensorsNumber, int batchSize)
         {
             switch (_database)
             {
@@ -27,7 +27,7 @@ namespace BenchmarkTool.Database
                 case Constants.MySQLClass:
                     return new MySQLDB();
                 case Constants.RedisTimeSeriesClass:
-                    return new RedisTimeSeriesDB();
+                    return new RedisTimeSeriesDB(clientsNumber, sensorsNumber, batchSize);
                 default:
                     throw new NotImplementedException();
             }

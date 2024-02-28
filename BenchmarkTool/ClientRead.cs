@@ -28,7 +28,7 @@ namespace BenchmarkTool
                 _minutes = Config.GetDurationMinutes();
 
                 var dbFactory = new DatabaseFactory();
-                _targetDb = dbFactory.Create();
+                _targetDb = dbFactory.Create(1, 0, 0);
                 _targetDb.Init();
             }
             catch (Exception ex)

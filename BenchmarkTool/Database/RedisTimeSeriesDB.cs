@@ -19,11 +19,21 @@ namespace BenchmarkTool.Database
     {
         private static bool _initialized = false;
 
-        private SERedis.ConnectionMultiplexer _connection;
+        private static ConnectionMultiplexer _connection;
         private SERedis.IDatabase _redisDB;
         private TimeSeriesCommands _redists;
 
         private int _aggInterval;
+        private int _clientsNumber;
+        private int _sensorsNumber;
+        private int _batchSize;
+
+        public RedisTimeSeriesDB(int clientsNumber, int sensorsNumber, int batchSize)
+        {
+            _clientsNumber = clientsNumber;
+            _sensorsNumber = sensorsNumber;
+            _batchSize = batchSize;
+        }
 
         public void Cleanup()
         {
@@ -46,12 +56,15 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                var options = new ConfigurationOptions()
+                if (_connection == null)
                 {
-                    SocketManager = new SocketManager("test", 1),
-                    EndPoints = { { Config.GetRedisHost(), Config.GetRedisPort() } },
-                };
-                _connection = ConnectionMultiplexer.Connect(options);
+                    var options = new ConfigurationOptions()
+                    {
+                        SocketManager = new SocketManager("test", _clientsNumber),
+                        EndPoints = { { Config.GetRedisHost(), Config.GetRedisPort() } },
+                    };
+                    _connection = ConnectionMultiplexer.Connect(options);
+                }
                 _redisDB = _connection.GetDatabase();
                 _redists = _redisDB.TS();
                 if (!_initialized)

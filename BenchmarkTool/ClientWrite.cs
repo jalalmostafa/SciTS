@@ -31,7 +31,7 @@ namespace BenchmarkTool
                 _date = date;
                 _daySpan = Config.GetDaySpan();
                 var dbFactory = new DatabaseFactory();
-                _targetDb = dbFactory.Create();
+                _targetDb = dbFactory.Create(ClientsNumber, SensorsNumber, BatchSize);
                 _targetDb.Init();
             }
             catch (Exception ex)
