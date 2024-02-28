@@ -11,6 +11,7 @@ using BenchmarkTool.Generators;
 using System.Linq;
 using System.Collections.Immutable;
 using NRedisStack.DataTypes;
+using StackExchange.Redis;
 
 namespace BenchmarkTool.Database
 {
@@ -45,7 +46,12 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                _connection = SERedis.ConnectionMultiplexer.Connect($"{Config.GetRedisHost()}:{Config.GetRedisPort()}");
+                var options = new ConfigurationOptions()
+                {
+                    SocketManager = new SocketManager("test", 1),
+                    EndPoints = { { Config.GetRedisHost(), Config.GetRedisPort() } },
+                };
+                _connection = ConnectionMultiplexer.Connect(options);
                 _redisDB = _connection.GetDatabase();
                 _redists = _redisDB.TS();
                 if (!_initialized)

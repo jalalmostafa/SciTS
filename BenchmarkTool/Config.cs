@@ -303,9 +303,16 @@ namespace BenchmarkTool
         private static string GetString(string key)
         {
             var val = ConfigurationManager.AppSettings[key];
-            if (String.IsNullOrEmpty(val))
-                throw new Exception(String.Format("Null or empty app settings val for key={0}", ConfigurationKeys.GlancesNIC));
+            if (string.IsNullOrEmpty(val))
+                throw new Exception(string.Format("Null or empty app settings val for key={0}", ConfigurationKeys.GlancesNIC));
             return val;
+        }
+
+        private static int GetInt(string key)
+        {
+            string valueStr = GetString(key);
+            int.TryParse(valueStr, out int value);
+            return value;
         }
 
         public static string GetRedisHost()
@@ -313,9 +320,9 @@ namespace BenchmarkTool
             return GetString(ConfigurationKeys.RedisHost);
         }
 
-        public static string GetRedisPort()
+        public static int GetRedisPort()
         {
-            return GetString(ConfigurationKeys.RedisPort);
+            return GetInt(ConfigurationKeys.RedisPort);
         }
     }
 }
