@@ -296,7 +296,7 @@ namespace BenchmarkTool
         public static string GetIngestionType()
         {
             var val = ConfigurationManager.AppSettings[ConfigurationKeys.IngestionType];
-            if (_ingType.Contains("reg"))
+            if (_ingType.Contains("regular") ||   _ingType.Contains("irregular"))
                 val = _ingType;
             if (String.IsNullOrEmpty(val) || (val != "regular" && val != "irregular"))
                 throw new Exception(String.Format("Invalid or Null or empty app settings val for key={0}", ConfigurationKeys.IngestionType));

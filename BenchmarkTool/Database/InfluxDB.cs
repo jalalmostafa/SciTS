@@ -98,7 +98,7 @@ namespace BenchmarkTool.Database
                 sw.Stop();
                 Log.Information(String.Format("Number of point: {0}", results[0].Records.Count.ToString()));
                 int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
-                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedTicks, count, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
             }
             catch (Exception ex)
             {
@@ -125,7 +125,7 @@ namespace BenchmarkTool.Database
                 sw.Stop();
                 Log.Information(String.Format("Number of point: {0}", results[0].Records.Count.ToString()));
                 int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
-                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedTicks, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
             }
             catch (Exception ex)
             {
@@ -151,7 +151,7 @@ namespace BenchmarkTool.Database
                 sw.Stop();
                 int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
                 Log.Information("Number of points: " + count.ToString());
-                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedTicks, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
             catch (Exception ex)
             {
@@ -178,7 +178,7 @@ namespace BenchmarkTool.Database
                 sw.Stop();
                 int count = results != null && results.Count > 0 ? results[0].Records.Count : 0; // TODO understand better
                 Log.Information("Number of points: " + count.ToString());
-                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedTicks, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
             }
             catch (Exception ex)
             {
@@ -207,7 +207,7 @@ namespace BenchmarkTool.Database
                 sw.Stop();
                 int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
                 Log.Information("Number of points: " + count.ToString());
-                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedTicks, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
             catch (Exception ex)
             {
@@ -236,7 +236,7 @@ namespace BenchmarkTool.Database
                 sw.Stop();
                 int count = results != null && results.Count > 0 ? results[0].Records.Count : 0; // TODO understand better
                 Log.Information("Number of points: " + count.ToString());
-                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedTicks, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
             }
             catch (Exception ex)
             {
@@ -262,7 +262,7 @@ namespace BenchmarkTool.Database
                 sw.Stop();
                 Log.Information(String.Format("Number of point: {0}", results[0].Records.Count.ToString()));
                 int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
-                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.DifferenceAggQuery));
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedTicks, count, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.DifferenceAggQuery));
             }
             catch (Exception ex)
             {
@@ -294,7 +294,7 @@ namespace BenchmarkTool.Database
                 Stopwatch sw = Stopwatch.StartNew();
                 await _writeApi.WriteRecordsAsync(lineData, WritePrecision.Ns);
                 sw.Stop();
-                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
+                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedTicks, batch.Size, 0, Operation.BatchIngestion));
             }
             catch (Exception ex)
             {
@@ -315,7 +315,7 @@ namespace BenchmarkTool.Database
                 Stopwatch sw = Stopwatch.StartNew();
                 await _writeApi.WriteRecordsAsync(lineData, WritePrecision.Ns);
                 sw.Stop();
-                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, 1, 0, Operation.StreamIngestion));
+                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedTicks, 1, 0, Operation.StreamIngestion));
             }
             catch (Exception ex)
             {
@@ -340,7 +340,7 @@ namespace BenchmarkTool.Database
 
                 int count = results != null && results.Count > 0 ? results[0].Records.Count : 0;
                 Log.Information("Number of points: " + count.ToString());
-                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedMilliseconds, count, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
+                return new QueryStatusRead(true, count, new PerformanceMetricRead(sw.ElapsedTicks, count, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
             }
             catch (Exception ex)
             {

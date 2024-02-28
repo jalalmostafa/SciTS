@@ -190,7 +190,7 @@ var dirName = GetDirectoryName();
                 sw.Stop();
                 // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
             catch (Exception ex)
             {
@@ -221,7 +221,7 @@ var dirName = GetDirectoryName();
                 points = readResult.Vectors.Length * readResult.Vectors.First().Values.Length;
                 // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
             }
             catch (Exception ex)
             {
@@ -252,7 +252,7 @@ var dirName = GetDirectoryName();
                 sw.Stop();
                 // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
             catch (Exception ex)
             {
@@ -282,7 +282,7 @@ var dirName = GetDirectoryName();
                 sw.Stop();
                 // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
             }
             catch (Exception ex)
             {
@@ -311,7 +311,7 @@ var dirName = GetDirectoryName();
                 _aggInterval = (int)Config.GetAggregationInterval();
                 sw.Stop();
                 // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
             }
             catch (Exception ex)
             {
@@ -349,7 +349,7 @@ var dirName = GetDirectoryName();
 
                 // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.OutOfRangeQuery));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.OutOfRangeQuery));
             }
             catch (Exception ex)
             {
@@ -378,7 +378,7 @@ var dirName = GetDirectoryName();
                 _aggInterval = (int)Config.GetAggregationInterval();
                 sw.Stop();
                 // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.DifferenceAggQuery));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.DifferenceAggQuery));
             }
             catch (Exception ex)
             {
@@ -408,7 +408,7 @@ var dirName = GetDirectoryName();
                 sw.Stop();
                 // await Print(readResult, query.ToString(), Config.GetPrintModeEnabled());
 
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedMilliseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.STDDevQuery));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.STDDevQuery));
             }
             catch (Exception ex)
             {
