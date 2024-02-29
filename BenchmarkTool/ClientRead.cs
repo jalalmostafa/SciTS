@@ -7,6 +7,7 @@ using BenchmarkTool.Queries;
 using BenchmarkTool.Database;
 using System.Collections.Generic;
 using System.Diagnostics;
+using NodaTime.Extensions;
 
 namespace BenchmarkTool
 {
@@ -56,7 +57,7 @@ namespace BenchmarkTool
             QueryStatusRead status;
             _chosenClientIndex = chosenClientIndex;
             Stopwatch swC = Stopwatch.StartNew();
-
+var x = swC.Elapsed.TotalMicroseconds;
             switch (_operation)
             {
                 case Operation.RangeQueryRawData:
@@ -69,7 +70,7 @@ namespace BenchmarkTool
                         status.Client = _chosenClientIndex;
                         status.StartDate = startDate;
                         swC.Stop();
-                        status.PerformanceMetric.ClientLatency = swC.ElapsedTicks;
+                        status.PerformanceMetric.ClientLatency = swC.Elapsed.TotalMicroseconds;
                         Console.WriteLine($"[Succeded:{status.PerformanceMetric.SucceededDataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -84,7 +85,7 @@ namespace BenchmarkTool
                         status.Client = _chosenClientIndex;
                         status.StartDate = startDate;
                         swC.Stop();
-                        status.PerformanceMetric.ClientLatency = swC.ElapsedTicks;
+                        status.PerformanceMetric.ClientLatency = swC.Elapsed.TotalMicroseconds;
                         Console.WriteLine($"[Succeded:{status.PerformanceMetric.SucceededDataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -100,7 +101,7 @@ namespace BenchmarkTool
                         status.Client = _chosenClientIndex;
                         status.StartDate = startDate;
                         swC.Stop();
-                        status.PerformanceMetric.ClientLatency = swC.ElapsedTicks;
+                        status.PerformanceMetric.ClientLatency = swC.Elapsed.TotalMicroseconds;
                         Console.WriteLine($"[Succeded:{status.PerformanceMetric.SucceededDataPoints}-Limit:{limit}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -115,7 +116,7 @@ namespace BenchmarkTool
                         status.Client = _chosenClientIndex;
                         status.StartDate = startDate;
                         swC.Stop();
-                        status.PerformanceMetric.ClientLatency = swC.ElapsedTicks;
+                        status.PerformanceMetric.ClientLatency = swC.Elapsed.TotalMicroseconds;
                         Console.WriteLine($"[Succeded:{status.PerformanceMetric.SucceededDataPoints}-Limit{limit}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -130,7 +131,7 @@ namespace BenchmarkTool
                         status.Client = _chosenClientIndex;
                         status.StartDate = startDate;
                         swC.Stop();
-                        status.PerformanceMetric.ClientLatency = swC.ElapsedTicks;
+                        status.PerformanceMetric.ClientLatency = swC.Elapsed.TotalMicroseconds;
                         Console.WriteLine($"[Succeded:{status.PerformanceMetric.SucceededDataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -145,7 +146,7 @@ namespace BenchmarkTool
                         status.Client = _chosenClientIndex;
                         status.StartDate = startDate;
                         swC.Stop();
-                        status.PerformanceMetric.ClientLatency = swC.ElapsedTicks;
+                        status.PerformanceMetric.ClientLatency = swC.Elapsed.TotalMicroseconds;
                         Console.WriteLine($"[Succeded:{status.PerformanceMetric.SucceededDataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()} [ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -160,7 +161,7 @@ namespace BenchmarkTool
                         status.Client = _chosenClientIndex;
                         status.StartDate = startDate;
                         swC.Stop();
-                        status.PerformanceMetric.ClientLatency = swC.ElapsedTicks;
+                        status.PerformanceMetric.ClientLatency = swC.Elapsed.TotalMicroseconds;
                         Console.WriteLine($"[Succeded:{status.PerformanceMetric.SucceededDataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()}[ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }
@@ -175,7 +176,7 @@ namespace BenchmarkTool
                         status.StartDate = startDate;
 
                         swC.Stop();
-                        status.PerformanceMetric.ClientLatency = swC.ElapsedTicks;
+                        status.PerformanceMetric.ClientLatency = swC.Elapsed.TotalMicroseconds;
                         Console.WriteLine($"[Succeded:{status.PerformanceMetric.SucceededDataPoints}-Iteration:{TestRetryReadIteration}-date: {startDate} ,min: {_minutes} ] {BenchmarkTool.Program.Mode}-{Config._actualMixedWLPercentage}% - {Config.GetTargetDatabase()}[ ClientsNR:{BenchmarkTool.Program._currentReadClientsNR} -  {_operation.ToString()} -  with Dimensions:{status.PerformanceMetric.DimensionsNb}] Latency:{status.PerformanceMetric.Latency}");
 
                     }

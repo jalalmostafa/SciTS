@@ -146,7 +146,7 @@ namespace BenchmarkTool.Database
                 }
                 sw.Stop();
                 await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.Elapsed.TotalMicroseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.OutOfRangeQuery));
             }
             catch (Exception ex)
             {
@@ -174,7 +174,7 @@ namespace BenchmarkTool.Database
                 }
                 sw.Stop();
                 await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.DifferenceAggQuery));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.Elapsed.TotalMicroseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.DifferenceAggQuery));
             }
             catch (Exception ex)
             {
@@ -202,7 +202,7 @@ namespace BenchmarkTool.Database
                 }
                 sw.Stop();
                 await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.Elapsed.TotalMicroseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryAggData));
             }
             catch (Exception ex)
             {
@@ -233,7 +233,7 @@ namespace BenchmarkTool.Database
                 }
                 sw.Stop();
                 await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.Elapsed.TotalMicroseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
             catch (Exception ex)
             {
@@ -263,7 +263,7 @@ namespace BenchmarkTool.Database
                 }
                 sw.Stop();
                 await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.Elapsed.TotalMicroseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
             }
             catch (Exception ex)
             {
@@ -296,7 +296,7 @@ namespace BenchmarkTool.Database
                 }
                 sw.Stop();
                 await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.Elapsed.TotalMicroseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawData));
             }
             catch (Exception ex)
             {
@@ -327,7 +327,7 @@ namespace BenchmarkTool.Database
                 }
                 sw.Stop();
                 await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.Elapsed.TotalMicroseconds, points, 0, query.StartDate, query.DurationMinutes, _aggInterval, Operation.RangeQueryRawAllDimsData));
             }
             catch (Exception ex)
             {
@@ -354,7 +354,7 @@ namespace BenchmarkTool.Database
                 }
                 sw.Stop();
                 await Print(reader, query.ToString(), Config.GetPrintModeEnabled());
-                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.ElapsedTicks, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
+                return new QueryStatusRead(true, points, new PerformanceMetricRead(sw.Elapsed.TotalMicroseconds, points, 0, query.StartDate, query.DurationMinutes, 0, Operation.STDDevQuery));
             }
             catch (Exception ex)
             {
@@ -374,7 +374,7 @@ namespace BenchmarkTool.Database
                     await cmd.ExecuteNonQueryAsync();
                     sw.Stop();
 
-                    return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedTicks, 1, 0, Operation.StreamIngestion));
+                    return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.Elapsed.TotalMicroseconds, 1, 0, Operation.StreamIngestion));
                 }
             }
             catch (Exception ex)
@@ -391,7 +391,7 @@ namespace BenchmarkTool.Database
                 Stopwatch sw = Stopwatch.StartNew();
                 await _copyHelper.SaveAllAsync(_connection, batch.RecordsArray);
                 sw.Stop();
-                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedTicks, batch.Size, 0, Operation.BatchIngestion));
+                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.Elapsed.TotalMicroseconds, batch.Size, 0, Operation.BatchIngestion));
             }
             catch (Exception ex)
             {

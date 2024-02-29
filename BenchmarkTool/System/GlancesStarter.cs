@@ -68,7 +68,7 @@ namespace BenchmarkTool.System
                 }
                 catch (OperationCanceledException e)
                 {
-
+                    // do nothing
                 }
                 catch (Exception e)
                 {

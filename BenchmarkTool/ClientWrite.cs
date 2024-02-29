@@ -72,7 +72,7 @@ namespace BenchmarkTool
                 status.StartDate=batchStartdate;
 
                 swC.Stop();
-                status.PerformanceMetric.ClientLatency = swC.ElapsedTicks;
+                status.PerformanceMetric.ClientLatency = swC.Elapsed.TotalMicroseconds;
                             
             _targetDb.Cleanup();
             _targetDb.Close();

@@ -140,7 +140,7 @@ namespace BenchmarkTool.Database
                     sw.Stop();
                 }
 
-                return Task.FromResult(new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedTicks, batch.Size, 0, Operation.BatchIngestion)));
+                return Task.FromResult(new QueryStatusWrite(true, new PerformanceMetricWrite(sw.Elapsed.TotalMicroseconds, batch.Size, 0, Operation.BatchIngestion)));
             }
             catch (Exception ex)
             {
