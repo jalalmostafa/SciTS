@@ -63,7 +63,7 @@ namespace BenchmarkTool
                     case var s when action.Contains("populateShort+"):
                         int j1 = s.IndexOf("+") + 1;
                         int j2 = s.Length;
-                        int hours = int.Parse(s.Substring(j1, j2 - j1));
+                        double hours = double.Parse(s.Substring(j1, j2 - j1));
                         Mode = "populateShort_Hours+" + hours + "_" + Config.GetIngestionType();
                         await PopulateRegularData(0, hours);
                         break;
@@ -125,7 +125,7 @@ namespace BenchmarkTool
         {
             await PopulateRegularData(dayAfterStartdate, 24);
         }
-        private async static Task PopulateRegularData(int dayAfterStartdate, int hours)
+        private async static Task PopulateRegularData(int dayAfterStartdate, double hours)
         {
             var init = Config.GetQueryType(); // Just for Init the Array
             int batchSize = Config.GetSensorNumber() * 60 * (1000 / Config.GetRegularTsScaleMilliseconds()); // one minute ingestion

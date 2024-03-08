@@ -29,7 +29,7 @@ namespace BenchmarkTool.Database
             _aggInterval = Config.GetAggregationInterval();
         }
 
-        public PostgresDB() : this(new PostgresQuery(), Config.GetPostgresConnection())
+        public PostgresDB() : this(new PostgresQuery(), Config.GetPostgresConnection()+"Tcp Keepalive=True")
         {
         }
 

@@ -14,6 +14,7 @@
     <PackageReference Include="Npgsql" Version="8.0.1" />
     <PackageReference Include="PostgreSQLCopyHelper" Version="2.8.0" />
     <PackageReference Include="PromQL.NET" Version="0.4.1" />
+    <PackageReference Include="pythonnet" Version="3.0.3" />
     <PackageReference Include="RestSharp" Version="110.2.0" />
     <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.0" />
     <PackageReference Include="Serilog" Version="3.1.1" />
@@ -21,8 +22,6 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
     <PackageReference Include="xunit" Version="2.6.3" />
-    <PackageReference Include="Devart.Data.PostgreSql" Version="8.3.10" />
-    <PackageReference Include="DotNetPostgres.Core" Version="1.0.161" />
   </ItemGroup>
 
 </Project>
