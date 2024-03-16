@@ -1,0 +1,57 @@
+<style>.itables table td {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.itables table th {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.itables thead input {
+    width: 100%;
+    padding: 3px;
+    box-sizing: border-box;
+}
+
+.itables tfoot input {
+    width: 100%;
+    padding: 3px;
+    box-sizing: border-box;
+}
+</style>
+<div class="itables">
+<table id="9fbd2ac4-da32-40da-9c21-2bbc65c367fa" class="display nowrap"style="table-layout:auto;width:auto;margin:auto;caption-side:bottom"><thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TargetDatabase</th>
+      <th>Mode</th>
+      <th>ApprxMBpS</th>
+      <th>Operation</th>
+      <th>ClientsNumber</th>
+      <th>BatchSize</th>
+      <th>Duration</th>
+      <th>Dimensions</th>
+      <th>Latency</th>
+    </tr>
+  </thead><tbody><tr><td>Loading... (need <a href=https://mwouts.github.io/itables/troubleshooting.html>help</a>?)</td></tr></tbody></table>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+<script type="module">
+    // Import jquery and DataTable
+    import 'https://code.jquery.com/jquery-3.6.0.min.js';
+    import dt from 'https://cdn.datatables.net/1.12.1/js/jquery.dataTables.mjs';
+    dt($);
+
+    // Define the table data
+    const data = [[2, "ClickhouseDB", "dedicated_irregular", 81.558182, "BatchIngestion", 48, 30000.0, NaN, 24, 3580369.0], [3, "ClickhouseDB", "dedicated_regular", 80.819139, "BatchIngestion", 8, 30000.0, NaN, 12, 291587.0], [10, "DatalayertsDB", "dedicated_irregular", 9.023604, "BatchIngestion", 48, 60000.0, NaN, 24, 121173200.0], [11, "DatalayertsDB", "dedicated_regular", 1587.297625, "BatchIngestion", 48, 60000.0, NaN, 1, 19209.03], [18, "InfluxDB", "dedicated_irregular", 53.585686, "BatchIngestion", 48, 60000.0, NaN, 24, 3006673000.0], [19, "InfluxDB", "dedicated_regular", 61.903971, "BatchIngestion", 48, 60000.0, NaN, 24, 2072119000.0], [26, "TimescaleDB", "dedicated_irregular", 146.678665, "BatchIngestion", 8, 60000.0, NaN, 12, 322687.4], [27, "TimescaleDB", "dedicated_regular", 239.836449, "BatchIngestion", 48, 10000.0, NaN, 24, 472019.6]];
+
+    // Define the dt_args
+    let dt_args = {"order": [], "dom": "t"};
+    dt_args["data"] = data;
+
+    $(document).ready(function () {
+        
+        $('#9fbd2ac4-da32-40da-9c21-2bbc65c367fa').DataTable(dt_args);
+    });
+</script>
+</div>
