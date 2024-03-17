@@ -57,7 +57,6 @@ namespace BenchmarkTool
             QueryStatusRead status;
             _chosenClientIndex = chosenClientIndex;
             Stopwatch swC = Stopwatch.StartNew();
-var x = swC.Elapsed.TotalMicroseconds;
             switch (_operation)
             {
                 case Operation.RangeQueryRawData:

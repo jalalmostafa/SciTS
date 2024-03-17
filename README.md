@@ -178,3 +178,12 @@ The file to workload mapping is as follow:
 |.............|....................................|
 |Collection   |                                    |
 |of 2023 WLs  | test2023.sh                        |
+
+
+#### Timescale
+We discovered abnormal high latencies and other failures with NPGSQL, so we embedded a python script which does the queries.
+Therefore you need to configure the python location. In case of python 3.10, e.g.
+use "whereis libpython3.10.so", and copy this path.
+Then you go into TimescaleDB.cd, and edit the string in line 134 [ Runtime.PythonDLL = "/usr/lib/_Architecture_-linux-gnu/libpython3.10.so"; ]
+
+So it points to your python location

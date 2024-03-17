@@ -1,0 +1,52 @@
+<style>.itables table td {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.itables table th {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.itables thead input {
+    width: 100%;
+    padding: 3px;
+    box-sizing: border-box;
+}
+
+.itables tfoot input {
+    width: 100%;
+    padding: 3px;
+    box-sizing: border-box;
+}
+</style>
+<div class="itables">
+<table id="9595dd8f-88ea-4f62-9804-b9963a1354f1" class="display nowrap"style="table-layout:auto;width:auto;margin:auto;caption-side:bottom"><thead>
+    <tr style="text-align: right;">
+      
+      <th>TargetDatabase</th>
+      <th>Mode</th>
+      <th>ClientsNumber</th>
+      <th>ApprxMBpS</th>
+    </tr>
+  </thead><tbody><tr><td>Loading... (need <a href=https://mwouts.github.io/itables/troubleshooting.html>help</a>?)</td></tr></tbody></table>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+<script type="module">
+    // Import jquery and DataTable
+    import 'https://code.jquery.com/jquery-3.6.0.min.js';
+    import dt from 'https://cdn.datatables.net/1.12.1/js/jquery.dataTables.mjs';
+    dt($);
+
+    // Define the table data
+    const data = [["ClickhouseDB", "dedicated_irregular", 1, 10.232193], ["ClickhouseDB", "dedicated_irregular", 8, 60.671862], ["ClickhouseDB", "dedicated_irregular", 24, 109.797504], ["ClickhouseDB", "dedicated_irregular", 48, 135.298168], ["ClickhouseDB", "dedicated_regular", 1, 10.722773], ["ClickhouseDB", "dedicated_regular", 8, 65.814342], ["ClickhouseDB", "dedicated_regular", 24, 119.24171], ["ClickhouseDB", "dedicated_regular", 48, 141.016018], ["DatalayertsDB", "dedicated_irregular", 1, 222.385968], ["DatalayertsDB", "dedicated_irregular", 8, 1260.59861], ["DatalayertsDB", "dedicated_irregular", 24, 1534.460432], ["DatalayertsDB", "dedicated_irregular", 48, 2250.224959], ["DatalayertsDB", "dedicated_regular", 1, 392.587951], ["DatalayertsDB", "dedicated_regular", 8, 1750.382737], ["DatalayertsDB", "dedicated_regular", 24, 2774.975416], ["DatalayertsDB", "dedicated_regular", 48, 3413.979223], ["InfluxDB", "dedicated_irregular", 1, 6.105517], ["InfluxDB", "dedicated_irregular", 8, 18.357546], ["InfluxDB", "dedicated_irregular", 24, 22.653262], ["InfluxDB", "dedicated_irregular", 48, 25.300857], ["InfluxDB", "dedicated_regular", 1, 7.791068], ["InfluxDB", "dedicated_regular", 8, 23.303346], ["InfluxDB", "dedicated_regular", 24, 27.252818], ["InfluxDB", "dedicated_regular", 48, 32.657671], ["TimescaleDB", "dedicated_irregular", 1, 8.91437], ["TimescaleDB", "dedicated_irregular", 8, 55.559751], ["TimescaleDB", "dedicated_irregular", 24, 3.705363], ["TimescaleDB", "dedicated_irregular", 48, 1.337553], ["TimescaleDB", "dedicated_regular", 1, 13.286048], ["TimescaleDB", "dedicated_regular", 8, 80.287906], ["TimescaleDB", "dedicated_regular", 24, 106.269641], ["TimescaleDB", "dedicated_regular", 48, 122.816108]];
+
+    // Define the dt_args
+    let dt_args = {"order": []};
+    dt_args["data"] = data;
+
+    $(document).ready(function () {
+        
+        $('#9595dd8f-88ea-4f62-9804-b9963a1354f1').DataTable(dt_args);
+    });
+</script>
+</div>

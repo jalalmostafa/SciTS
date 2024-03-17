@@ -29,7 +29,7 @@ namespace BenchmarkTool.Database
             _aggInterval = Config.GetAggregationInterval();
         }
 
-        public PostgresDB() : this(new PostgresQuery(), Config.GetPostgresConnection())
+        public PostgresDB() : this(new PostgresQuery(), Config.GetPostgresConnection()+"Tcp Keepalive=True")
         {
         }
 
@@ -52,7 +52,7 @@ namespace BenchmarkTool.Database
                 Log.Error(String.Format("Failed to close. Exception: {0}", ex.ToString()));
             }
         }
-        public   void CheckOrCreateTable()
+        public void CheckOrCreateTable()
         {
             try
             {
@@ -67,15 +67,17 @@ namespace BenchmarkTool.Database
                             var actualDim = Config.GetDataDimensionsNrOptions()[dimNb];
                             int c = 0; StringBuilder builder = new StringBuilder("");
 
-                            while (c < actualDim) { builder.Append(", "+Constants.Value+"_" + c + " double precision"); c++; }
+                            while (c < actualDim) { builder.Append(", " + Constants.Value + "_" + c + " double precision"); c++; }
 
                             NpgsqlCommand m_createtbl_cmd = new NpgsqlCommand(
-                              String.Format("CREATE TABLE IF NOT EXISTS " + tableName + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ; CREATE INDEX ON " + Config.GetPolyDimTableName() + " ( sensor_id, time DESC); --UNIQUE;  ")
+                              String.Format("CREATE TABLE IF NOT EXISTS " + tableName + " ( time timestamp(6) with time zone NOT NULL, sensor_id integer " + builder + ") ;  CREATE INDEX ON " + tableName + " ( sensor_id, time DESC); --UNIQUE;  ")
                                , _connection);
 
                             m_createtbl_cmd.ExecuteNonQuery();
-                            _TableCreated = true;
 
+                           
+
+                            _TableCreated = true;
                             dimNb++;
                         }
                     }
@@ -107,7 +109,7 @@ namespace BenchmarkTool.Database
                     for (var i = 0; i < Config.GetDataDimensionsNr(); i++)
                     {
                         int j = i;
-                        _copyHelper = _copyHelper.MapDouble(Constants.Value + "_" + i, x => x.ValuesArray[j]);  
+                        _copyHelper = _copyHelper.MapDouble(Constants.Value + "_" + i, x => x.ValuesArray[j]);
                     }
 
                 }

@@ -85,7 +85,7 @@ namespace BenchmarkTool.Database
 
                     sw1.Stop();
 
-                    return new QueryStatusWrite(true, new PerformanceMetricWrite(sw1.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
+                    return new QueryStatusWrite(true, new PerformanceMetricWrite(sw1.Elapsed.TotalMicroseconds, batch.Size, 0, Operation.BatchIngestion));
 
                 }
                 else //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ var dirName = GetDirectoryName();
                 await _client.IngestVectorsAsync<double>(vectorContainer, OverwriteMode.older, TimeSeriesCreationTimestampStorageType.NONE, default).ConfigureAwait(false);
                 sw2.Stop();
 
-                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw2.ElapsedMilliseconds, batch.Size, 0, Operation.BatchIngestion));
+                return new QueryStatusWrite(true, new PerformanceMetricWrite(sw2.Elapsed.TotalMicroseconds, batch.Size, 0, Operation.BatchIngestion));
 
             }
             catch (Exception ex)
