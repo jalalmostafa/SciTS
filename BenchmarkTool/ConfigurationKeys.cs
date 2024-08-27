@@ -50,5 +50,6 @@ namespace BenchmarkTool
         public const string GlancesNIC = "GlancesNIC";
         public const string RedisHost = "RedisHost";
         public const string RedisPort = "RedisPort";
+        public const string RedisConnectionsPerWorker = "RedisConnectionPerWorkers";
     }
 }

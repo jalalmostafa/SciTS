@@ -324,5 +324,10 @@ namespace BenchmarkTool
         {
             return GetInt(ConfigurationKeys.RedisPort);
         }
+
+        internal static int GetRedisConnectionsPerWorker()
+        {
+            return GetInt(ConfigurationKeys.RedisConnectionsPerWorker);
+        }
     }
 }

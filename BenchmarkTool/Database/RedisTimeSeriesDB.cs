@@ -17,7 +17,7 @@ namespace BenchmarkTool.Database
 {
     public class RedisTimeSeriesDB : IDatabase
     {
-        private static bool _initialized = false;
+        private static volatile bool _initialized = false;
 
         private static ConnectionMultiplexer _connection;
         private SERedis.IDatabase _redisDB;
@@ -44,7 +44,10 @@ namespace BenchmarkTool.Database
             try
             {
                 if (_connection != null)
-                    _connection.Close();
+                {
+                    _connection.Dispose();
+                    _connection = null;
+                }
             }
             catch (Exception ex)
             {
