@@ -1,18 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using Serilog;
 using Serilog.Events;
-using BenchmarkTool.Database;
 using BenchmarkTool.System;
-using BenchmarkTool;
 using System.Linq;
+using System.Drawing.Text;
 
 namespace BenchmarkTool
 {
     static class Program
     {
+
+        public static string Mode { get; private set; }
+        public static int _currentReadClientsNR { get; private set; }
+        public static int _currentClientsNR { get; private set; }
+        public static int _currentWriteClientsNR { get; private set; }
+        public static int _currentWriteBatchSize { get; private set; }
+        public static int _TestRetryIteration { get; private set; }
+        public static int _currentlimit { get; private set; }
+
         static async Task Main(string[] args)
         {
             try
@@ -25,19 +32,70 @@ namespace BenchmarkTool
                 Console.WriteLine("Starting...");
                 Log.Information("Application started");
 
-                var action = args != null && args.Length > 0 ? args[0] : "write";
+                var action = args != null && args.Length > 0 ? args[0] : "read";
+                string setting; string ingType;
+                if (args.Length >= 2)
+                {
+                    action = args[0];
+                    ingType = args[1];
+                    Config.SetIngestionType(ingType);
+                    if (args.Length >= 3)
+                    {
+                        setting = args[2];
+                        Config.SetTargetDatabase(setting);
+                    }
+
+                }
                 switch (action)
                 {
                     case "populate":
-                        await Batching(false);
+                        Mode = "populate_Day+0_" + Config.GetIngestionType();
+                        await PopulateOneDayRegularData(0);
+                        break;
+                    case var s when action.Contains("populate+"):
+                        int i1 = s.IndexOf("+") + 1;
+                        int i2 = s.Length;
+                        int day = int.Parse(s.Substring(i1, i2 - i1));
+                        Mode = "populate_Day+" + day + "_" + Config.GetIngestionType();
+                        await PopulateOneDayRegularData(day);
+                        break;
+
+                    case var s when action.Contains("populateShort+"):
+                        int j1 = s.IndexOf("+") + 1;
+                        int j2 = s.Length;
+                        double hours = double.Parse(s.Substring(j1, j2 - j1));
+                        Mode = "populateShort_Hours+" + hours + "_" + Config.GetIngestionType();
+                        await PopulateRegularData(0, hours);
                         break;
 
                     case "read":
+                        Mode = "dedicated_" + Config.GetIngestionType();
                         await BenchmarkReadData();
                         break;
-
                     case "write":
+                        Mode = "dedicated_" + Config.GetIngestionType();
                         await Batching(true);
+                        break;
+                    case "consecutive":
+                        Mode = "dedicated_" + Config.GetIngestionType();
+                        await Batching(true);
+                        await BenchmarkReadData();
+                        break;
+                    case "mixed-LimitedQueries":
+                        Mode = "mixed-LimitedQueries_" + Config.GetIngestionType();
+                        await MixedWL(true);
+                        break;
+                    case "mixed-AggQueries":
+                        Mode = "mixed-AggQueries_" + Config.GetIngestionType();
+                        await MixedWL(true);
+                        break;
+                    case var s when action.Contains("mixed-") && action.Contains("%LimitedQueries"):
+                        int ii1 = s.IndexOf("-") + 1;
+                        int ii2 = s.IndexOf("%");
+                        string sub = s.Substring(ii1, ii2 - ii1);
+                        Config._actualMixedWLPercentage = int.Parse(sub);
+                        Mode = "mixed-" + sub + "%LimitedQueries_" + Config.GetIngestionType();
+                        await MixedWL(true);
                         break;
 
                     default:
@@ -53,71 +111,284 @@ namespace BenchmarkTool
             }
         }
 
-        private static Task<List<QueryStatusWrite>> RunQueryTask(ClientWrite client)
+        private async static Task<QueryStatusWrite> RunIngestionTask(ClientWrite client)
         {
-            return client.RunQuery();
+            return await client.RunIngestion(_TestRetryIteration);
+        }
+
+        private async static Task<QueryStatusRead> RunReadTask(ClientRead client)
+        {
+            return await client.RunQuery(_TestRetryIteration, _currentReadClientsNR, _currentlimit);
+        }
+
+        private async static Task PopulateOneDayRegularData(int dayAfterStartdate)
+        {
+            await PopulateRegularData(dayAfterStartdate, 24);
+        }
+        private async static Task PopulateRegularData(int dayAfterStartdate, double hours)
+        {
+            var init = Config.GetQueryType(); // Just for Init the Array
+            int batchSize = Config.GetSensorNumber() * 60 * (1000 / Config.GetRegularTsScaleMilliseconds()); // one minute ingestion
+            int totalClientsNb = Config.GetClientNumberOptions().Last();
+
+            foreach (var dimNb in Config.GetDataDimensionsNrOptions())
+            {
+                int minute = 0;
+                Config._actualDataDimensionsNr = dimNb;
+
+                while (minute < hours * 60) // if not all day ingested, continue
+                {
+                    var clientArray = new ClientWrite[totalClientsNb];
+                    for (var chosenClientIndex = 1; chosenClientIndex <= totalClientsNb; chosenClientIndex++)
+                    {
+                        clientArray[chosenClientIndex - 1] = new ClientWrite(chosenClientIndex, totalClientsNb, Config.GetSensorNumber(), batchSize, dimNb, Config.GetStartTime().AddDays(dayAfterStartdate).AddMinutes(minute));
+                    }
+                    minute++;
+
+                    var glancesW = new GlancesStarter(Operation.BatchIngestion, totalClientsNb, batchSize, Config.GetSensorNumber());
+                    var resultsW = new QueryStatusWrite[totalClientsNb];
+                    await Parallel.ForEachAsync(Enumerable.Range(0, totalClientsNb), new ParallelOptions() { MaxDegreeOfParallelism = totalClientsNb }, async (index, token) => { resultsW[index] = await RunIngestionTask(clientArray[index]).ConfigureAwait(false); }).ConfigureAwait(false);
+                    await glancesW.EndMonitorAsync().ConfigureAwait(false);
+
+                    using (var csvLoggerW = new CsvLogger<LogRecordWrite>("write"))
+                        foreach (var result in resultsW)
+                        {
+                            var recordW = result.PerformanceMetric.ToLogRecord(Mode, 0,
+                                result.Timestamp, result.StartDate, batchSize, totalClientsNb, Config.GetSensorNumber(),
+                                result.Client, result.Iteration, dimNb);
+                            csvLoggerW.WriteRecord(recordW);
+                        }
+                    GC.Collect();
+                }
+            }
+        }
+
+        private async static Task MixedWL(bool log)
+        {
+            var init = Config.GetQueryType(); // Just for Init the Array
+
+            _TestRetryIteration = 0;
+            int[] clientNumberArray = Config.GetClientNumberOptions();
+
+            while (_TestRetryIteration < Config.GetTestRetries())
+            {
+                _TestRetryIteration++;
+                int sensorsNb = Config.GetSensorNumber();
+                int[] percentageArray = Config.GetMixedWLPercentageOptions();
+                clientNumberArray = Config.GetClientNumberOptions();
+                int[] batchSizeArray = Config.GetBatchSizeOptions();
+                int[] dimNbArray = Config.GetDataDimensionsNrOptions();
+
+                var daySpan = Config.GetDaySpan();
+
+                if (Mode.Contains("dedicated_") | Mode.Contains("mixed-AggQueries_"))
+                    percentageArray = new int[1] { 0 };
+                if (Mode.Contains("%"))
+                    percentageArray = new int[1] { Config._actualMixedWLPercentage };
+                if (Mode.Contains("Limited"))
+                    Config._QueryArray = new string[] { "RangeQueryRawAllDimsLimitedData" };
+
+                foreach (var percentage in percentageArray)
+                {
+                    Config._actualMixedWLPercentage = percentage;
+                    foreach (var totalClientsNb in clientNumberArray)
+                    {
+                        _currentClientsNR = totalClientsNb;
+                        _currentReadClientsNR = totalClientsNb;
+                        _currentWriteClientsNR = totalClientsNb;
+
+                        foreach (var dimNb in dimNbArray)
+                        {
+                            Config._actualDataDimensionsNr = dimNb;
+                            int loop = 0;
+                            foreach (var batchSize in batchSizeArray)
+                            {
+                                _currentWriteBatchSize = batchSize;
+                                _currentlimit = (int)((double)_currentWriteBatchSize * ((double)Config._actualMixedWLPercentage / 100));
+                                var date = Config.GetStartTime().AddDays(loop * daySpan);
+                                var clientArrayW = new ClientWrite[_currentWriteClientsNR];
+                                for (var chosenClientIndex = 1; chosenClientIndex <= _currentWriteClientsNR; chosenClientIndex++)
+                                {
+                                    clientArrayW[chosenClientIndex - 1] = new ClientWrite(chosenClientIndex, _currentWriteClientsNR, Config.GetSensorNumber(), batchSize, dimNb, date);
+                                }
+                                var glancesW = new GlancesStarter(Operation.BatchIngestion, _currentWriteClientsNR, batchSize, sensorsNb);
+                                var resultsW = new QueryStatusWrite[_currentWriteClientsNR];
+                                await Parallel.ForEachAsync(Enumerable.Range(0, _currentWriteClientsNR), new ParallelOptions() { MaxDegreeOfParallelism = _currentWriteClientsNR }, async (index, token) => { resultsW[index] = await RunIngestionTask(clientArrayW[index]).ConfigureAwait(false); }).ConfigureAwait(false);
+                                await glancesW.EndMonitorAsync().ConfigureAwait(false);
+
+                                using (var csvLoggerW = new CsvLogger<LogRecordWrite>("write"))
+                                {
+                                    foreach (var result in resultsW)
+                                    {
+                                        var recordW = result.PerformanceMetric.ToLogRecord(Mode, percentage,
+                                            result.Timestamp, result.StartDate, batchSize, _currentWriteClientsNR, sensorsNb,
+                                            result.Client, result.Iteration, dimNb);
+                                        csvLoggerW.WriteRecord(recordW);
+                                    }
+                                }
+
+                                loop++;
+
+                                foreach (string Query in Config._QueryArray)
+                                {
+                                    Config.QueryTypeOnRunTime = Query;
+                                    var glancesR = new GlancesStarter(Config.QueryTypeOnRunTime.ToEnum<Operation>(), _currentClientsNR, batchSize, sensorsNb);
+                                    var clientArrayR = new ClientRead[_currentReadClientsNR];
+
+                                    for (int chosenClientIndex = 1; chosenClientIndex <= _currentReadClientsNR; chosenClientIndex++)
+                                    {
+                                        clientArrayR[chosenClientIndex - 1] = new ClientRead();
+
+                                    }
+                                    var resultsR = new QueryStatusRead[_currentReadClientsNR];
+                                    await Parallel.ForEachAsync(Enumerable.Range(0, _currentReadClientsNR), new ParallelOptions() { MaxDegreeOfParallelism = _currentReadClientsNR }, async (index, token) => { resultsR[index] = await RunReadTask(clientArrayR[index]).ConfigureAwait(false); }).ConfigureAwait(false);
+                                    await glancesR.EndMonitorAsync().ConfigureAwait(false);
+
+                                    using (var csvLoggerR = new CsvLogger<LogRecordRead>("read"))
+                                    {
+                                        foreach (var result in resultsR)
+                                        {
+                                            var recordR = result.PerformanceMetric.ToLogRecord(Mode, percentage, result.Timestamp, result.StartDate, batchSize, _currentReadClientsNR, sensorsNb,
+                                            result.Client, result.Iteration, dimNb);
+                                            csvLoggerR.WriteRecord(recordR);
+                                        }
+                                    }
+
+                                }
+
+                            }
+                        }
+                        GC.Collect();
+                    }
+                }
+
+            }
+            Console.Out.WriteLine("MixedWL-Completed");
+
         }
 
         private async static Task Batching(bool log)
         {
+            var init = Config.GetQueryType(); // Just for Init the Array
 
-            var resultsLogger = new CsvLogger<LogRecordWrite>();
-
-            int sensorsNb = Config.GetSensorNumber();
-            int[] clientNumberArray = Config.GetClientNumberOptions();
-            int[] batchSizeArray = Config.GetBatchSizeOptions();
-            var daySpan = Config.GetDaySpan();
-            int loop = 0;
-
-            foreach (var clientsNb in clientNumberArray)
+            _TestRetryIteration = 0;
             {
-                foreach (var batchSize in batchSizeArray)
+                while (_TestRetryIteration < Config.GetTestRetries())
                 {
-                    var date = Config.GetStartTime().AddDays(loop * daySpan);
-                    var clients = new List<ClientWrite>();
-                    for (var i = 0; i < clientsNb; i++)
+                    _TestRetryIteration++;
+                    int sensorsNb = Config.GetSensorNumber();
+                    int[] clientNumberArray = Config.GetClientNumberOptions();
+                    int[] batchSizeArray = Config.GetBatchSizeOptions();
+                    var daySpan = Config.GetDaySpan();
+                    int[] dimNbArray = Config.GetDataDimensionsNrOptions();
+
+                    foreach (var ClientsNb in clientNumberArray)
                     {
-                        clients.Add(new ClientWrite(i, clientsNb, sensorsNb, batchSize, date));
-                    }
-                    var glances = new GlancesStarter(Operation.BatchIngestion, clientsNb, batchSize, sensorsNb);
-                    glances.BeginMonitor();
-                    var results = await clients.ParallelForEachAsync(RunQueryTask, clientsNb);
-                    if (log)
-                    {
-                        glances.Commit();
-                        foreach (var result in results)
+                        var totalClientsNb = ClientsNb;
+                        _currentWriteClientsNR = totalClientsNb;
+
+                        foreach (var dimNb in dimNbArray)
                         {
-                            var record = result.PerformanceMetric.ToLogRecord(
-                                result.Timestamp, batchSize, clientsNb, sensorsNb,
-                                result.Client, result.Iteration);
-                            resultsLogger.WriteRecord(record);
+                            Config._actualDataDimensionsNr = dimNb;
+                            int loop = 0;
+
+                            foreach (var batchSize in batchSizeArray)
+                            {
+                                _currentWriteBatchSize = batchSize;
+
+                                if (_TestRetryIteration > Config.GetTestRetries())
+                                {
+                                    totalClientsNb = clientNumberArray.Last() + 1;
+                                }
+
+                                var date = Config.GetStartTime().AddDays(loop * daySpan);
+                                var clientArrayW = new ClientWrite[totalClientsNb];
+
+                                for (var chosenClientIndex = 1; chosenClientIndex <= totalClientsNb; chosenClientIndex++)
+                                {
+                                    clientArrayW[chosenClientIndex - 1] = new ClientWrite(chosenClientIndex, totalClientsNb, Config.GetSensorNumber(), batchSize, dimNb, date);
+                                }
+                                var glancesW = new GlancesStarter(Operation.BatchIngestion, totalClientsNb, batchSize, sensorsNb);
+                                var resultsW = new QueryStatusWrite[totalClientsNb];
+                                await Parallel.ForEachAsync(Enumerable.Range(0, totalClientsNb), new ParallelOptions() { MaxDegreeOfParallelism = totalClientsNb }, async (index, token) => { resultsW[index] = (await RunIngestionTask(clientArrayW[index]).ConfigureAwait(false)); }).ConfigureAwait(false);
+                                await glancesW.EndMonitorAsync().ConfigureAwait(false);
+
+                                using (var csvLoggerW = new CsvLogger<LogRecordWrite>("write"))
+                                {
+
+                                    foreach (var result in resultsW)
+                                    {
+                                        var record = result.PerformanceMetric.ToLogRecord(Mode, 0,
+                                            result.Timestamp, result.StartDate, batchSize, totalClientsNb, sensorsNb,
+                                            result.Client, result.Iteration, dimNb);
+                                        csvLoggerW.WriteRecord(record);
+                                    }
+                                }
+                                loop++;
+                            }
                         }
+                        GC.Collect();
                     }
-                    glances.EndMonitor();
-                    loop++;
                 }
             }
-            resultsLogger.Dispose();
         }
 
         private static async Task BenchmarkReadData()
         {
-            var client = new ClientRead();
-            var sensorsNb = Config.GetSensorNumber();
-            var glances = new GlancesStarter(Config.GetQueryType().ToEnum<Operation>(), 1, 0, sensorsNb);
-            glances.BeginMonitor();
-            var results = await client.RunQuery();
-
-            glances.Commit();
-            using (var csvLogger = new CsvLogger<LogRecordRead>())
+            var init = Config.GetQueryType(); // Just to Init the Array
+            int[] clientNumberArray = Config.GetClientNumberOptions();
+            int[] dimNbArray = Config.GetDataDimensionsNrOptions();
+            _TestRetryIteration = 0;
             {
-                foreach (var result in results)
+                while (_TestRetryIteration < Config.GetTestRetries())
                 {
-                    var record = result.PerformanceMetric.ToLogRecord(result.Timestamp, -1, -1, -1, 0, result.Iteration);
-                    csvLogger.WriteRecord(record);
+                    _TestRetryIteration++;
+                    foreach (var totalClientsNb in clientNumberArray)
+                    {
+                        _currentReadClientsNR = totalClientsNb;
+
+                        foreach (var dimNb in dimNbArray)
+                        {
+                            Config._actualDataDimensionsNr = dimNb;
+                            foreach (string Query in Config._QueryArray)
+                            {
+                                if (_TestRetryIteration > Config.GetTestRetries())
+                                {
+                                    _currentReadClientsNR = clientNumberArray.Last() + 1;
+                                }
+                                _currentlimit = (int)(double)Config.GetBatchSizeOptions().Last();
+
+                                Config.QueryTypeOnRunTime = Query;
+                                var client = new ClientRead();
+                                var sensorsNb = Config.GetSensorNumber();
+
+                                var glancesR = new GlancesStarter(Config.QueryTypeOnRunTime.ToEnum<Operation>(), _currentClientsNR, _currentlimit, sensorsNb);
+                                var clientArrayR = new ClientRead[totalClientsNb];
+
+                                for (int chosenClientIndex = 1; chosenClientIndex <= totalClientsNb; chosenClientIndex++)
+                                {
+                                    clientArrayR[chosenClientIndex - 1] = new ClientRead();
+                                }
+                                var resultsR = new QueryStatusRead[totalClientsNb];
+                                await Parallel.ForEachAsync(Enumerable.Range(0, totalClientsNb), new ParallelOptions() { MaxDegreeOfParallelism = totalClientsNb }, async (index, token) => { resultsR[index] = await RunReadTask(clientArrayR[index]).ConfigureAwait(false); }).ConfigureAwait(false);
+                                await glancesR.EndMonitorAsync().ConfigureAwait(false);
+
+                                using (var csvLogger = new CsvLogger<LogRecordRead>("read"))
+                                {
+                                    foreach (var result in resultsR)
+                                    {
+                                        var record = result.PerformanceMetric.ToLogRecord(Mode, -1, result.Timestamp, result.StartDate, _currentlimit, totalClientsNb, sensorsNb,
+                                          result.Client, result.Iteration, dimNb);
+                                        csvLogger.WriteRecord(record);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    GC.Collect();
                 }
+
             }
-            glances.EndMonitor();
         }
     }
 }

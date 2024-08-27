@@ -1,16 +1,27 @@
-# SciTS
-
-[![DOI](https://zenodo.org/badge/429005385.svg)](https://zenodo.org/badge/latestdoi/429005385)
+# SciTS v2, 2023 update
 
 A tool to benchmark Time-series on different databases
 
-Requires .NET 6.x cross-platform framework.
+- reworked architecture
+- adds mixed, online workloads
+- adds regular and irregular ingestion modes.
+- adds multiple values per time series ("Dimensions")
+- adds limited queries
+- adds CLI arguments
+- adds ClientLatency metric to measure differences in local processing.
 
-## Citation
+for questions on these features, please contact info@saninfo.de
+
+Requires .NET 7.x cross-platform framework.
+
+## Citation 
+
+[![DOI](https://zenodo.org/badge/429005385.svg)](https://zenodo.org/badge/latestdoi/429005385)
 
 Please cite our work:
 
 > Jalal Mostafa, Sara Wehbi, Suren Chilingaryan, and Andreas Kopmann. 2022. SciTS: A Benchmark for Time-Series Databases in Scientific Experiments and Industrial Internet of Things. In 34th International Conference on Scientific and Statistical Database Management (SSDBM 2022). Association for Computing Machinery, New York, NY, USA, Article 12, 1–11. https://doi.org/10.1145/3538712.3538723
+
 
 ### Bibtex
 
@@ -18,7 +29,7 @@ Please cite our work:
 @inproceedings{10.1145/3538712.3538723,
     author = {Mostafa, Jalal and Wehbi, Sara and Chilingaryan, Suren and Kopmann, Andreas},
     title = {SciTS: A Benchmark for Time-Series Databases in Scientific Experiments and Industrial Internet of Things},
-    year = {2022},
+    year = {2022},☺
     isbn = {9781450396677},
     publisher = {Association for Computing Machinery},
     address = {New York, NY, USA},
@@ -34,7 +45,7 @@ Please cite our work:
 }
 ```
 
-## How to run
+# How to run
 
 1. Create your workload as `App.config` (case-sensitive) in `BenchmarkTool`.
 2. Edit the connection strings to your database servers in the workload file.
@@ -43,21 +54,17 @@ Please cite our work:
 and `dotnet run --project BenchmarkTool read` if it's a query workload.
 x. Use `Scripts/ccache.sh <database-service-name>` to clear the cache between query tests.
 
-## Workloads
+## Additional Command Line options:
 
-You can choose from the available workloads by choosing a `*.config` file from `Workloads` folder.
-The file to workload mapping is as follow:
+`dotnet run --project BenchmarkTool [action] [regular/irregular] [DatabaseNameDB]`
 
-| Workload    | Workload file                      |
-| ----------- | ---------------------------------- |
-| Q1          | query-q1.config                    |
-| Q2          | query-q2.config                    |
-| Q3          | query-q3.config                    |
-| Q4          | query-q4.config                    |
-| Q5          | query-q5.config                    |
-| Batching    | ingestion-batching-1client.config  |
-| Concurrency | ingestion-batching-nclients.config |
-| Scaling     | ingestion-scaling.config           |
+Available Actions:
+
+* read: start the specified retrieval and aggregation workloads.
+* write: start the ingestion across specified batchsize, number of clients, dimensions.
+* mixed-AggQueries: start the online, mixed workload benchmark as a mixture of aggregated quieries and Ingestion-Parameters
+* mixed-LimitedQueries: start the online, mixed workload benchmark as a mixture of queried and ingested datapoints according the specified percentage parameter and the requested Ingestion-Parameters. E.g. 100% means that as much datapoints are retrieved as ingested.
+
 
 ## System Metrics using Glances
 
@@ -67,67 +74,116 @@ This tool uses [glances](https://github.com/nicolargo/glances/).
 
 ## Workload Definition Files
 
+you can open Default-App.config edit it and save it as App.config.
+It has following content:
 ```xml
+<?xml version="1.0" encoding="utf-8"?>
+
 <configuration>
     <appSettings>
-        <!-- Postgres connection settings -->
-        <add key="PostgresConnection" value="Server=192.168.26.140;Port=5432;Database=katrindb2;User Id=postgres;Password=P@ssw0rd;" />
+<!-- Attention: This file "AppDefault.config" is to be renamed in "App.config", after updating the "###" and other fields.  -->
+  
+    <!-- Datalayerts connection settings -->
+        <add key="DatalayertsConnection" value="https://datalayerts.com" />
+        <add key="DatalayertsUser" value="###" />
+        <add key="DatalayertsPassword" value="###" />
 
-        <!-- Timescale connection settings -->
-        <add key="TimescaleConnection" value="Server=192.168.26.140;Port=5432;Database=katrindb;User Id=postgres;Password=P@ssw0rd;CommandTimeout=300" />
+    <!-- Postgres connection settings -->
+        <add key="PostgresConnection" value="Server=localhost;Port=5432;Database=postgres;User Id=postgres;Password=###;" />
 
-        <!-- InfluxDB connection settings -->
-        <add key="InfluxDBHost" value="http://192.168.26.140:8086" />
-        <add key="InfluxDBToken" value="vUAASWKs-OOFpGq5BQ44Mc-GYfKx5Szda2zQz-o4lXsmPXBBMfGvqkyoDApS8sZxni73cwJ05Mm8cCUGalunKw==" />
-        <add key="InfluxDBBucket" value="katrindb" />
-        <add key="InfluxDBOrganization" value="katrin" />
+    <!-- Timescale connection settings -->
+        <add key="TimescaleConnection" value="Server=localhost;Port=6432;Database=postgres;User Id=postgres;Password=###;CommandTimeout=300" />
 
-        <!-- Clickhouse connection settings -->
-        <add key="ClickhouseHost" value="192.168.26.140" />
+    <!-- InfluxDB connection settings --> 
+        <add key="InfluxDBHost" value="http://localhost:8086" />  
+        <add key="InfluxDBToken" value="u7Ek4P5s0Nle61QQF1nNA3ywL1JYZky6rHRXxkPBX5bY4H3YFJ6T4KApWSRhaKNj_kHgx70ZLBowB6Di4t2YXg==" />
+        <add key="InfluxDBBucket" value="scitsdb" />
+        <add key="InfluxDBOrganization" value="scits" />  
+
+    <!-- Clickhouse connection settings -->
+        <add key="ClickhouseHost" value="localhost" />
         <add key="ClickhousePort" value="9000" />
         <add key="ClickhouseUser" value="default" />
-        <add key="ClickhouseDatabase" value="katrindb" />
+        <add key="ClickhouseDatabase" value="default" />
+ 
+    <!-- General Settings-->
+          <add key="PrintModeEnabled" value="false" />
+          <add key="TestRetries" value="2" />
+          <add key="DaySpan" value="1" />
+        <!-- Could be: DummyDB,  PostgresDB , DatalayertsDB , ClickhouseDB , TimescaleDB , InfluxDB -->
+          <add key="TargetDatabase" value="DummyDB" />
+          <add key="StartTime" value="2022-01-01T00:00:00.00" />
+          <add key="RegularTsScaleMilliseconds" value="1000" /> 
+        <!-- Where to store metrics files: The Programm will split the files in "[...]Read.csv" and "[...]Write.csv" -->
+          <add key="MetricsCSVPath" value="Metrics_Source_Month-Day" />
+          
+    <!-- System Metrics Options -->
+          <add key="GlancesOutput" value="Glances_Source_Month-Day.csv"/>
+          <add key="GlancesUrl" value="http://localhost:61208" />
+          <add key="GlancesDatabasePid" value="1" />
+          <add key="GlancesPeriod" value="1" />
+          <add key="GlancesNIC" value="lo" />
+          <add key="GlancesDisk" value="sda1" />
+          <add key="GlancesStorageFileSystem" value="/" />
+        <!-- Insert multiple dimensionnrs, e.g.  1,6 ,12 ,50, 100, -->
+          <add key="DataDimensionsNrOptions" value="1,6" />  
 
-        <!-- General Settings -->
-        <!-- How many times to repeat this test -->
-        <add key="TestRetries" value="1" />
-        <!-- the length of the time-series data in the database (in the database) -->
-        <add key="DaySpan" value="15" />
-        <!-- Could be: TimescaleDB, InfluxDB, ClickhouseDB, MySQLDB, PostgresDB -->
-        <add key="TargetDatabase" value="TimescaleDB" />
-        <!-- Initial Timestamp -->
-        <add key="StartTime" value="2022-01-01T00:00:00.00" />
-        <!-- Where to store metrics file -->
-        <add key="MetricsCSVPath" value="Metrics.csv" />
-        <!-- System Metrics Options -->
-        <add key="GlancesUrl" value="http://192.168.26.140:61208" />
-        <add key="GlancesDatabasePid" value="1" />
-        <add key="GlancesPeriod" value="1" />
-        <add key="GlancesOutput" value="Glances.csv"/>
-        <add key="GlancesNIC" value="enp9s0" />
-        <add key="GlancesDisk" value="sda1" />
+    <!-- Read Query Options -->
+        <!-- Could be: Agg, All, RangeQueryRawData, RangeQueryRawAllDimsData, RangeQueryRawLimitedData, RangeQueryRawAllDimsLimitedData  RangeQueryAggData, OutOfRangeQuery, DifferenceAggQuery, STDDevQuery -->
+          <add key="QueryType" value="All" />
+          <add key="AggregationIntervalHour" value="1" />
+          <add key="DurationMinutes" value="60" />
+          <add key="SensorsFilter" value="1,2,3,4" /> <!--  or "All" -->
+          <add key="SensorID" value="1" />
+          <add key="MaxValue" value="0.9" />
+          <add key="MinValue" value="0.1" />
+          <add key="FirstSensorID" value="1" />
+          <add key="SecondSensorID" value="2" />
 
-        <!-- Read Query Options -->
-        <!-- Could be: Q1-RangeQueryRawData, Q4-RangeQueryAggData, Q2-OutOfRangeQuery, Q5-DifferenceAggQuery, Q3-STDDevQuery -->
-        <add key="QueryType" value="RangeQueryRawData" />
-        <add key="AggregationIntervalHour" value="1" />
-        <add key="DurationMinutes" value="10" />
-        <add key="SensorsFilter" value="1,2,3,4,5,6,7,8,9,10" />
-        <add key="SensorID" value="100" />
-        <add key="MaxValue" value="20000000" />
-        <add key="MinValue" value="100000" />
-        <add key="FirstSensorID" value="100" />
-        <add key="SecondSensorID" value="200" />
-
-        <!-- Ingestion and Population -->
-        <add key="BatchSizeOptions" value="20000" />
-        <!-- Number of concurrent clients  -->
-        <add key="ClientNumberOptions" value="48" />
-        <!--Number of sensors-->
-        <add key="SensorNumber" value="100000" />
+    <!-- Ingestion -->
+        <!-- Could be: regular, irregular -->
+          <add key="IngestionType" value="regular" /> 
+        <!-- Coulde be:  33, 100 , 300  -->
+          <add key="MixedWLPercentageOptions" value="33, 100,300" />
+        <!-- Could be: array, column. Array is not fully implemented in all DBMS. -->
+          <add key="MultiDimensionStorageType" value="column" />
+        <!-- 10, 1000, 5000, 10000 , 50000 -->
+          <add key="BatchSizeOptions" value=" 100 , 1000, 6000 " />
+        <!-- Number of concurrent clients e.g.(1,8,16) must be less than sensors. BatchSizes will be shared out between the clients -->
+          <add key="ClientNumberOptions" value="1 , 8" />
+          <add key="SensorNumber" value="100" />   
 
     </appSettings>
 
 </configuration>
 ```
 
+### Workload Files
+
+You can choose from the available workloads by choosing a `*.config` file from `Workloads` folder.
+The file to workload mapping is as follow:
+
+| Workload    | Workload file                      |
+| ----------- | ---------------------------------- |
+| 2022 WLs    |                                    |
+| ----------- |                                    |
+| Q1          | query-q1.config                    |
+| Q2          | query-q2.config                    |
+| Q3          | query-q3.config                    |
+| Q4          | query-q4.config                    |
+| Q5          | query-q5.config                    |
+| Batching    | ingestion-batching-1client.config  |
+| Concurrency | ingestion-batching-nclients.config |
+| Scaling     | ingestion-scaling.config           |
+|.............|....................................|
+|Collection   |                                    |
+|of 2023 WLs  | test2023.sh                        |
+
+
+#### Timescale
+We discovered abnormal high latencies and other failures with NPGSQL, so we embedded a python script which does the queries.
+Therefore you need to configure the python location. In case of python 3.10, e.g.
+use "whereis libpython3.10.so", and copy this path.
+Then you go into TimescaleDB.cd, and edit the string in line 134 [ Runtime.PythonDLL = "/usr/lib/_Architecture_-linux-gnu/libpython3.10.so"; ]
+
+So it points to your python location

@@ -14,15 +14,18 @@ namespace BenchmarkTool.System
         private int _databasePid;
         private int _period;
         private string _nic;
+        private string _fs;
         private string _disk;
         private string _path;
         private GlancesMonitor _monitor;
         private List<AllMetrics> _metrics = new List<AllMetrics>();
-        private Mutex _mutex = new Mutex();
+        private SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private Operation _operation;
         private int _clientsNb;
         private int _batchSize;
         private int _sensorsNb;
+
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public GlancesStarter(Operation operation, int clientsNb, int batchSize, int sensorsNb)
         {
@@ -36,52 +39,57 @@ namespace BenchmarkTool.System
             _clientsNb = clientsNb;
             _batchSize = batchSize;
             _sensorsNb = sensorsNb;
-
-            _thread = new Task(Monitor, TaskCreationOptions.LongRunning);
+            _fs = Config.GetGlancesStorageFileSystem();
             _monitor = new GlancesMonitor(_baseUrl);
+            _thread = Task.Factory.StartNew(async () => await MonitorAsync(_cancellationTokenSource.Token).ConfigureAwait(false), TaskCreationOptions.LongRunning);
+
         }
 
-        private async void Monitor()
+        private async Task MonitorAsync(CancellationToken cancellationToken)
         {
-            while (!_monitor.CancellationToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    var metrics = await _monitor.GetAllAsync(_databasePid, _nic, _disk);
-                    _mutex.WaitOne();
-                    _metrics.Add(metrics);
-                    _mutex.ReleaseMutex();
+                    var metrics = await _monitor.GetAllAsync(_databasePid, _nic, _disk, _fs);
+
+                    await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+                    try
+                    {
+                        _metrics.Add(metrics);
+                    }
+                    finally
+                    {
+                        _lock.Release();
+                    }
+
                     await Task.Delay(_period * 1000);
+                }
+                catch (OperationCanceledException)
+                {
+                    // do nothing
                 }
                 catch (Exception e)
                 {
                     Log.Error(e.ToString());
                 }
+
             }
         }
 
-        public void BeginMonitor()
+        public async Task EndMonitorAsync()
         {
-            _thread.Start();
-        }
 
-        public void Commit()
-        {
-            _mutex.WaitOne();
+            _cancellationTokenSource.Cancel();
+            await _thread.ConfigureAwait(false);
             foreach (var item in _metrics)
             {
                 item.WriteToCSV(_path, _operation.ToString(), _clientsNb, _batchSize, _sensorsNb);
             }
-            _metrics.Clear();
-            _mutex.ReleaseMutex();
-        }
+            _cancellationTokenSource.Dispose();
+            _thread.Dispose();
 
-        public void EndMonitor()
-        {
-            Commit();
-            _monitor.Cancel();
-            _thread.Wait();
-            _mutex.Close();
         }
     }
 }

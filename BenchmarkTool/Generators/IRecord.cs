@@ -2,10 +2,16 @@
 
 namespace BenchmarkTool.Generators
 {
-    public interface IRecord 
+    public interface IRecord
     {
         int SensorID { get; set; }
-        float Value { get; set; }
+        double[] ValuesArray { get; set; }
         DateTime Time { get; set; }
+
+        double GetFirstValue()
+        {
+            return ValuesArray[0];
+        }
+
     }
 }

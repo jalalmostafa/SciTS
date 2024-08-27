@@ -24,16 +24,6 @@ namespace BenchmarkTool.Database
         private TimeSeriesCommands _redists;
 
         private int _aggInterval;
-        private int _clientsNumber;
-        private int _sensorsNumber;
-        private int _batchSize;
-
-        public RedisTimeSeriesDB(int clientsNumber, int sensorsNumber, int batchSize)
-        {
-            _clientsNumber = clientsNumber;
-            _sensorsNumber = sensorsNumber;
-            _batchSize = batchSize;
-        }
 
         public void Cleanup()
         {
@@ -63,24 +53,12 @@ namespace BenchmarkTool.Database
                 {
                     var options = new ConfigurationOptions()
                     {
-                        SocketManager = new SocketManager("test", _clientsNumber),
+                        SocketManager = new SocketManager("test"),
                         EndPoints = { { Config.GetRedisHost(), Config.GetRedisPort() } },
                     };
                     _connection = ConnectionMultiplexer.Connect(options);
                 }
                 _redisDB = _connection.GetDatabase();
-                _redists = _redisDB.TS();
-                if (!_initialized)
-                {
-                    Console.WriteLine($"Warming up RedisTimeSeries for {Config.GetSensorNumber()} sensors...");
-                    foreach (var item in Enumerable.Range(0, Config.GetSensorNumber()).Select(i => i.ToString()))
-                    {
-                        if (!_redisDB.KeyExists(item))
-                            _redists.Create(item, labels: [new TimeSeriesLabel("id", item)], duplicatePolicy: TsDuplicatePolicy.LAST);
-                    }
-                    _initialized = true;
-                    Console.WriteLine("Finished Warming up!");
-                }
                 _aggInterval = Config.GetAggregationInterval();
             }
             catch (Exception ex)
@@ -89,13 +67,12 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead OutOfRangeQuery(OORangeQuery query)
+        public async Task<QueryStatusRead> OutOfRangeQuery(OORangeQuery query)
         {
             try
             {
-                // TODO: make them async
                 Stopwatch sw = Stopwatch.StartNew();
-                var rangeOutput = _redists.Range(query.SensorID.ToString(),
+                var rangeOutput = await _redists.RangeAsync(query.SensorID.ToString(),
                                                 new TimeStamp(query.StartDate),
                                                 new TimeStamp(query.EndDate),
                                                 filterByValue: ((long)query.MinValue, (long)query.MaxValue));
@@ -111,7 +88,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead RangeQueryAgg(RangeQuery query)
+        public Task<QueryStatusRead> RangeQueryAgg(RangeQuery query)
         {
             // int points = 0;
             // try
@@ -141,15 +118,15 @@ namespace BenchmarkTool.Database
 
         }
 
-        public QueryStatusRead RangeQueryRaw(RangeQuery query)
+        public async Task<QueryStatusRead> RangeQueryRaw(RangeQuery query)
         {
             try
             {
-                // TODO: make them async
+                string ids = string.Join(",", query.SensorIDs);
                 Stopwatch sw = Stopwatch.StartNew();
-                var rangeOutput = _redists.MRange(new TimeStamp(query.StartDate),
+                var rangeOutput = await _redists.MRangeAsync(new TimeStamp(query.StartDate),
                                                 new TimeStamp(query.EndDate),
-                                                [$"id=({query.SensorFilter})"]);
+                                                [$"id=({ids})"]);
                 sw.Stop();
                 int points = rangeOutput.Select(i => i.values.Count).Sum();
 
@@ -162,7 +139,7 @@ namespace BenchmarkTool.Database
             }
         }
 
-        public QueryStatusRead AggregatedDifferenceQuery(ComparisonQuery query)
+        public Task<QueryStatusRead> AggregatedDifferenceQuery(ComparisonQuery query)
         {
             // int points = 0;
             // try
@@ -191,7 +168,7 @@ namespace BenchmarkTool.Database
             throw new NotImplementedException();
         }
 
-        public QueryStatusRead StandardDevQuery(SpecificQuery query)
+        public Task<QueryStatusRead> StandardDevQuery(SpecificQuery query)
         {
             // int points = 0;
             // try
@@ -223,7 +200,7 @@ namespace BenchmarkTool.Database
         {
             try
             {
-                var list = batch.Records.Select(i => (i.SensorID.ToString(), new TimeStamp(i.Time), (double)i.Value)).ToImmutableList();
+                var list = batch.RecordsList.Select(i => (i.SensorID.ToString(), new TimeStamp(i.Time), i.ValuesArray[0])).ToImmutableList();
                 Stopwatch sw = Stopwatch.StartNew();
                 await _redists.MAddAsync(list);
                 sw.Stop();
@@ -241,7 +218,7 @@ namespace BenchmarkTool.Database
             try
             {
                 Stopwatch sw = Stopwatch.StartNew();
-                var command = await _redists.AddAsync(i.SensorID.ToString(), new TimeStamp(i.Time), (double)i.Value);
+                var command = await _redists.AddAsync(i.SensorID.ToString(), new TimeStamp(i.Time), i.ValuesArray[0]);
                 sw.Stop();
                 return new QueryStatusWrite(true, new PerformanceMetricWrite(sw.ElapsedMilliseconds, 1, 0, Operation.BatchIngestion));
             }
@@ -251,5 +228,38 @@ namespace BenchmarkTool.Database
                 return new QueryStatusWrite(false, 0, new PerformanceMetricWrite(0, 0, 1, Operation.BatchIngestion), ex, ex.ToString());
             }
         }
+
+        public void CheckOrCreateTable()
+        {
+            _redists = _redisDB.TS();
+            if (!_initialized)
+            {
+                Console.WriteLine($"Warming up RedisTimeSeries for {Config.GetSensorNumber()} sensors...");
+                foreach (var item in Enumerable.Range(0, Config.GetSensorNumber()).Select(i => i.ToString()))
+                {
+                    if (!_redisDB.KeyExists(item))
+                        _redists.Create(item, labels: [new TimeSeriesLabel("id", item)], duplicatePolicy: TsDuplicatePolicy.LAST);
+                }
+                _initialized = true;
+                Console.WriteLine("Finished Warming up!");
+            }
+        }
+
+
+        public Task<QueryStatusRead> RangeQueryRawAllDims(RangeQuery rangeQuery)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<QueryStatusRead> RangeQueryRawLimited(RangeQuery rangeQuery, int limit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<QueryStatusRead> RangeQueryRawAllDimsLimited(RangeQuery rangeQuery, int limit)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

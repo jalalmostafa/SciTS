@@ -32,7 +32,7 @@ namespace BenchmarkTool.System.Converters
                 var data = kv.Value[0];
                 var cmdline = serializer.Deserialize<List<string>>((data["cmdline"] as JArray).CreateReader());
                 var cpuTimes = serializer.Deserialize<List<double>>((data["cpu_times"] as JArray).CreateReader());
-                var gids = serializer.Deserialize<List<int>>((data["gids"] as JArray).CreateReader());
+                var gids = serializer.Deserialize<List<int?>>((data["gids"] as JArray).CreateReader());
                 var memInfo = serializer.Deserialize<List<long>>((data["memory_info"] as JArray).CreateReader());
                 var ioCounters = serializer.Deserialize<List<long>>((data["io_counters"] as JArray).CreateReader());
 

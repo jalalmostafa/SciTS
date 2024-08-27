@@ -16,16 +16,13 @@ namespace BenchmarkTool.Queries
 
         public long DurationMinutes { get; }
 
-        public int[] SensorIDs { get; }
+        public int[] SensorIDs { get; } // can be renamed in SensorFilterIDs
 
-        public string SensorFilter { get; }
-
-        public RangeQuery(DateTime startDate, long duration, int[] sensors, string filter)
+        public RangeQuery(DateTime startDate, long duration, int[] sensorfilter)
         {
             StartDate = startDate;
             DurationMinutes = duration;
-            SensorIDs = sensors;
-            SensorFilter = filter;
+            SensorIDs = sensorfilter;
         }
     }
 }
